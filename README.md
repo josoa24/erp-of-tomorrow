@@ -102,7 +102,7 @@ Il n'y a pas de fichier `.env` dans le projet. Chaque `application.yml` lit ses 
 | `STOCK_URL` | vente-service, gateway | Adresse du service Stock. |
 | `AUTH_URL`, `RH_URL`, `VENTE_URL`, `CRM_URL`, `VOICE_URL` | gateway | Adresse des autres services. |
 | `VENTE_URL`, `STOCK_URL` | crm-service | Adresse des services Vente et Stock (fiches clients et fournisseurs). |
-| `VOICE_MODEL_SIZE`, `VOICE_DEVICE`, `VOICE_COMPUTE_TYPE`, `VOICE_LANGUAGE`, `VOICE_MAX_AUDIO_BYTES` | voice-service | Modèle Whisper (`small`), `cpu` ou `cuda`, précision (`int8`), langue par défaut (`fr`), taille maximale de l'audio (10 Mo). |
+| `VOICE_MODEL_SIZE`, `VOICE_PARTIAL_MODEL_SIZE`, `VOICE_DEVICE`, `VOICE_COMPUTE_TYPE`, `VOICE_LANGUAGE`, `VOICE_MAX_AUDIO_BYTES` | voice-service | Modèle Whisper (`small`), modèle rapide pour le texte provisoire (facultatif), `cpu` ou `cuda`, précision (`int8`), langue par défaut (`fr`), taille maximale de l'audio (10 Mo). |
 | `EXPO_PUBLIC_API_URL` | apps React Native | Adresse de la gateway. |
 
 Définir une variable dans PowerShell, puis lancer le service **dans le même terminal** :

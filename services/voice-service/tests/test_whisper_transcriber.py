@@ -1,36 +1,35 @@
 from types import SimpleNamespace
 
-import pytest
+import numpy as np
 
 from app.config import Settings
-from app.transcription.transcriber import AudioDecodingError
 from app.transcription.whisper_transcriber import WhisperTranscriber
+
+DECODED = np.zeros(37600, dtype=np.float32)
 
 
 class FakeModel:
-    def __init__(self, error=None):
-        self.error = error
+    def __init__(self, name="base"):
+        self.name = name
         self.calls = []
 
-    def transcribe(self, audio, language, vad_filter):
-        self.calls.append((audio.read(), language, vad_filter))
-        if self.error:
-            raise self.error
+    def transcribe(self, audio, language, **options):
+        self.calls.append((audio, language, options))
         segments = [SimpleNamespace(text=" Quel est notre "), SimpleNamespace(text="chiffre d'affaires ? ")]
-        return iter(segments), SimpleNamespace(language=language, duration=2.345)
+        return iter(segments), SimpleNamespace(language=language)
 
 
-def build(model):
+def build(model, settings=Settings(model_size="base", language="en")):
     factory_calls = []
 
-    def factory(settings):
-        factory_calls.append(settings)
-        return model
+    def factory(_, size):
+        factory_calls.append(size)
+        return model if size == settings.model_size else FakeModel(size)
 
-    return WhisperTranscriber(Settings(), factory), factory_calls
+    return WhisperTranscriber(settings, factory, decoder=lambda content: DECODED), factory_calls
 
 
-def test_should_join_segments_into_text():
+def test_should_decode_then_join_segments_into_text():
     model = FakeModel()
     transcriber, _ = build(model)
 
@@ -39,7 +38,8 @@ def test_should_join_segments_into_text():
     assert result.text == "Quel est notre chiffre d'affaires ?"
     assert result.language == "fr"
     assert result.duration_seconds == 2.35
-    assert model.calls == [(b"audio", "fr", True)]
+    assert model.calls[0][0] is DECODED
+    assert model.calls[0][2] == {"vad_filter": True, "initial_prompt": None}
 
 
 def test_should_load_model_only_once():
@@ -51,8 +51,44 @@ def test_should_load_model_only_once():
     assert len(factory_calls) == 1
 
 
-def test_should_wrap_decoding_failure():
-    transcriber, _ = build(FakeModel(error=ValueError("Invalid data")))
+def test_should_transcribe_samples_fast_with_greedy_search():
+    model = FakeModel()
+    transcriber, _ = build(model)
 
-    with pytest.raises(AudioDecodingError):
-        transcriber.transcribe(b"not audio", "fr")
+    text = transcriber.transcribe_samples(np.zeros(16000, dtype=np.float32), "fr", fast=True)
+
+    assert text == "Quel est notre chiffre d'affaires ?"
+    assert model.calls[0][2]["beam_size"] == 1
+    assert model.calls[0][2]["vad_filter"] is True
+
+
+def test_should_use_beam_search_for_final_samples():
+    model = FakeModel()
+    transcriber, _ = build(model)
+
+    transcriber.transcribe_samples(np.zeros(160, dtype=np.float32), "fr", fast=False)
+
+    assert model.calls[0][2]["beam_size"] == 5
+
+
+def test_should_use_partial_model_only_for_fast_transcriptions():
+    main_model = FakeModel()
+    transcriber, factory_calls = build(main_model, Settings(model_size="base", partial_model_size="tiny"))
+
+    transcriber.transcribe_samples(DECODED, "fr", fast=True)
+    transcriber.transcribe_samples(DECODED, "fr", fast=False)
+
+    assert factory_calls == ["tiny", "base"]
+    assert len(main_model.calls) == 1
+    assert main_model.calls[0][2]["beam_size"] == 5
+
+
+def test_should_send_initial_prompt_only_for_default_language():
+    model = FakeModel()
+    transcriber, _ = build(model, Settings(model_size="base", language="fr", initial_prompt="Chiffre d'affaires"))
+
+    transcriber.transcribe_samples(DECODED, "fr", fast=True)
+    transcriber.transcribe_samples(DECODED, "mg", fast=True)
+
+    assert model.calls[0][2]["initial_prompt"] == "Chiffre d'affaires"
+    assert model.calls[1][2]["initial_prompt"] is None
