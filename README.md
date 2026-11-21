@@ -168,3 +168,12 @@ Test sans PostgreSQL ni Docker : démarrer `auth-service` ou `stock-service` ave
 **Service Spring Boot** : `<entité>/{controller, service/{reader,creator,updater,deleter}, repository, entity, dto, mapper}` + `common/{exception, config}`.
 
 **App React Native** : `src/{components/common, screens, hooks, services/api, types, utils, constants, navigation}`.
+
+## Mode développement avec rechargement à chaud
+
+```bash
+docker compose -f docker-compose.dev.yml up                                # bases, services Java, gateway, NovaUI
+docker compose -f docker-compose.dev.yml --profile ai --profile voice up   # + assistant IA et voix
+```
+
+Le code source est monté dans les conteneurs. Java : recompilation automatique puis redémarrage par spring-boot-devtools. Python : `uvicorn --reload`. NovaUI : Vite (http://localhost:5173). Gateway sur http://localhost:8080. Le premier démarrage est long (téléchargement des dépendances Maven, mises en cache dans un volume). Les apps Expo se lancent sur la machine (`npm start`).

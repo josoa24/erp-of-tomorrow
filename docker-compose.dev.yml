@@ -1,0 +1,231 @@
+# Environnement de developpement avec rechargement a chaud.
+#   docker compose -f docker-compose.dev.yml up              # bases, services Java, gateway, novaui
+#   docker compose -f docker-compose.dev.yml --profile ai --profile voice up   # + assistant IA et voix
+# Le code source est monte dans les conteneurs : modifier un fichier suffit.
+#   Java    : recompilation automatique puis redemarrage par spring-boot-devtools (docker/dev-java.sh)
+#   Python  : uvicorn --reload
+#   NovaUI  : Vite (HMR)
+# Les apps React Native (Expo) se lancent sur la machine : cd apps/<module>-app && npm start.
+name: erp-dev
+
+x-db: &db
+  image: postgres:16
+  environment: &db-env
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U postgres"]
+    interval: 5s
+    timeout: 3s
+    retries: 10
+
+x-java: &java
+  image: maven:3.9-eclipse-temurin-17
+  working_dir: /app
+  command: ["sh", "/dev-java.sh"]
+  restart: unless-stopped
+  environment: &java-env
+    DB_USER: postgres
+    DB_PASSWORD: postgres
+    JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me-0123456789abcdef}
+
+services:
+  rh-db:
+    <<: *db
+    environment:
+      <<: *db-env
+      POSTGRES_DB: rh_db
+    ports:
+      - "5431:5432"
+    volumes:
+      - rh-data:/var/lib/postgresql/data
+  vente-db:
+    <<: *db
+    environment:
+      <<: *db-env
+      POSTGRES_DB: vente_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - vente-data:/var/lib/postgresql/data
+  stock-db:
+    <<: *db
+    environment:
+      <<: *db-env
+      POSTGRES_DB: stock_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - stock-data:/var/lib/postgresql/data
+  auth-db:
+    <<: *db
+    environment:
+      <<: *db-env
+      POSTGRES_DB: auth_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - auth-data:/var/lib/postgresql/data
+  crm-db:
+    <<: *db
+    environment:
+      <<: *db-env
+      POSTGRES_DB: crm_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - crm-data:/var/lib/postgresql/data
+
+  auth-service:
+    <<: *java
+    environment:
+      <<: *java-env
+      DB_URL: jdbc:postgresql://auth-db:5432/auth_db
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@erp.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin1234}
+    volumes:
+      - ./services/auth-service:/app
+      - /app/target
+      - ./docker/dev-java.sh:/dev-java.sh:ro
+      - m2-cache:/root/.m2
+    depends_on:
+      auth-db:
+        condition: service_healthy
+  stock-service:
+    <<: *java
+    environment:
+      <<: *java-env
+      DB_URL: jdbc:postgresql://stock-db:5432/stock_db
+    volumes:
+      - ./services/stock-service:/app
+      - /app/target
+      - ./docker/dev-java.sh:/dev-java.sh:ro
+      - m2-cache:/root/.m2
+    depends_on:
+      stock-db:
+        condition: service_healthy
+  vente-service:
+    <<: *java
+    environment:
+      <<: *java-env
+      DB_URL: jdbc:postgresql://vente-db:5432/vente_db
+      STOCK_URL: http://stock-service:8083
+    volumes:
+      - ./services/vente-service:/app
+      - /app/target
+      - ./docker/dev-java.sh:/dev-java.sh:ro
+      - m2-cache:/root/.m2
+    depends_on:
+      vente-db:
+        condition: service_healthy
+  rh-service:
+    <<: *java
+    environment:
+      <<: *java-env
+      DB_URL: jdbc:postgresql://rh-db:5432/rh_db
+    volumes:
+      - ./services/rh-service:/app
+      - /app/target
+      - ./docker/dev-java.sh:/dev-java.sh:ro
+      - m2-cache:/root/.m2
+    depends_on:
+      rh-db:
+        condition: service_healthy
+  crm-service:
+    <<: *java
+    environment:
+      <<: *java-env
+      DB_URL: jdbc:postgresql://crm-db:5432/crm_db
+      VENTE_URL: http://vente-service:8082
+      STOCK_URL: http://stock-service:8083
+    volumes:
+      - ./services/crm-service:/app
+      - /app/target
+      - ./docker/dev-java.sh:/dev-java.sh:ro
+      - m2-cache:/root/.m2
+    depends_on:
+      crm-db:
+        condition: service_healthy
+  gateway:
+    <<: *java
+    environment:
+      <<: *java-env
+      AUTH_URL: http://auth-service:8084
+      STOCK_URL: http://stock-service:8083
+      VENTE_URL: http://vente-service:8082
+      RH_URL: http://rh-service:8081
+      CRM_URL: http://crm-service:8085
+      AI_URL: http://ai-service:8086
+      VOICE_URL: http://voice-service:8087
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./gateway:/app
+      - /app/target
+      - ./docker/dev-java.sh:/dev-java.sh:ro
+      - m2-cache:/root/.m2
+    depends_on:
+      - auth-service
+      - stock-service
+      - vente-service
+      - rh-service
+      - crm-service
+
+  # Assistant IA (profil "ai") : cle Gemini dans un fichier .env a la racine (jamais commite).
+  ai-service:
+    profiles: ["ai"]
+    image: python:3.12-slim
+    working_dir: /app
+    command: sh -c "pip install -r requirements.txt && uvicorn app.main:app --host 0.0.0.0 --port 8086 --reload"
+    ports:
+      - "8086:8086"
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
+      ERP_GATEWAY_URL: http://gateway:8080
+    volumes:
+      - ./services/ai-service:/app
+      - pip-cache:/root/.cache/pip
+
+  # Transcription vocale (profil "voice") : le premier demarrage telecharge le modele Whisper.
+  voice-service:
+    profiles: ["voice"]
+    image: python:3.12-slim
+    working_dir: /app
+    command: sh -c "pip install -r requirements.txt && uvicorn app.main:app --host 0.0.0.0 --port 8087 --reload"
+    ports:
+      - "8087:8087"
+    environment:
+      VOICE_MODEL_SIZE: ${VOICE_MODEL_SIZE:-small}
+      VOICE_DEVICE: ${VOICE_DEVICE:-cpu}
+      VOICE_COMPUTE_TYPE: ${VOICE_COMPUTE_TYPE:-int8}
+      VOICE_LANGUAGE: ${VOICE_LANGUAGE:-fr}
+    volumes:
+      - ./services/voice-service:/app
+      - pip-cache:/root/.cache/pip
+      - hf-cache:/root/.cache/huggingface
+
+  # Front web NovaUI (Vite, rechargement a chaud)
+  novaui:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      API_PROXY_TARGET: ${API_PROXY_TARGET:-http://gateway:8080}
+    volumes:
+      - ./novaui:/app
+      - novaui-node-modules:/app/node_modules
+
+volumes:
+  m2-cache:
+  pip-cache:
+  hf-cache:
+  novaui-node-modules:
+  rh-data:
+  vente-data:
+  stock-data:
+  auth-data:
+  crm-data:
