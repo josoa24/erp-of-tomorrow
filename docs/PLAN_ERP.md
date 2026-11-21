@@ -149,7 +149,7 @@ Les calculs restent dans les services métier. L'IA comprend la demande, appelle
 | SYS-13 | Observabilité | Logs structurés, santé, métriques | M | | À faire |
 | SYS-14 | Migrations de base | Remplacer `ddl-auto: update` par des migrations versionnées (Flyway) | L | | À faire |
 | SYS-15 | Tests sur PostgreSQL | Tests d'intégration avec Testcontainers (aujourd'hui testé sur H2 seulement) | L | | À faire |
-| SYS-16 | Documentation des API | OpenAPI / Swagger pour chaque service | M | | À faire |
+| SYS-16 | Documentation des API | OpenAPI / Swagger pour chaque service | M | | Fait |
 | SYS-17 | Sauvegarde et restauration | Procédure et test de restauration | M | | À faire |
 
 ---

@@ -38,3 +38,18 @@ spring:
             - Path=/api/stock/**
           filters:
             - StripPrefix=2
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls-primary-name: Stock
+    urls:
+      - name: Auth
+        url: /api/auth/v3/api-docs
+      - name: Stock
+        url: /api/stock/v3/api-docs
+      - name: Vente
+        url: /api/vente/v3/api-docs
+      - name: RH
+        url: /api/rh/v3/api-docs
+      - name: CRM
+        url: /api/crm/v3/api-docs

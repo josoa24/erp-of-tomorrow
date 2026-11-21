@@ -139,6 +139,7 @@ Lire impérativement avant de coder :
 
 - [docs/REGLES_DEVELOPPEMENT.md](docs/REGLES_DEVELOPPEMENT.md) : règles de code
 - [docs/WORKFLOW_GIT.md](docs/WORKFLOW_GIT.md) : branches, commits, Pull Requests
+- [docs/API_ENDPOINTS.md](docs/API_ENDPOINTS.md) : tous les endpoints avec leur rôle, et Swagger interactif sur http://localhost:8080/swagger-ui.html
 - [docs/PLAN_API.md](docs/PLAN_API.md) : tâches par module et leur avancement
 - [docs/PLAN_CRM.md](docs/PLAN_CRM.md) : plan pour un CRM complet (clients et fournisseurs)
 - [docs/PLAN_ERP.md](docs/PLAN_ERP.md) : plan de ce qu'il reste pour un ERP complet (IA, applications, finance, achats, stock, RH)
