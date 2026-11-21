@@ -1,0 +1,13 @@
+target/
+node_modules/
+.expo/
+dist/
+*.log
+.env
+.env.local
+.idea/
+.vscode/
+*.iml
+.DS_Store
+.env.*
+!.env.example

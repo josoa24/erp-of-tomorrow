@@ -1,0 +1,34 @@
+server:
+  port: 8080
+jwt:
+  secret: ${JWT_SECRET:dev-only-secret-change-me-0123456789abcdef}
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: ${AUTH_URL:http://localhost:8084}
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=2
+        - id: rh-service
+          uri: ${RH_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/rh/**
+          filters:
+            - StripPrefix=2
+        - id: vente-service
+          uri: ${VENTE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/vente/**
+          filters:
+            - StripPrefix=2
+        - id: stock-service
+          uri: ${STOCK_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/stock/**
+          filters:
+            - StripPrefix=2

@@ -1,0 +1,46 @@
+services:
+  rh-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: rh_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5431:5432"
+    volumes:
+      - rh-data:/var/lib/postgresql/data
+  vente-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: vente_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - vente-data:/var/lib/postgresql/data
+  stock-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: stock_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - stock-data:/var/lib/postgresql/data
+  auth-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - auth-data:/var/lib/postgresql/data
+volumes:
+  auth-data:
+  rh-data:
+  vente-data:
+  stock-data:
