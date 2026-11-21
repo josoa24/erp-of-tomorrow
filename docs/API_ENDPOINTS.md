@@ -46,6 +46,8 @@ Exception : `/api/auth/users/me/...` (son propre compte) est ouvert à tous les 
 
 La gateway transmet l'identité aux services dans les en-têtes `X-User-Id`, `X-User-Email` et `X-User-Role` (utilisés par le CRM pour enregistrer l'auteur d'un échange).
 
+Chaque service refuse (401 `UNAUTHORIZED`) un appel sans `X-User-Id` et `X-User-Role` : il faut passer par la gateway. Restent ouverts en direct : `/v3/api-docs`, `/swagger-ui`, `/actuator` et `POST /login` (auth). Les appels entre services (Vente vers Stock, CRM vers Vente et Stock) recopient ces en-têtes.
+
 ## 3. Format des erreurs
 
 Toutes les erreurs ont la même forme :
