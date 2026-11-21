@@ -82,6 +82,53 @@ npm install
 npm start
 ```
 
+## Variables d'environnement
+
+Il n'y a pas de fichier `.env` dans le projet. Chaque `application.yml` lit ses variables avec la syntaxe `${NOM:valeur_par_defaut}` : sans variable définie, la valeur de développement s'applique. **Il n'y a donc rien à modifier dans les fichiers** : on définit la variable avant de lancer.
+
+[.env.example](.env.example) liste toutes les variables avec leur rôle (Spring Boot ne le lit pas, il sert de référence).
+
+| Variable | Service | Rôle |
+|----------|---------|------|
+| `JWT_SECRET` | gateway **et** auth-service | Secret de signature des tokens. Doit être identique dans les deux. |
+| `JWT_TTL_MINUTES` | auth-service | Durée de validité d'un token (480 par défaut). |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | auth-service | Compte admin créé au premier démarrage. |
+| `DB_URL`, `DB_USER`, `DB_PASSWORD` | chaque service | Accès à sa base PostgreSQL. |
+| `STOCK_URL` | vente-service, gateway | Adresse du service Stock. |
+| `AUTH_URL`, `RH_URL`, `VENTE_URL` | gateway | Adresse des autres services. |
+| `EXPO_PUBLIC_API_URL` | apps React Native | Adresse de la gateway. |
+
+Définir une variable dans PowerShell, puis lancer le service **dans le même terminal** :
+
+```powershell
+$env:DB_PASSWORD = "mon_mot_de_passe"
+```
+
+Dans IntelliJ : Run Configuration, Environment variables.
+
+Attention : `DB_URL`, `DB_USER` et `DB_PASSWORD` ont le même nom dans tous les services. Les définir service par service, dans le terminal de chacun, sinon un service utiliserait la base d'un autre.
+
+Le dépôt est public : ne jamais y mettre de vrai secret. Les valeurs par défaut (`admin1234`, secret JWT de test) ne servent qu'en développement et doivent être remplacées avant toute mise en production.
+
+## Lancer le projet
+
+1. Les bases : `docker compose up -d`.
+2. Chaque service, dans son dossier : `mvn spring-boot:run` (auth 8084, stock 8083, vente 8082, rh 8081).
+3. La gateway : `cd gateway`, puis `mvn spring-boot:run`.
+4. Une app : `cd apps/<module>-app`, puis `npm install` et `npm start`.
+
+Sans PostgreSQL ni Docker, le profil `h2` démarre un service avec une base en mémoire :
+
+```powershell
+mvn spring-boot:run "-Dspring-boot.run.profiles=h2"
+```
+
+Si le port 8081 est déjà pris (Docker/WSL sur certains postes), lancer le service RH sur un autre port :
+
+```powershell
+mvn spring-boot:run "-Dspring-boot.run.arguments=--server.port=8091"
+```
+
 ## Règles d'équipe
 
 Lire impérativement avant de coder :
