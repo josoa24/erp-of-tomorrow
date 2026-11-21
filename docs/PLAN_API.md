@@ -13,9 +13,9 @@ Chaque tâche suit [REGLES_DEVELOPPEMENT.md](REGLES_DEVELOPPEMENT.md) : séparat
 | C1 | Champ `type` dans `ApiError` | `NOT_FOUND`, `VALIDATION`, `IMMUTABLE`, `BUSINESS`, `UNAUTHORIZED`, `FORBIDDEN`, `SERVER` : permet au front d'ouvrir la bonne page d'erreur. Fait dans la gateway et dans les 5 services Java (auth, stock, vente, rh, crm). | Fait |
 | C2 | `ImmutableResourceException` (409) | Levée quand on modifie ou supprime une entité `VALIDATED`. Présente dans stock-service, vente-service et rh-service. | Fait |
 | C3 | Enum `DocumentStatus` (`DRAFT`, `VALIDATED`) | Réutilisé par les ventes, les bons de commande et les congés. `DocumentStatus` dans vente-service ; équivalents propres à chaque service : `OrderStatus` (stock, avec `RECEIVED`) et `LeaveStatus` (rh, avec `REJECTED`). | Fait |
-| C4 | CORS sur la gateway | Autorise les apps React Native. Aucune configuration CORS dans la gateway pour l'instant. | À faire |
+| C4 | CORS sur la gateway | Autorise les apps (Expo web, navigateur). Origines réglables par `CORS_ALLOWED_ORIGINS` ; les réponses 401/403 gardent l'en-tête CORS. | Fait |
 | C5 | Client HTTP inter-services | `RestClient` + interface par service appelé (ex. `StockClient` dans vente-service). | Fait |
-| C6 | Tests d'intégration légers | `@WebMvcTest` par controller (statuts HTTP, validation). | À faire |
+| C6 | Tests d'intégration légers | `@WebMvcTest` par controller (statuts HTTP, validation), dans les 5 services. | Fait |
 
 Les tâches C1 à C3 sont copiées dans chaque service (pas de bibliothèque partagée : chaque microservice reste indépendant).
 

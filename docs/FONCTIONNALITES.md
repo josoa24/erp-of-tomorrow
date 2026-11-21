@@ -1,6 +1,6 @@
 # Fonctionnalités déjà présentes
 
-Ce que l'ERP sait faire aujourd'hui, côté serveur. Le détail de chaque endpoint est dans [API_ENDPOINTS.md](API_ENDPOINTS.md) ; ce qui reste à faire est dans [PLAN_API.md](PLAN_API.md), [PLAN_CRM.md](PLAN_CRM.md) et [PLAN_ERP.md](PLAN_ERP.md).
+Ce que l'ERP sait faire aujourd'hui, côté serveur. Ce qui a été ajouté et corrigé dans la branche `songomby_d2` est détaillé dans [BILAN_SONGOMBY_D2.md](BILAN_SONGOMBY_D2.md). Le détail de chaque endpoint est dans [API_ENDPOINTS.md](API_ENDPOINTS.md) ; ce qui reste à faire est dans [PLAN_API.md](PLAN_API.md), [PLAN_CRM.md](PLAN_CRM.md) et [PLAN_ERP.md](PLAN_ERP.md).
 
 Les applications React Native (`apps/`) sont encore des squelettes vides : aucun écran n'existe.
 
@@ -8,13 +8,16 @@ Les applications React Native (`apps/`) sont encore des squelettes vides : aucun
 
 - Connexion par email et mot de passe, qui renvoie un token JWT.
 - Création et liste des comptes, réservées à `ADMIN` ; compte admin créé au premier démarrage.
+- Changement de rôle, désactivation et réactivation d'un compte (`ADMIN`) ; un compte désactivé ne peut plus se connecter. Un admin ne peut pas modifier son propre compte.
+- Chaque utilisateur peut changer son mot de passe (mot de passe actuel exigé).
 - Rôles `ADMIN`, `STOCK`, `VENTE`, `RH`, `CRM` : la gateway refuse un module non autorisé (401 sans token, 403 sinon).
-- La gateway transmet l'identité aux services (`X-User-Id`, `X-User-Email`, `X-User-Role`).
-- Erreurs au même format partout, avec un `type` (`NOT_FOUND`, `VALIDATION`, `IMMUTABLE`, `BUSINESS`, ...).
+- La gateway transmet l'identité aux services (`X-User-Id`, `X-User-Email`, `X-User-Role`) ; chaque service refuse un appel direct qui ne passe pas par elle.
+- CORS sur la gateway : les applications web peuvent l'appeler (origines réglables).
+- Toutes les erreurs au même format, avec un `type` (`NOT_FOUND`, `VALIDATION`, `IMMUTABLE`, `BUSINESS`, `SERVER`, ...), y compris les erreurs inattendues.
 
 ## Stock
 
-- Produits : création, modification, suppression, recherche par nom ou SKU.
+- Produits : création, modification, suppression (refusée si le produit a un historique), recherche par nom ou SKU.
 - Mouvements d'entrée et de sortie, avec refus d'une sortie supérieure au stock ; un mouvement ne se modifie pas.
 - Produits en alerte (quantité sous le seuil).
 - Autonomie d'un produit : ventes moyennes sur 7 jours, jours restants, risque `OK`, `WARNING`, `CRITICAL`.
@@ -31,7 +34,7 @@ Les applications React Native (`apps/`) sont encore des squelettes vides : aucun
 
 ## RH
 
-- Départements et employés : gestion complète, recherche par nom ou département.
+- Départements et employés : gestion complète, recherche par nom ou département ; un employé peut être lié à son compte de connexion.
 - Congés : demande en brouillon avec contrôle du solde et des chevauchements, validation ou refus définitifs.
 - Pointage d'entrée et de sortie avec calcul de la durée travaillée.
 - Résumé : effectif, effectif par département, personnes en congé aujourd'hui.
@@ -53,4 +56,4 @@ Les applications React Native (`apps/`) sont encore des squelettes vides : aucun
 
 - Swagger unique pour tous les services : `http://localhost:8080/swagger-ui.html`.
 - Lancement complet par `docker compose` (bases PostgreSQL, services, gateway ; IA avec le profil `ai`).
-- Tests unitaires dans chaque service.
+- Tests unitaires et tests `@WebMvcTest` de chaque controller, dans chaque service (385 tests).
