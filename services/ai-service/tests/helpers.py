@@ -30,5 +30,5 @@ def as_user(role: str = "ADMIN", user_id: str = "1"):
 def make_app(script, erp: FakeErp | None = None, **settings) -> tuple[TestClient, FakeClient, FakeErp]:
     erp = erp or FakeErp()
     fake = FakeClient(script)
-    app = create_app(Settings(gemini_model="t", **settings), client=fake, erp_http_client=erp.http())
+    app = create_app(Settings(**{"gemini_model": "t", "ai_audit_db": ":memory:", **settings}), client=fake, erp_http_client=erp.http())
     return TestClient(app), fake, erp

@@ -32,7 +32,8 @@ def test_declarations_are_valid_and_json_serializable():
     json.dumps(r.describe())
     writes = {d["name"] for d in r.describe() if d["requires_confirmation"]}
     assert writes == {"record_stock_movement", "create_purchase_order", "validate_purchase_order",
-                      "receive_purchase_order", "create_sale", "validate_sale"}
+                      "receive_purchase_order", "create_sale", "validate_sale",
+                      "register_supplier_invoice"}
     sale = next(d for d in r.describe() if d["name"] == "create_sale")
     assert sale["parameters"]["properties"]["lines"]["type"] == "ARRAY"
 
