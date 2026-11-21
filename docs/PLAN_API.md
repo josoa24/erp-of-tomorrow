@@ -53,11 +53,11 @@ La gateway transmet l'identité aux services (`X-User-Id`, `X-User-Email`, `X-Us
 | S4 | Produits en alerte | `GET /products/low-stock` | Produits dont quantité ≤ seuil. | ✅ |
 | S5 | Autonomie d'un produit | `GET /products/{id}/autonomy` | Moyenne des sorties sur 7 jours, jours restants, risque de rupture (`OK`, `WARNING`, `CRITICAL`). Calcul déterministe côté serveur : critique sous 3 jours, alerte sous 7 jours. | ✅ |
 | S6 | Résumé du stock | `GET /summary` (donc `/api/stock/summary` via la gateway) | Nombre de produits, valeur totale du stock, nombre en alerte. | ✅ |
-| S7 | Fournisseurs | `GET/POST/PUT/DELETE /suppliers` | CRUD complet, interdiction de supprimer un fournisseur lié à une commande. | ⬜ |
-| S8 | Bons de commande | `POST /purchase-orders`, `GET /purchase-orders[/{id}]` | Création en `DRAFT` avec lignes (produit, quantité, prix). | ⬜ 🔗 S7 |
-| S9 | Validation d'un bon de commande | `POST /purchase-orders/{id}/validate` | Passe en `VALIDATED`, devient immuable (C2). | ⬜ 🔗 S8, C2, C3 |
-| S10 | Réception d'une commande | `POST /purchase-orders/{id}/receive` | Crée automatiquement un mouvement `IN` par ligne. | ⬜ 🔗 S9 |
-| S11 | Tests | — | Tests du reader d'autonomie, de la validation et de la réception. | ⬜ |
+| S7 | Fournisseurs | `GET/POST/PUT/DELETE /suppliers` | CRUD complet, interdiction de supprimer un fournisseur lié à une commande. | ✅ |
+| S8 | Bons de commande | `POST /purchase-orders`, `GET /purchase-orders[/{id}]` | Création en `DRAFT` avec lignes (produit, quantité, prix). | ✅ |
+| S9 | Validation d'un bon de commande | `POST /purchase-orders/{id}/validate` | Passe en `VALIDATED`, devient immuable (C2). | ✅ |
+| S10 | Réception d'une commande | `POST /purchase-orders/{id}/receive` | Crée automatiquement un mouvement `IN` par ligne. | ✅ |
+| S11 | Tests | — | Tests du reader d'autonomie, de la validation et de la réception. | ✅ |
 
 ---
 
