@@ -28,6 +28,7 @@ x-java: &java
     DB_USER: postgres
     DB_PASSWORD: postgres
     JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me-0123456789abcdef}
+    SPRING_DEVTOOLS_RESTART_TRIGGER_FILE: .reload-trigger
 
 services:
   rh-db:
