@@ -81,14 +81,14 @@ La gateway transmet l'identité aux services (`X-User-Id`, `X-User-Email`, `X-Us
 
 | # | Tâche | Endpoint | Détail | Statut |
 |---|-------|----------|--------|--------|
-| R1 | CRUD départements | `GET/POST/PUT/DELETE /departments` | Interdiction de supprimer un département qui a des employés. | ⬜ |
-| R2 | CRUD employés | `GET/POST/PUT/DELETE /employees` | Nom, poste, département, date d'embauche, salaire de base. | ⬜ 🔗 R1 |
-| R3 | Recherche d'employés | `GET /employees?search=&departmentId=` | Nouvelle méthode du `EmployeeReader`. | ⬜ 🔗 R2 |
-| R4 | Demande de congé | `POST /leaves` | Statut `DRAFT`, vérifie le solde de congés restant. | ⬜ 🔗 R2, C3 |
-| R5 | Validation / refus de congé | `POST /leaves/{id}/validate`, `/reject` | Une fois validé, le congé est immuable (C2) et le solde est décompté. | ⬜ 🔗 R4, C2 |
-| R6 | Pointage | `POST /attendances/check-in`, `/check-out`, `GET /attendances` | Un pointage enregistré ne se modifie pas : pas d'Updater ni de Deleter. | ⬜ 🔗 R2 |
-| R7 | Résumé RH | `GET /hr/summary` | Effectif total, effectif par département, personnes en congé aujourd'hui. | ⬜ 🔗 R5 |
-| R8 | Tests | — | Solde de congés, refus de modification d'un congé validé, pointage. | ⬜ |
+| R1 | CRUD départements | `GET/POST/PUT/DELETE /departments` | Interdiction de supprimer un département qui a des employés. | ✅ |
+| R2 | CRUD employés | `GET/POST/PUT/DELETE /employees` | Nom, poste, département, date d'embauche, salaire de base. | ✅ |
+| R3 | Recherche d'employés | `GET /employees?search=&departmentId=` | Nouvelle méthode du `EmployeeReader`. | ✅ |
+| R4 | Demande de congé | `POST /leaves` | Statut `DRAFT`, vérifie le solde de congés restant. | ✅ |
+| R5 | Validation / refus de congé | `POST /leaves/{id}/validate`, `/reject` | Une fois validé, le congé est immuable (C2) et le solde est décompté. | ✅ |
+| R6 | Pointage | `POST /attendances/check-in`, `/check-out`, `GET /attendances` | Un pointage enregistré ne se modifie pas : pas d'Updater ni de Deleter. | ✅ |
+| R7 | Résumé RH | `GET /summary` (donc `/api/rh/summary` via la gateway) | Effectif total, effectif par département, personnes en congé aujourd'hui. | ✅ |
+| R8 | Tests | — | Solde de congés, refus de modification d'un congé validé, pointage. | ✅ |
 
 ---
 
