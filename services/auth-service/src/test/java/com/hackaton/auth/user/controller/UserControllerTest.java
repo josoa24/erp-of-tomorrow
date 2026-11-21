@@ -15,6 +15,7 @@ import com.hackaton.auth.user.dto.UserResponse;
 import com.hackaton.auth.user.entity.Role;
 import com.hackaton.auth.user.service.creator.UserCreator;
 import com.hackaton.auth.user.service.reader.UserReader;
+import com.hackaton.auth.user.service.updater.UserUpdater;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,8 @@ class UserControllerTest {
     private UserCreator userCreator;
     @MockitoBean
     private UserReader userReader;
+    @MockitoBean
+    private UserUpdater userUpdater;
 
     @Test
     void shouldReturn200WithUsers_whenListingAccounts() throws Exception {
