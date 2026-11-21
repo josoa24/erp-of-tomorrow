@@ -13,6 +13,8 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, Lo
 
     List<StockMovement> findByProductIdOrderByCreatedAtDesc(Long productId);
 
+    boolean existsByProductId(Long productId);
+
     @Query("select coalesce(sum(m.quantity), 0) from StockMovement m "
             + "where m.productId = :productId and m.type = :type and m.createdAt >= :since")
     long sumQuantitySince(

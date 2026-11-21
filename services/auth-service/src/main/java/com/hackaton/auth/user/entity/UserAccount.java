@@ -35,6 +35,9 @@ public class UserAccount {
     @Column(nullable = false)
     private Role role;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean enabled = true;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 

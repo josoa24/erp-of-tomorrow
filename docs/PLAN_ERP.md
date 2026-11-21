@@ -137,7 +137,7 @@ Les calculs restent dans les services métier. L'IA comprend la demande, appelle
 | HRX-3 | Types de congés et jours fériés | Maladie, maternité, jours fériés exclus du décompte | M | | À faire |
 | HRX-4 | Heures et paie | Heures travaillées issues du pointage, heures supplémentaires | M | HRX-2 | À faire |
 | HRX-5 | Hiérarchie et approbation | Un manager valide les congés de son équipe | M | | À faire |
-| HRX-6 | Lien compte et employé | `userId` sur la fiche employé (A9 de [PLAN_API.md](PLAN_API.md)) | S | | À faire |
+| HRX-6 | Lien compte et employé | `userId` sur la fiche employé (A9 de [PLAN_API.md](PLAN_API.md)) | S | | Fait |
 | HRX-7 | Évaluations | Campagnes et résultats | M | | À faire |
 | HRX-8 | Recrutement | Offres, candidatures, étapes | L | | À faire |
 
@@ -147,7 +147,7 @@ Les calculs restent dans les services métier. L'IA comprend la demande, appelle
 |---|-------|--------|--------|-----------|--------|
 | SYS-1 | Permissions fines | Droits par action, pas seulement par module | L | | À faire |
 | SYS-2 | Sécurité des comptes | Renouvellement de token, déconnexion, changement de mot de passe (A6 à A8) | M | | À faire |
-| SYS-3 | Services joignables uniquement par la gateway | En-têtes `X-User-*` obligatoires (A10) | M | | À faire |
+| SYS-3 | Services joignables uniquement par la gateway | En-têtes `X-User-*` obligatoires (A10). Reste : secret partagé entre gateway et services, ou réseau privé | M | | Fait |
 | SYS-4 | Journal d'audit | Qui a fait quoi et quand, dans tous les services | L | | À faire |
 | SYS-5 | Notifications | Dans l'application, par email ou push | L | | À faire |
 | SYS-6 | Rapports et exports | PDF, CSV, Excel | M | | À faire |

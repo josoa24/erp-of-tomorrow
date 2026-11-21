@@ -47,6 +47,9 @@ public class Employee {
     @Column(nullable = false, precision = 14, scale = 2)
     private BigDecimal baseSalary;
 
+    @Column(unique = true)
+    private Long userId;
+
     @Column(nullable = false)
     private int leaveBalance = INITIAL_LEAVE_BALANCE;
 

@@ -12,5 +12,9 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     boolean existsByEmailAndIdNot(String email, Long id);
 
+    boolean existsByUserId(Long userId);
+
+    boolean existsByUserIdAndIdNot(Long userId, Long id);
+
     List<Employee> findAllByOrderByLastNameAscFirstNameAsc();
 }

@@ -42,7 +42,11 @@ Seul `POST /api/auth/login` est public. Sans token ou avec un token invalide ou 
 | `CRM` | non | non | non | oui | non |
 | `ADMIN` | oui | oui | oui | oui | oui |
 
+Exception : `/api/auth/users/me/...` (son propre compte) est ouvert à tous les rôles connectés.
+
 La gateway transmet l'identité aux services dans les en-têtes `X-User-Id`, `X-User-Email` et `X-User-Role` (utilisés par le CRM pour enregistrer l'auteur d'un échange).
+
+Chaque service refuse (401 `UNAUTHORIZED`) un appel sans `X-User-Id` et `X-User-Role` : il faut passer par la gateway. Restent ouverts en direct : `/v3/api-docs`, `/swagger-ui`, `/actuator` et `POST /login` (auth). Les appels entre services (Vente vers Stock, CRM vers Vente et Stock) recopient ces en-têtes.
 
 ## 3. Format des erreurs
 
@@ -54,13 +58,17 @@ Toutes les erreurs ont la même forme :
 
 | `type` | Statut | Signification |
 |--------|:------:|---------------|
-| `VALIDATION` | 400 | Corps ou paramètre invalide (champ manquant, format incorrect) |
+| `VALIDATION` | 400 | Corps ou paramètre invalide (champ manquant, format incorrect, JSON mal formé, id non numérique, valeur d'énumération inconnue) |
+| `VALIDATION` | 405, 415 | Méthode HTTP non prévue sur cette adresse ; corps qui n'est pas en JSON |
 | `UNAUTHORIZED` | 401 | Token absent, invalide ou expiré ; identifiants incorrects |
 | `FORBIDDEN` | 403 | Rôle non autorisé pour ce module |
-| `NOT_FOUND` | 404 | Ressource inexistante |
+| `NOT_FOUND` | 404 | Ressource ou adresse inexistante |
 | `IMMUTABLE` | 409 | Modification d'une donnée déjà validée |
 | `BUSINESS` | 409 ou 422 | Règle métier refusée (doublon, stock insuffisant, solde de congés insuffisant, suppression d'un élément utilisé) |
 | `SERVER` | 503 | Un service appelé est indisponible (par exemple Stock depuis Vente) |
+| `SERVER` | 500 | Erreur inattendue du service (le détail est dans ses logs, jamais dans la réponse) |
+
+Les statuts 400 dus à un paramètre ou un id mal formé valent pour tous les endpoints et ne sont pas répétés dans les tableaux ci-dessous.
 
 Une donnée validée (vente, bon de commande, congé) ne peut plus être modifiée ni supprimée : on corrige par une nouvelle écriture.
 
@@ -73,6 +81,12 @@ Une donnée validée (vente, bon de commande, congé) ne peut plus être modifi�
 | POST | `/api/auth/login` | public | Connexion. Corps : `email`, `password`. Renvoie `token`, `email`, `role` | 200, 400, 401 |
 | GET | `/api/auth/users` | ADMIN | Liste des comptes | 200 |
 | POST | `/api/auth/users` | ADMIN | Crée un compte. `email` unique, `password` de 8 caractères minimum, `role` parmi ADMIN, STOCK, VENTE, RH, CRM | 201, 400, 409 |
+| PUT | `/api/auth/users/{id}` | ADMIN | Change le rôle d'un compte. Corps : `role`. Refusé sur son propre compte | 200, 400, 404, 422 |
+| POST | `/api/auth/users/{id}/disable` | ADMIN | Désactive un compte : il ne peut plus se connecter. Refusé sur son propre compte | 200, 404, 422 |
+| POST | `/api/auth/users/{id}/enable` | ADMIN | Réactive un compte | 200, 404, 422 |
+| POST | `/api/auth/users/me/password` | tous les rôles | Change son propre mot de passe. Corps : `currentPassword`, `newPassword` (8 caractères minimum, différent de l'actuel) | 204, 400, 422 |
+
+Un compte désactivé reçoit 401 à la connexion. Un token déjà émis reste valable jusqu'à son expiration (`JWT_TTL_MINUTES`).
 
 ## 5. Stock : `/api/stock` (rôles STOCK, ADMIN)
 
@@ -85,7 +99,7 @@ Une donnée validée (vente, bon de commande, congé) ne peut plus être modifi�
 | GET | `/api/stock/products/{id}` | Détail d'un produit | 200, 404 |
 | POST | `/api/stock/products` | Crée un produit (`name`, `sku` unique, `unit`, `quantity`, `minThreshold`, `unitPrice`) | 201, 400, 409 |
 | PUT | `/api/stock/products/{id}` | Modifie nom, unité, seuil et prix. La quantité ne change que par les mouvements | 200, 400, 404 |
-| DELETE | `/api/stock/products/{id}` | Supprime un produit | 204, 404 |
+| DELETE | `/api/stock/products/{id}` | Supprime un produit. Refusé s'il a des mouvements ou figure dans un bon de commande | 204, 404, 422 |
 | GET | `/api/stock/products/{id}/autonomy` | Moyenne vendue par jour (7 jours), jours restants et risque `OK`, `WARNING`, `CRITICAL` | 200, 404 |
 | GET | `/api/stock/status` | État de stock complet : tous les produits avec autonomie et risque, du plus urgent au moins urgent. Filtre `risk` | 200, 400 |
 | GET | `/api/stock/summary` | Nombre de produits, nombre en alerte, valeur totale du stock | 200 |
@@ -142,7 +156,7 @@ Une donnée validée (vente, bon de commande, congé) ne peut plus être modifi�
 | DELETE | `/api/vente/sales/{id}` | Supprime une vente en brouillon | 204, 404, 409 |
 | POST | `/api/vente/sales/{id}/validate` | Valide : une sortie de stock par ligne. Si une ligne échoue, les lignes déjà débitées sont restaurées et la vente reste en brouillon | 200, 404, 409, 422, 503 |
 | GET | `/api/vente/sales/summary` | Chiffre d'affaires, nombre de ventes, panier moyen et détail par jour. Filtres `from`, `to` | 200, 400 |
-| GET | `/api/vente/sales/top-products` | Produits les plus vendus. Paramètre `limit` (5 par défaut, 50 au maximum) | 200 |
+| GET | `/api/vente/sales/top-products` | Produits les plus vendus. Paramètre `limit` (5 par défaut ; une valeur hors de 1 à 50 est ramenée dans ces bornes) | 200 |
 
 ## 7. RH : `/api/rh` (rôles RH, ADMIN)
 
@@ -157,7 +171,7 @@ Une donnée validée (vente, bon de commande, congé) ne peut plus être modifi�
 | DELETE | `/api/rh/departments/{id}` | Supprime. Refusé s'il a des employés | 204, 404, 422 |
 | GET | `/api/rh/employees` | Liste. Filtres `search` (nom, prénom, email), `departmentId` | 200 |
 | GET | `/api/rh/employees/{id}` | Détail avec solde de congés | 200, 404 |
-| POST | `/api/rh/employees` | Crée un employé (solde de congés initial : 25 jours ; email unique) | 201, 400, 404, 409 |
+| POST | `/api/rh/employees` | Crée un employé (solde de congés initial : 25 jours ; email unique). `userId` optionnel : compte de connexion lié, un compte par employé au plus | 201, 400, 404, 409 |
 | PUT | `/api/rh/employees/{id}` | Modifie un employé (le solde ne change que par les congés) | 200, 400, 404, 409 |
 | DELETE | `/api/rh/employees/{id}` | Supprime. Refusé s'il a des congés ou des pointages | 204, 404, 422 |
 
@@ -176,8 +190,8 @@ Une donnée validée (vente, bon de commande, congé) ne peut plus être modifi�
 | Méthode | Chemin | Description | Statuts |
 |---------|--------|-------------|---------|
 | GET | `/api/rh/attendances` | Liste. Filtres `employeeId`, `date` | 200, 400 |
-| POST | `/api/rh/attendances/check-in` | Pointe l'entrée. Refusé si un pointage est déjà ouvert | 201, 404, 422 |
-| POST | `/api/rh/attendances/check-out` | Pointe la sortie et calcule la durée travaillée | 200, 422 |
+| POST | `/api/rh/attendances/check-in` | Pointe l'entrée. Refusé si un pointage est déjà ouvert | 201, 400, 404, 422 |
+| POST | `/api/rh/attendances/check-out` | Pointe la sortie et calcule la durée travaillée. Sans pointage d'entrée ouvert (ou employé inconnu) : 422 | 200, 400, 422 |
 | GET | `/api/rh/summary` | Effectif, effectif par département, personnes en congé aujourd'hui | 200 |
 
 ## 8. CRM : `/api/crm` (rôles CRM, ADMIN)

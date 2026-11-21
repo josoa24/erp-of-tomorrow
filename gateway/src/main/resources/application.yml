@@ -7,6 +7,15 @@ spring:
     name: gateway
   cloud:
     gateway:
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: ${CORS_ALLOWED_ORIGINS:http://localhost:*,http://127.0.0.1:*}
+            allowedMethods: GET,POST,PUT,DELETE,OPTIONS
+            allowedHeaders: "*"
+            exposedHeaders: X-Total-Count
+            maxAge: 3600
       routes:
         - id: auth-service
           uri: ${AUTH_URL:http://localhost:8084}
