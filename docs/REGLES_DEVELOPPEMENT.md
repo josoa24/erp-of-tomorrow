@@ -42,8 +42,8 @@ Avant de créer un composant :
 3. Si le composant est nouveau et réutilisable → le placer dans `src/components/common/`.
 4. Si le composant est spécifique à un écran → le placer dans `src/screens/<Ecran>/components/`.
 
-❌ À ne pas faire : créer `BlueButton`, `RedButton`, `BigButton` séparément.
-✅ À faire : un seul `Button` avec des props `variant`, `size`.
+À ne pas faire : créer `BlueButton`, `RedButton`, `BigButton` séparément.
+À faire : un seul `Button` avec des props `variant`, `size`.
 
 ```tsx
 <Button variant="primary" size="lg" onPress={handleSubmit} title="Valider" />
@@ -67,7 +67,7 @@ Découpage obligatoire :
 | Composants | `src/components/` | Affichage uniquement. |
 | Écrans | `src/screens/` | Assemblage des composants + hooks. |
 
-❌ Mauvais :
+Mauvais :
 
 ```tsx
 export const UserList = () => {
@@ -79,7 +79,7 @@ export const UserList = () => {
 };
 ```
 
-✅ Bon :
+Bon :
 
 ```ts
 // src/services/api/userApi.ts
