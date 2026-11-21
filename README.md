@@ -136,6 +136,8 @@ Lire impérativement avant de coder :
 - [docs/REGLES_DEVELOPPEMENT.md](docs/REGLES_DEVELOPPEMENT.md) : règles de code
 - [docs/WORKFLOW_GIT.md](docs/WORKFLOW_GIT.md) : branches, commits, Pull Requests
 - [docs/PLAN_API.md](docs/PLAN_API.md) : tâches par module et leur avancement
+- [docs/PLAN_CRM.md](docs/PLAN_CRM.md) : plan pour un CRM complet (clients et fournisseurs)
+- [docs/PLAN_ERP.md](docs/PLAN_ERP.md) : plan de ce qu'il reste pour un ERP complet (IA, applications, finance, achats, stock, RH)
 
 Test sans PostgreSQL ni Docker : démarrer `auth-service` ou `stock-service` avec le profil `h2` (`mvn spring-boot:run -Dspring-boot.run.profiles=h2`).
 
