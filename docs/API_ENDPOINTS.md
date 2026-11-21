@@ -104,6 +104,15 @@ Un compte désactivé reçoit 401 à la connexion. Un token déjà émis reste v
 | GET | `/api/stock/status` | État de stock complet : tous les produits avec autonomie et risque, du plus urgent au moins urgent. Filtre `risk` | 200, 400 |
 | GET | `/api/stock/summary` | Nombre de produits, nombre en alerte, valeur totale du stock | 200 |
 
+### Prévision de réapprovisionnement
+
+Calcul fait par le code (pas par l'IA) sur les sorties `OUT` des 28 derniers jours, par jour calendaire UTC (jour sans sortie = 0) : moyenne `averageDailyOut` (μ), écart-type `dailyOutStdDev` (σ), délai `leadTimeDays` (L) = délai habituel du fournisseur du dernier bon contenant le produit (`leadTimeSource` `SUPPLIER`), sinon `replenishment.default-lead-days` (7, `DEFAULT`). Stock de sécurité `safetyStock` = ⌈1,65 × σ × √L⌉ (service 95 %), point de commande `reorderPoint` = μ × L + SS, `recommendedQuantity` = max(0, ⌈μ × (L + 30) + SS − stock⌉) (30 = `replenishment.coverage-days`), `coverageDays` = stock / μ (null si aucune sortie). `needsReorder` = stock ≤ point de commande, avec des sorties et assez d'historique. Moins de 14 jours depuis le premier mouvement : `confidence` = `INSUFFICIENT_DATA` et `recommendedQuantity` = null. `suggestedSupplierId` et la liste `assumptions` expliquent le résultat.
+
+| Méthode | Chemin | Description | Statuts |
+|---------|--------|-------------|---------|
+| GET | `/api/stock/products/{id}/replenishment` | Prévision d'un produit | 200, 400, 404 |
+| GET | `/api/stock/replenishment` | Prévisions de tous les produits, à commander d'abord puis par jours de couverture croissants. `onlyNeeded` (`true` par défaut) : seulement les produits à commander | 200, 400 |
+
 ### Mouvements de stock
 
 | Méthode | Chemin | Description | Statuts |
