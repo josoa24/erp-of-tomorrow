@@ -42,11 +42,11 @@ Manque : fiche complète, historique des échanges, relances, pipeline commercia
 
 | # | Tâche | Détail | Taille | Dépend de | Statut |
 |---|-------|--------|--------|-----------|--------|
-| CRM-1 | Squelette `crm-service` | pom, classe principale, `application.yml`, profil `h2`, port 8085, base 5435 dans `docker-compose.yml`, erreurs typées | M | | À faire |
-| CRM-2 | Rôle `CRM` dans `auth-service` | Nouvelle valeur de l'énumération `Role` | S | Q1 | À faire |
-| CRM-3 | Route gateway `/api/crm/**` | Route et règle d'accès par rôle, tests de `RoleAccessPolicy` | S | CRM-2 | À faire |
-| CRM-4 | Clients HTTP vers Vente et Stock | `CustomerClient` et `SupplierClient`, 404 en erreur métier, 503 si indisponible | M | CRM-1 | À faire |
-| CRM-5 | Vérification d'un tiers | Refuser `partyId` inexistant avant d'enregistrer une interaction, une tâche ou une opportunité | S | CRM-4 | À faire |
+| CRM-1 | Squelette `crm-service` | pom, classe principale, `application.yml`, profil `h2`, port 8085, base 5435 dans `docker-compose.yml`, erreurs typées | M | | Fait |
+| CRM-2 | Rôle `CRM` dans `auth-service` | Nouvelle valeur de l'énumération `Role` | S | Q1 | Fait |
+| CRM-3 | Route gateway `/api/crm/**` | Route et règle d'accès par rôle, tests de `RoleAccessPolicy` | S | CRM-2 | Fait |
+| CRM-4 | Clients HTTP vers Vente et Stock | `CustomerClient` et `SupplierClient`, 404 en erreur métier, 503 si indisponible | M | CRM-1 | Fait |
+| CRM-5 | Vérification d'un tiers | Refuser `partyId` inexistant avant d'enregistrer une interaction, une tâche ou une opportunité | S | CRM-4 | Fait |
 
 ## Phase 1. Fiches enrichies (dans Vente et Stock, sans attendre `crm-service`)
 
@@ -63,10 +63,10 @@ Manque : fiche complète, historique des échanges, relances, pipeline commercia
 
 | # | Tâche | Détail | Taille | Dépend de | Statut |
 |---|-------|--------|--------|-----------|--------|
-| CRM-12 | Interactions | Type (`APPEL`, `EMAIL`, `REUNION`, `VISITE`, `NOTE`), tiers, date, résumé, auteur pris dans `X-User-Email` ; création et lecture uniquement | M | CRM-5 | À faire |
-| CRM-13 | Liste des interactions d'un tiers | `GET /parties/{type}/{id}/interactions` | S | CRM-12 | À faire |
-| CRM-14 | Chronologie unifiée | `GET /parties/{type}/{id}/timeline` : interactions, ventes (clients) ou bons de commande (fournisseurs), triés par date | M | CRM-12, CRM-4 | À faire |
-| CRM-15 | Tests | Ordre de la chronologie, tiers inconnu, service Vente indisponible | S | CRM-14 | À faire |
+| CRM-12 | Interactions | Type (`APPEL`, `EMAIL`, `REUNION`, `VISITE`, `NOTE`), tiers, date, résumé, auteur pris dans `X-User-Email` ; création et lecture uniquement | M | CRM-5 | Fait |
+| CRM-13 | Liste des interactions d'un tiers | `GET /parties/{type}/{id}/interactions` | S | CRM-12 | Fait |
+| CRM-14 | Chronologie unifiée | `GET /parties/{type}/{id}/timeline` : interactions, ventes (clients) ou bons de commande (fournisseurs), triés par date | M | CRM-12, CRM-4 | Fait |
+| CRM-15 | Tests | Ordre de la chronologie, tiers inconnu, service Vente indisponible | S | CRM-14 | Fait |
 
 ## Phase 3. Tâches et relances
 

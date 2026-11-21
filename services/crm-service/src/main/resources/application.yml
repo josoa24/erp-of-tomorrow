@@ -1,0 +1,21 @@
+server:
+  port: 8085
+spring:
+  application:
+    name: crm-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5435/crm_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+remote:
+  vente-url: ${VENTE_URL:http://localhost:8082}
+  stock-url: ${STOCK_URL:http://localhost:8083}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
