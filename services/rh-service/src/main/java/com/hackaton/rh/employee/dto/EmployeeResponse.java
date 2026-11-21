@@ -14,5 +14,6 @@ public record EmployeeResponse(
         LocalDate hireDate,
         BigDecimal baseSalary,
         int leaveBalance,
+        Long userId,
         Instant createdAt) {
 }

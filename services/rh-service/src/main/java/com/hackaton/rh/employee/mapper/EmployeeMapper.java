@@ -22,6 +22,7 @@ public class EmployeeMapper {
         employee.setDepartmentId(request.departmentId());
         employee.setHireDate(request.hireDate());
         employee.setBaseSalary(request.baseSalary());
+        employee.setUserId(request.userId());
     }
 
     public EmployeeResponse toResponse(Employee employee) {
@@ -35,6 +36,7 @@ public class EmployeeMapper {
                 employee.getHireDate(),
                 employee.getBaseSalary(),
                 employee.getLeaveBalance(),
+                employee.getUserId(),
                 employee.getCreatedAt());
     }
 }

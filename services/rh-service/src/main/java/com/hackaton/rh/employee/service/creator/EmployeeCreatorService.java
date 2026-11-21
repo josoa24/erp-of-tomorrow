@@ -7,6 +7,7 @@ import com.hackaton.rh.employee.dto.EmployeeRequest;
 import com.hackaton.rh.employee.dto.EmployeeResponse;
 import com.hackaton.rh.employee.mapper.EmployeeMapper;
 import com.hackaton.rh.employee.repository.EmployeeRepository;
+import com.hackaton.rh.employee.service.link.EmployeeAccountLinkChecker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ public class EmployeeCreatorService implements EmployeeCreator {
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
     private final EmployeeMapper employeeMapper;
+    private final EmployeeAccountLinkChecker accountLinkChecker;
 
     @Override
     @Transactional
@@ -29,6 +31,7 @@ public class EmployeeCreatorService implements EmployeeCreator {
         if (employeeRepository.existsByEmail(email)) {
             throw new DuplicateResourceException("Un employé avec l'email " + email + " existe déjà");
         }
+        accountLinkChecker.checkAvailable(request.userId(), null);
         return employeeMapper.toResponse(employeeRepository.save(employeeMapper.toEntity(request)));
     }
 }

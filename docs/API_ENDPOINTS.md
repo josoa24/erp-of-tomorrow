@@ -42,6 +42,8 @@ Seul `POST /api/auth/login` est public. Sans token ou avec un token invalide ou 
 | `CRM` | non | non | non | oui | non |
 | `ADMIN` | oui | oui | oui | oui | oui |
 
+Exception : `/api/auth/users/me/...` (son propre compte) est ouvert à tous les rôles connectés.
+
 La gateway transmet l'identité aux services dans les en-têtes `X-User-Id`, `X-User-Email` et `X-User-Role` (utilisés par le CRM pour enregistrer l'auteur d'un échange).
 
 Chaque service refuse (401 `UNAUTHORIZED`) un appel sans `X-User-Id` et `X-User-Role` : il faut passer par la gateway. Restent ouverts en direct : `/v3/api-docs`, `/swagger-ui`, `/actuator` et `POST /login` (auth). Les appels entre services (Vente vers Stock, CRM vers Vente et Stock) recopient ces en-têtes.
@@ -75,6 +77,12 @@ Une donnée validée (vente, bon de commande, congé) ne peut plus être modifi�
 | POST | `/api/auth/login` | public | Connexion. Corps : `email`, `password`. Renvoie `token`, `email`, `role` | 200, 400, 401 |
 | GET | `/api/auth/users` | ADMIN | Liste des comptes | 200 |
 | POST | `/api/auth/users` | ADMIN | Crée un compte. `email` unique, `password` de 8 caractères minimum, `role` parmi ADMIN, STOCK, VENTE, RH, CRM | 201, 400, 409 |
+| PUT | `/api/auth/users/{id}` | ADMIN | Change le rôle d'un compte. Corps : `role`. Refusé sur son propre compte | 200, 400, 404, 422 |
+| POST | `/api/auth/users/{id}/disable` | ADMIN | Désactive un compte : il ne peut plus se connecter. Refusé sur son propre compte | 200, 404, 422 |
+| POST | `/api/auth/users/{id}/enable` | ADMIN | Réactive un compte | 200, 404, 422 |
+| POST | `/api/auth/users/me/password` | tous les rôles | Change son propre mot de passe. Corps : `currentPassword`, `newPassword` (8 caractères minimum, différent de l'actuel) | 204, 400, 422 |
+
+Un compte désactivé reçoit 401 à la connexion. Un token déjà émis reste valable jusqu'à son expiration (`JWT_TTL_MINUTES`).
 
 ## 5. Stock : `/api/stock` (rôles STOCK, ADMIN)
 
@@ -159,7 +167,7 @@ Une donnée validée (vente, bon de commande, congé) ne peut plus être modifi�
 | DELETE | `/api/rh/departments/{id}` | Supprime. Refusé s'il a des employés | 204, 404, 422 |
 | GET | `/api/rh/employees` | Liste. Filtres `search` (nom, prénom, email), `departmentId` | 200 |
 | GET | `/api/rh/employees/{id}` | Détail avec solde de congés | 200, 404 |
-| POST | `/api/rh/employees` | Crée un employé (solde de congés initial : 25 jours ; email unique) | 201, 400, 404, 409 |
+| POST | `/api/rh/employees` | Crée un employé (solde de congés initial : 25 jours ; email unique). `userId` optionnel : compte de connexion lié, un compte par employé au plus | 201, 400, 404, 409 |
 | PUT | `/api/rh/employees/{id}` | Modifie un employé (le solde ne change que par les congés) | 200, 400, 404, 409 |
 | DELETE | `/api/rh/employees/{id}` | Supprime. Refusé s'il a des congés ou des pointages | 204, 404, 422 |
 
