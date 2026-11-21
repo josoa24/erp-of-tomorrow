@@ -10,10 +10,10 @@ Chaque tâche suit [REGLES_DEVELOPPEMENT.md](REGLES_DEVELOPPEMENT.md) : séparat
 
 | # | Tâche | Détail | Statut |
 |---|-------|--------|--------|
-| C1 | Champ `type` dans `ApiError` | `NOT_FOUND`, `VALIDATION`, `IMMUTABLE`, `BUSINESS`, `UNAUTHORIZED`, `FORBIDDEN`, `SERVER` : permet au front d'ouvrir la bonne page d'erreur. Fait pour auth-service, stock-service et la gateway ; reste vente-service et rh-service. | À faire |
-| C2 | `ImmutableResourceException` (409) | Levée quand on modifie ou supprime une entité `VALIDATED`. | À faire |
-| C3 | Enum `DocumentStatus` (`DRAFT`, `VALIDATED`) | Réutilisé par les ventes, les bons de commande et les congés. | À faire |
-| C4 | CORS sur la gateway | Autorise les apps React Native. | À faire |
+| C1 | Champ `type` dans `ApiError` | `NOT_FOUND`, `VALIDATION`, `IMMUTABLE`, `BUSINESS`, `UNAUTHORIZED`, `FORBIDDEN`, `SERVER` : permet au front d'ouvrir la bonne page d'erreur. Fait dans la gateway et dans les 5 services Java (auth, stock, vente, rh, crm). | Fait |
+| C2 | `ImmutableResourceException` (409) | Levée quand on modifie ou supprime une entité `VALIDATED`. Présente dans stock-service, vente-service et rh-service. | Fait |
+| C3 | Enum `DocumentStatus` (`DRAFT`, `VALIDATED`) | Réutilisé par les ventes, les bons de commande et les congés. `DocumentStatus` dans vente-service ; équivalents propres à chaque service : `OrderStatus` (stock, avec `RECEIVED`) et `LeaveStatus` (rh, avec `REJECTED`). | Fait |
+| C4 | CORS sur la gateway | Autorise les apps React Native. Aucune configuration CORS dans la gateway pour l'instant. | À faire |
 | C5 | Client HTTP inter-services | `RestClient` + interface par service appelé (ex. `StockClient` dans vente-service). | Fait |
 | C6 | Tests d'intégration légers | `@WebMvcTest` par controller (statuts HTTP, validation). | À faire |
 
@@ -23,7 +23,7 @@ Les tâches C1 à C3 sont copiées dans chaque service (pas de bibliothèque par
 
 ## 0 bis. Module Auth — `services/auth-service` (port 8084)
 
-Gère les **comptes de connexion** (différents des fiches employés du module RH). Rôles : `ADMIN`, `STOCK`, `VENTE`, `RH`.
+Gère les **comptes de connexion** (différents des fiches employés du module RH). Rôles : `ADMIN`, `STOCK`, `VENTE`, `RH`, `CRM`.
 
 | # | Tâche | Endpoint | Détail | Statut |
 |---|-------|----------|--------|--------|
@@ -95,7 +95,7 @@ La gateway transmet l'identité aux services (`X-User-Id`, `X-User-Email`, `X-Us
 
 ## 4. Ordre de réalisation conseillé
 
-1. **Socle commun** C1 à C3 dans les trois services (une journée de travail en parallèle).
+1. **Socle commun** C1 à C3 dans les trois services (une journée de travail en parallèle). Fait.
 2. **En parallèle, une personne par module** :
    - Stock : S3 → S7 → S8 → S9 → S10 → S4 → S5 → S6 → S11
    - Vente : V1 → V2 → V3 → V4 → V5 → V6 → V7 → V8 → V9
@@ -107,10 +107,12 @@ La gateway transmet l'identité aux services (`X-User-Id`, `X-User-Email`, `X-Us
 
 ```
 vente-service  ──(sortie de stock à la validation)──►  stock-service
+crm-service    ──(vérification des tiers, chronologie)──►  vente-service, stock-service
+ai-service     ──(via la gateway, token de l'utilisateur)──►  tous les modules
 rh-service     (indépendant)
 ```
 
-Seul le module Vente appelle un autre service. Le Stock et les RH restent autonomes, donc leurs équipes ne se bloquent pas entre elles.
+Le Stock et les RH n'appellent aucun autre service : leurs équipes ne se bloquent pas entre elles.
 
 ## 6. Définition de « terminé » pour une tâche
 
