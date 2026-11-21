@@ -19,6 +19,7 @@ import com.hackaton.rh.employee.entity.Employee;
 import com.hackaton.rh.employee.mapper.EmployeeMapper;
 import com.hackaton.rh.employee.repository.EmployeeRepository;
 import com.hackaton.rh.employee.service.creator.EmployeeCreatorService;
+import com.hackaton.rh.employee.service.link.EmployeeAccountLinkChecker;
 import com.hackaton.rh.employee.service.deleter.EmployeeDeleterService;
 import com.hackaton.rh.employee.service.reader.EmployeeReaderService;
 import com.hackaton.rh.leave.repository.LeaveRequestRepository;
@@ -44,7 +45,7 @@ class EmployeeAndDepartmentServicesTest {
 
     private final EmployeeMapper mapper = new EmployeeMapper();
     private final EmployeeRequest request = new EmployeeRequest(
-            "Aina", "Rakoto", "Aina.Rakoto@erp.local", "Comptable", 1L, LocalDate.of(2024, 1, 15), new BigDecimal("900000"));
+            "Aina", "Rakoto", "Aina.Rakoto@erp.local", "Comptable", 1L, LocalDate.of(2024, 1, 15), new BigDecimal("900000"), null);
 
     private Employee employee(String first, String last, Long departmentId) {
         Employee employee = new Employee();
@@ -64,7 +65,8 @@ class EmployeeAndDepartmentServicesTest {
         when(employeeRepository.save(any(Employee.class))).thenAnswer(call -> call.getArgument(0));
 
         EmployeeResponse response =
-                new EmployeeCreatorService(employeeRepository, departmentRepository, mapper).create(request);
+                new EmployeeCreatorService(employeeRepository, departmentRepository, mapper,
+                        new EmployeeAccountLinkChecker(employeeRepository)).create(request);
 
         assertEquals(Employee.INITIAL_LEAVE_BALANCE, response.leaveBalance());
         assertEquals("aina.rakoto@erp.local", response.email());
@@ -75,7 +77,8 @@ class EmployeeAndDepartmentServicesTest {
         when(departmentRepository.existsById(1L)).thenReturn(false);
 
         assertThrows(ResourceNotFoundException.class,
-                () -> new EmployeeCreatorService(employeeRepository, departmentRepository, mapper).create(request));
+                () -> new EmployeeCreatorService(employeeRepository, departmentRepository, mapper,
+                        new EmployeeAccountLinkChecker(employeeRepository)).create(request));
     }
 
     @Test
@@ -84,7 +87,8 @@ class EmployeeAndDepartmentServicesTest {
         when(employeeRepository.existsByEmail("aina.rakoto@erp.local")).thenReturn(true);
 
         assertThrows(DuplicateResourceException.class,
-                () -> new EmployeeCreatorService(employeeRepository, departmentRepository, mapper).create(request));
+                () -> new EmployeeCreatorService(employeeRepository, departmentRepository, mapper,
+                        new EmployeeAccountLinkChecker(employeeRepository)).create(request));
         verify(employeeRepository, never()).save(any());
     }
 

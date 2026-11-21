@@ -35,7 +35,7 @@ Gère les **comptes de connexion** (différents des fiches employés du module R
 | A6 | Modification d'un compte | `PUT /users/{id}` | Changer le rôle, désactiver un compte. | À faire |
 | A7 | Changement de mot de passe | `POST /users/me/password` | L'utilisateur change son propre mot de passe. | À faire |
 | A8 | Désactivation d'un compte | `POST /users/{id}/disable` | Un compte désactivé ne peut plus se connecter. | À faire |
-| A9 | Lier un compte à un employé | — | `userId` optionnel sur la fiche employé du module RH. | À faire (dépend de R2) |
+| A9 | Lier un compte à un employé | — | `userId` optionnel sur la fiche employé du module RH ; un compte ne peut être lié qu'à un seul employé (409). | Fait |
 | A10 | Services accessibles uniquement via la gateway | — | Chaque service refuse les appels sans les en-têtes `X-User-*` de la gateway. | À faire |
 | A11 | Page de connexion et pages d'erreur 401/403 dans les 3 apps | — | Les erreurs `UNAUTHORIZED` et `FORBIDDEN` ouvrent la page d'erreur dédiée. | À faire |
 

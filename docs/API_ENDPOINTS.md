@@ -157,7 +157,7 @@ Une donnée validée (vente, bon de commande, congé) ne peut plus être modifi�
 | DELETE | `/api/rh/departments/{id}` | Supprime. Refusé s'il a des employés | 204, 404, 422 |
 | GET | `/api/rh/employees` | Liste. Filtres `search` (nom, prénom, email), `departmentId` | 200 |
 | GET | `/api/rh/employees/{id}` | Détail avec solde de congés | 200, 404 |
-| POST | `/api/rh/employees` | Crée un employé (solde de congés initial : 25 jours ; email unique) | 201, 400, 404, 409 |
+| POST | `/api/rh/employees` | Crée un employé (solde de congés initial : 25 jours ; email unique). `userId` optionnel : compte de connexion lié, un compte par employé au plus | 201, 400, 404, 409 |
 | PUT | `/api/rh/employees/{id}` | Modifie un employé (le solde ne change que par les congés) | 200, 400, 404, 409 |
 | DELETE | `/api/rh/employees/{id}` | Supprime. Refusé s'il a des congés ou des pointages | 204, 404, 422 |
 

@@ -126,7 +126,7 @@ Les calculs restent dans les services métier. L'IA comprend la demande, appelle
 | HRX-3 | Types de congés et jours fériés | Maladie, maternité, jours fériés exclus du décompte | M | | À faire |
 | HRX-4 | Heures et paie | Heures travaillées issues du pointage, heures supplémentaires | M | HRX-2 | À faire |
 | HRX-5 | Hiérarchie et approbation | Un manager valide les congés de son équipe | M | | À faire |
-| HRX-6 | Lien compte et employé | `userId` sur la fiche employé (A9 de [PLAN_API.md](PLAN_API.md)) | S | | À faire |
+| HRX-6 | Lien compte et employé | `userId` sur la fiche employé (A9 de [PLAN_API.md](PLAN_API.md)) | S | | Fait |
 | HRX-7 | Évaluations | Campagnes et résultats | M | | À faire |
 | HRX-8 | Recrutement | Offres, candidatures, étapes | L | | À faire |
 
