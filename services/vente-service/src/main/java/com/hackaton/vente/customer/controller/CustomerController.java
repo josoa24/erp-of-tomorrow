@@ -1,5 +1,6 @@
 package com.hackaton.vente.customer.controller;
 
+import com.hackaton.vente.common.page.PageResult;
 import com.hackaton.vente.customer.dto.CustomerRequest;
 import com.hackaton.vente.customer.dto.CustomerResponse;
 import com.hackaton.vente.customer.service.creator.CustomerCreator;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,14 +28,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class CustomerController {
 
+    public static final String TOTAL_COUNT_HEADER = "X-Total-Count";
+
     private final CustomerReader customerReader;
     private final CustomerCreator customerCreator;
     private final CustomerUpdater customerUpdater;
     private final CustomerDeleter customerDeleter;
 
     @GetMapping
-    public List<CustomerResponse> findAll() {
-        return customerReader.findAll();
+    public ResponseEntity<List<CustomerResponse>> search(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        PageResult<CustomerResponse> result = customerReader.search(search, page, size);
+        return ResponseEntity.ok()
+                .header(TOTAL_COUNT_HEADER, String.valueOf(result.total()))
+                .body(result.items());
     }
 
     @GetMapping("/{id}")

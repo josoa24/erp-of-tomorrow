@@ -52,12 +52,12 @@ Manque : fiche complète, historique des échanges, relances, pipeline commercia
 
 | # | Tâche | Détail | Taille | Dépend de | Statut |
 |---|-------|--------|--------|-----------|--------|
-| CRM-6 | Clients : email, type (particulier ou entreprise), ville, notes | Nouveaux champs optionnels, validation de l'email | S | | À faire |
-| CRM-7 | Clients : recherche et pagination | `GET /customers?search=&page=&size=` | S | | À faire |
-| CRM-8 | Fournisseurs : recherche, conditions de paiement, délai de livraison habituel | Nouveaux champs et `GET /suppliers?search=` | S | | À faire |
-| CRM-9 | Fiche client 360 | `GET /customers/{id}/profile` : total acheté, nombre de ventes, panier moyen, date du dernier achat, produits les plus achetés, 5 dernières ventes | M | | À faire |
-| CRM-10 | Fiche fournisseur 360 | `GET /suppliers/{id}/profile` : total commandé, nombre de commandes, délai moyen de réception, produits fournis, derniers bons | M | | À faire |
-| CRM-11 | Tests des deux fiches | Client sans vente, fournisseur sans commande, plusieurs ventes | S | CRM-9, CRM-10 | À faire |
+| CRM-6 | Clients : email, type (particulier ou entreprise), ville, notes | Nouveaux champs optionnels, validation de l'email | S | | Fait |
+| CRM-7 | Clients : recherche et pagination | `GET /customers?search=&page=&size=` | S | | Fait |
+| CRM-8 | Fournisseurs : recherche, conditions de paiement, délai de livraison habituel | Nouveaux champs et `GET /suppliers?search=` | S | | Fait |
+| CRM-9 | Fiche client 360 | `GET /customers/{id}/profile` : total acheté, nombre de ventes, panier moyen, date du dernier achat, produits les plus achetés, 5 dernières ventes | M | | Fait |
+| CRM-10 | Fiche fournisseur 360 | `GET /suppliers/{id}/profile` : total commandé, nombre de commandes, délai moyen de réception, produits fournis, derniers bons | M | | Fait |
+| CRM-11 | Tests des deux fiches | Client sans vente, fournisseur sans commande, plusieurs ventes | S | CRM-9, CRM-10 | Fait |
 
 ## Phase 2. Historique des échanges
 

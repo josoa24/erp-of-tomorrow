@@ -2,6 +2,8 @@ package com.hackaton.vente.customer.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,7 +30,17 @@ public class Customer {
 
     private String phone;
 
+    private String email;
+
     private String address;
+
+    private String city;
+
+    @Enumerated(EnumType.STRING)
+    private CustomerType type;
+
+    @Column(length = 2000)
+    private String notes;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;

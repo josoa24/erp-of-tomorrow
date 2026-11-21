@@ -12,4 +12,6 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
     List<Sale> findAllByOrderByCreatedAtDesc();
 
     List<Sale> findByStatus(DocumentStatus status);
+
+    List<Sale> findByCustomerIdAndStatusOrderByValidatedAtDesc(Long customerId, DocumentStatus status);
 }

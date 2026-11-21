@@ -19,11 +19,19 @@ public class SupplierMapper {
         supplier.setPhone(request.phone());
         supplier.setEmail(request.email());
         supplier.setAddress(request.address());
+        supplier.setPaymentTerms(request.paymentTerms());
+        supplier.setUsualDeliveryDays(request.usualDeliveryDays());
     }
 
     public SupplierResponse toResponse(Supplier supplier) {
         return new SupplierResponse(
-                supplier.getId(), supplier.getName(), supplier.getPhone(), supplier.getEmail(),
-                supplier.getAddress(), supplier.getCreatedAt());
+                supplier.getId(),
+                supplier.getName(),
+                supplier.getPhone(),
+                supplier.getEmail(),
+                supplier.getAddress(),
+                supplier.getPaymentTerms(),
+                supplier.getUsualDeliveryDays(),
+                supplier.getCreatedAt());
     }
 }
