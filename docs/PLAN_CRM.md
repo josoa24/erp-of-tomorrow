@@ -2,7 +2,7 @@
 
 Ce plan complète [PLAN_API.md](PLAN_API.md). Le plan de tout ce qui manque à l'ERP (finance, achats, stock avancé, RH avancé, IA, applications) est dans [PLAN_ERP.md](PLAN_ERP.md).
 
-Statut : À faire (rien n'est commencé dans ce document). Taille : S (moins d'une demi-journée), M (une journée), L (plusieurs jours).
+Statut : Fait ou À faire (précisé sur chaque tâche). Phases 0 à 2 faites ; phases 3 à 8 à faire. Taille : S (moins d'une demi-journée), M (une journée), L (plusieurs jours).
 
 Chaque tâche suit [REGLES_DEVELOPPEMENT.md](REGLES_DEVELOPPEMENT.md) : Reader / Creator / Updater / Deleter, 100 lignes maximum par fichier, DTO, erreurs typées, tests unitaires, données validées immuables.
 
