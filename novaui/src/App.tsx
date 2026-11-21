@@ -1,5 +1,6 @@
-import { HomeScreen } from './screens/Home/HomeScreen'
+import { RouterProvider } from 'react-router-dom'
+import { appRouter } from './navigation/appRouter'
 
-const App = () => <HomeScreen />
+const App = () => <RouterProvider router={appRouter} />
 
 export default App

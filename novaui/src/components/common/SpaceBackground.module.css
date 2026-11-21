@@ -1,0 +1,75 @@
+.page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 45%, #10124a 0%, transparent 70%),
+    linear-gradient(180deg, #0a0b33 0%, #070826 100%);
+}
+
+.dashboard {
+  background:
+    radial-gradient(ellipse 50% 45% at 50% 50%, #151a5c 0%, transparent 70%),
+    linear-gradient(180deg, #0a0c2f 0%, #060722 100%);
+}
+
+.decor {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: #c7d2ff;
+  box-shadow: 0 0 6px rgba(160, 180, 255, 0.9);
+}
+
+.arc {
+  position: absolute;
+  left: 50%;
+  top: 105px;
+  width: min(880px, 120vw);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  box-shadow:
+    inset -10px 10px 22px -10px rgba(170, 110, 255, 0.95),
+    inset 6px 8px 20px -10px rgba(90, 110, 255, 0.8),
+    0 -14px 60px -26px rgba(110, 90, 255, 0.8);
+  mask-image: linear-gradient(180deg, #000 0%, #000 6%, transparent 24%);
+}
+
+.glow {
+  position: absolute;
+  width: 46vw;
+  height: 30vh;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.55;
+}
+
+.glowLeft {
+  left: -14vw;
+  bottom: 4vh;
+  background: #4b22b8;
+  transform: rotate(18deg);
+}
+
+.glowRight {
+  right: -14vw;
+  bottom: 2vh;
+  background: #3a2ab8;
+  transform: rotate(-22deg);
+}
+
+.dashboard .glow {
+  opacity: 0.25;
+}

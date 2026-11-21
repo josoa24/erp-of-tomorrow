@@ -1,0 +1,91 @@
+.stage {
+  display: grid;
+  grid-template-columns: minmax(300px, 390px) 130px var(--orb-size, 400px) 130px minmax(300px, 450px);
+  grid-template-areas:
+    'sales c1 orb c3 hr'
+    'stock c2 orb c4 issues';
+  row-gap: 60px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 46px;
+  padding-bottom: 240px;
+}
+
+.slot {
+  position: relative;
+  z-index: 2;
+}
+
+.sales {
+  grid-area: sales;
+  margin-left: 26px;
+}
+
+.stock {
+  grid-area: stock;
+}
+
+.hr {
+  grid-area: hr;
+  margin-right: 40px;
+}
+
+.issues {
+  grid-area: issues;
+}
+
+.orb {
+  grid-area: orb;
+  position: relative;
+  z-index: 1;
+}
+
+.link {
+  z-index: 0;
+}
+
+.c1 { grid-area: c1; }
+.c2 { grid-area: c2; }
+.c3 { grid-area: c3; }
+.c4 { grid-area: c4; }
+
+@media (max-width: 1400px) {
+  .stage {
+    --orb-size: 330px;
+    grid-template-columns: minmax(280px, 360px) 90px var(--orb-size) 90px minmax(280px, 400px);
+  }
+
+  .link {
+    display: none;
+  }
+}
+
+@media (max-width: 1100px) {
+  .stage {
+    --orb-size: min(340px, 80vw);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      'orb orb'
+      'sales hr'
+      'stock issues';
+    gap: 24px;
+    padding-bottom: 40px;
+  }
+
+  .orb {
+    justify-self: center;
+    margin-bottom: 30px;
+  }
+
+  .sales,
+  .hr {
+    margin: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .stage {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'orb' 'sales' 'stock' 'hr' 'issues';
+  }
+}

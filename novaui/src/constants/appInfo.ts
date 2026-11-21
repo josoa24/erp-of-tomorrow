@@ -1,2 +1,5 @@
-export const APP_NAME = 'NovaUI'
-export const APP_TAGLINE = "L'ERP de demain"
+export const APP_NAME = 'Eclipse'
+export const AI_NAME = 'Eclipse AI'
+export const AI_TAGLINE = 'Business Intelligence'
+export const AI_STATUS = 'Toujours actif'
+export const CURRENCY_LABEL = 'Ar'

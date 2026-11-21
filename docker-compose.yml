@@ -180,7 +180,7 @@ services:
       - "5173:5173"
     environment:
       CHOKIDAR_USEPOLLING: "true"
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
+      API_PROXY_TARGET: ${API_PROXY_TARGET:-http://gateway:8080}
     volumes:
       - ./novaui:/app
       - novaui-node-modules:/app/node_modules

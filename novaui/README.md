@@ -14,6 +14,20 @@ npm install
 npm run dev            # http://localhost:5173
 ```
 
+Ou, sans Node installé, depuis la racine du dépôt : `docker compose up -d novaui`.
+
+Les appels `/api/...` passent par le proxy du serveur Vite vers la gateway
+(`API_PROXY_TARGET`, `http://localhost:8080` par défaut, `http://gateway:8080` dans Docker) :
+la gateway n'a pas besoin d'autoriser le CORS.
+
+## Écrans
+
+| Route | Écran |
+|-------|-------|
+| `/connexion` | Connexion (e-mail + mot de passe, « Se souvenir de moi » garde la session dans le navigateur) |
+| `/` | Tableau de bord (protégé) : ventes, stock, équipe et points d'attention selon le rôle |
+| `/erreur` | Page d'erreur unique (réseau, accès refusé, session expirée…) |
+
 ## Scripts
 
 | Commande | Rôle |
