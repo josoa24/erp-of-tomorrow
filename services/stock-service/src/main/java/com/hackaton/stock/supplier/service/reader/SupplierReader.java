@@ -7,5 +7,5 @@ public interface SupplierReader {
 
     SupplierResponse findById(Long id);
 
-    List<SupplierResponse> findAll();
+    List<SupplierResponse> search(String search);
 }

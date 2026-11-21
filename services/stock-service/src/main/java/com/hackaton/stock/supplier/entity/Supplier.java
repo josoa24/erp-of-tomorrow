@@ -32,6 +32,10 @@ public class Supplier {
 
     private String address;
 
+    private String paymentTerms;
+
+    private Integer usualDeliveryDays;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 

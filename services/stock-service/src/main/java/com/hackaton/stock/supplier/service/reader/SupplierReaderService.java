@@ -2,9 +2,12 @@ package com.hackaton.stock.supplier.service.reader;
 
 import com.hackaton.stock.common.exception.ResourceNotFoundException;
 import com.hackaton.stock.supplier.dto.SupplierResponse;
+import com.hackaton.stock.supplier.entity.Supplier;
 import com.hackaton.stock.supplier.mapper.SupplierMapper;
 import com.hackaton.stock.supplier.repository.SupplierRepository;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +28,19 @@ public class SupplierReaderService implements SupplierReader {
     }
 
     @Override
-    public List<SupplierResponse> findAll() {
-        return supplierRepository.findAll().stream().map(supplierMapper::toResponse).toList();
+    public List<SupplierResponse> search(String search) {
+        String term = search == null ? "" : search.trim().toLowerCase(Locale.ROOT);
+        return supplierRepository.findAllByOrderByNameAsc().stream()
+                .filter(supplier -> matches(supplier, term))
+                .map(supplierMapper::toResponse)
+                .toList();
+    }
+
+    private boolean matches(Supplier supplier, String term) {
+        if (term.isEmpty()) {
+            return true;
+        }
+        return Stream.of(supplier.getName(), supplier.getPhone(), supplier.getEmail())
+                .anyMatch(value -> value != null && value.toLowerCase(Locale.ROOT).contains(term));
     }
 }

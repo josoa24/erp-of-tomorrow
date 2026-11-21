@@ -2,6 +2,7 @@ package com.hackaton.gateway.security;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -9,15 +10,17 @@ public class RoleAccessPolicy {
 
     private static final String ADMIN = "ADMIN";
     private static final String LOGIN_PATH = "/api/auth/login";
+    private static final Pattern API_DOCS_PATH = Pattern.compile("^/api/[a-z]+/v3/api-docs(/.*)?$");
 
     private static final Map<String, Set<String>> MODULE_ROLES = Map.of(
             "/api/stock", Set.of("STOCK"),
             "/api/vente", Set.of("VENTE"),
             "/api/rh", Set.of("RH"),
+            "/api/crm", Set.of("CRM"),
             "/api/auth", Set.of());
 
     public boolean isPublic(String path) {
-        return LOGIN_PATH.equals(path);
+        return LOGIN_PATH.equals(path) || API_DOCS_PATH.matcher(path).matches();
     }
 
     public boolean isAllowed(String path, String role) {

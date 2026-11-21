@@ -9,4 +9,6 @@ public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, Lo
     boolean existsBySupplierId(Long supplierId);
 
     List<PurchaseOrder> findAllByOrderByCreatedAtDesc();
+
+    List<PurchaseOrder> findBySupplierIdOrderByCreatedAtDesc(Long supplierId);
 }
