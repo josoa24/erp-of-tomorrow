@@ -1,54 +1,161 @@
+x-db: &db
+  image: postgres:16
+  environment: &db-env
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U postgres"]
+    interval: 5s
+    timeout: 3s
+    retries: 10
+
+x-service: &service
+  restart: unless-stopped
+  environment: &service-env
+    DB_USER: postgres
+    DB_PASSWORD: postgres
+    JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me-0123456789abcdef}
+
 services:
   rh-db:
-    image: postgres:16
+    <<: *db
     environment:
+      <<: *db-env
       POSTGRES_DB: rh_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
     ports:
       - "5431:5432"
     volumes:
       - rh-data:/var/lib/postgresql/data
   vente-db:
-    image: postgres:16
+    <<: *db
     environment:
+      <<: *db-env
       POSTGRES_DB: vente_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     volumes:
       - vente-data:/var/lib/postgresql/data
   stock-db:
-    image: postgres:16
+    <<: *db
     environment:
+      <<: *db-env
       POSTGRES_DB: stock_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
     ports:
       - "5433:5432"
     volumes:
       - stock-data:/var/lib/postgresql/data
   auth-db:
-    image: postgres:16
+    <<: *db
     environment:
+      <<: *db-env
       POSTGRES_DB: auth_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
     ports:
       - "5434:5432"
     volumes:
       - auth-data:/var/lib/postgresql/data
   crm-db:
-    image: postgres:16
+    <<: *db
     environment:
+      <<: *db-env
       POSTGRES_DB: crm_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
     ports:
       - "5435:5432"
     volumes:
       - crm-data:/var/lib/postgresql/data
+
+  auth-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.java
+      args:
+        MODULE_PATH: services/auth-service
+    environment:
+      <<: *service-env
+      DB_URL: jdbc:postgresql://auth-db:5432/auth_db
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@erp.local}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin1234}
+    depends_on:
+      auth-db:
+        condition: service_healthy
+  stock-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.java
+      args:
+        MODULE_PATH: services/stock-service
+    environment:
+      <<: *service-env
+      DB_URL: jdbc:postgresql://stock-db:5432/stock_db
+    depends_on:
+      stock-db:
+        condition: service_healthy
+  vente-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.java
+      args:
+        MODULE_PATH: services/vente-service
+    environment:
+      <<: *service-env
+      DB_URL: jdbc:postgresql://vente-db:5432/vente_db
+      STOCK_URL: http://stock-service:8083
+    depends_on:
+      vente-db:
+        condition: service_healthy
+  rh-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.java
+      args:
+        MODULE_PATH: services/rh-service
+    environment:
+      <<: *service-env
+      DB_URL: jdbc:postgresql://rh-db:5432/rh_db
+    depends_on:
+      rh-db:
+        condition: service_healthy
+  crm-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.java
+      args:
+        MODULE_PATH: services/crm-service
+    environment:
+      <<: *service-env
+      DB_URL: jdbc:postgresql://crm-db:5432/crm_db
+      VENTE_URL: http://vente-service:8082
+      STOCK_URL: http://stock-service:8083
+    depends_on:
+      crm-db:
+        condition: service_healthy
+  gateway:
+    <<: *service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.java
+      args:
+        MODULE_PATH: gateway
+    environment:
+      <<: *service-env
+      AUTH_URL: http://auth-service:8084
+      STOCK_URL: http://stock-service:8083
+      VENTE_URL: http://vente-service:8082
+      RH_URL: http://rh-service:8081
+      CRM_URL: http://crm-service:8085
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth-service
+      - stock-service
+      - vente-service
+      - rh-service
+      - crm-service
+
 volumes:
   crm-data:
   auth-data:
