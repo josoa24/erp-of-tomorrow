@@ -14,7 +14,7 @@ Chaque tâche suit [REGLES_DEVELOPPEMENT.md](REGLES_DEVELOPPEMENT.md) : séparat
 | C2 | `ImmutableResourceException` (409) | Levée quand on modifie ou supprime une entité `VALIDATED`. | ⬜ |
 | C3 | Enum `DocumentStatus` (`DRAFT`, `VALIDATED`) | Réutilisé par les ventes, les bons de commande et les congés. | ⬜ |
 | C4 | CORS sur la gateway | Autorise les apps React Native. | ⬜ |
-| C5 | Client HTTP inter-services | `RestClient` + interface par service appelé (ex. `StockClient` dans vente-service). | ⬜ |
+| C5 | Client HTTP inter-services | `RestClient` + interface par service appelé (ex. `StockClient` dans vente-service). | ✅ |
 | C6 | Tests d'intégration légers | `@WebMvcTest` par controller (statuts HTTP, validation). | ⬜ |
 
 Les tâches C1 à C3 sont copiées dans chaque service (pas de bibliothèque partagée : chaque microservice reste indépendant).
@@ -65,15 +65,15 @@ La gateway transmet l'identité aux services (`X-User-Id`, `X-User-Email`, `X-Us
 
 | # | Tâche | Endpoint | Détail | Statut |
 |---|-------|----------|--------|--------|
-| V1 | CRUD clients | `GET/POST/PUT/DELETE /customers` | Nom, téléphone, adresse. | ⬜ |
-| V2 | Création d'une vente | `POST /sales` | Statut `DRAFT`, lignes (productId, quantité), le prix unitaire est copié au moment de la vente. | ⬜ 🔗 C3 |
-| V3 | Lecture des ventes | `GET /sales`, `GET /sales/{id}` | Filtres par date, client et statut. | ⬜ |
-| V4 | Modification d'une vente brouillon | `PUT/DELETE /sales/{id}` | Autorisé uniquement en `DRAFT`, sinon 409 (C2). | ⬜ 🔗 V2, C2 |
-| V5 | Validation d'une vente | `POST /sales/{id}/validate` | Vérifie le stock, appelle `stock-service` pour créer une sortie par ligne, passe en `VALIDATED`. | ⬜ 🔗 V2, C5, S2 |
-| V6 | Gestion d'échec de stock | — | Si le stock est insuffisant (422 du stock-service), la vente reste `DRAFT` et l'erreur est de type `BUSINESS`. | ⬜ 🔗 V5 |
-| V7 | Chiffre d'affaires | `GET /sales/summary?from=&to=` | Total, nombre de ventes, panier moyen par jour. | ⬜ |
-| V8 | Meilleurs produits | `GET /sales/top-products?limit=` | Produits les plus vendus sur une période. | ⬜ |
-| V9 | Tests | — | Validation avec `StockClient` mocké (succès, stock insuffisant, service indisponible). | ⬜ |
+| V1 | CRUD clients | `GET/POST/PUT/DELETE /customers` | Nom, téléphone, adresse. | ✅ |
+| V2 | Création d'une vente | `POST /sales` | Statut `DRAFT`, lignes (productId, quantité), le prix unitaire est copié au moment de la vente. | ✅ |
+| V3 | Lecture des ventes | `GET /sales`, `GET /sales/{id}` | Filtres par date, client et statut. | ✅ |
+| V4 | Modification d'une vente brouillon | `PUT/DELETE /sales/{id}` | Autorisé uniquement en `DRAFT`, sinon 409 (C2). | ✅ |
+| V5 | Validation d'une vente | `POST /sales/{id}/validate` | Vérifie le stock, appelle `stock-service` pour créer une sortie par ligne, passe en `VALIDATED`. | ✅ |
+| V6 | Gestion d'échec de stock | — | Si le stock est insuffisant (422 du stock-service), la vente reste `DRAFT` et l'erreur est de type `BUSINESS`. | ✅ |
+| V7 | Chiffre d'affaires | `GET /sales/summary?from=&to=` | Total, nombre de ventes, panier moyen par jour. | ✅ |
+| V8 | Meilleurs produits | `GET /sales/top-products?limit=` | Produits les plus vendus sur une période. | ✅ |
+| V9 | Tests | — | Validation avec `StockClient` mocké (succès, stock insuffisant, service indisponible). | ✅ |
 
 ---
 

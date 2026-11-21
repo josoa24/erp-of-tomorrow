@@ -11,6 +11,8 @@ spring:
     hibernate:
       ddl-auto: update
     open-in-view: false
+stock:
+  url: ${STOCK_URL:http://localhost:8083}
 management:
   endpoints:
     web:
