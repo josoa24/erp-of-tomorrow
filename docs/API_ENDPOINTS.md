@@ -54,13 +54,17 @@ Toutes les erreurs ont la même forme :
 
 | `type` | Statut | Signification |
 |--------|:------:|---------------|
-| `VALIDATION` | 400 | Corps ou paramètre invalide (champ manquant, format incorrect) |
+| `VALIDATION` | 400 | Corps ou paramètre invalide (champ manquant, format incorrect, JSON mal formé, id non numérique, valeur d'énumération inconnue) |
+| `VALIDATION` | 405, 415 | Méthode HTTP non prévue sur cette adresse ; corps qui n'est pas en JSON |
 | `UNAUTHORIZED` | 401 | Token absent, invalide ou expiré ; identifiants incorrects |
 | `FORBIDDEN` | 403 | Rôle non autorisé pour ce module |
-| `NOT_FOUND` | 404 | Ressource inexistante |
+| `NOT_FOUND` | 404 | Ressource ou adresse inexistante |
 | `IMMUTABLE` | 409 | Modification d'une donnée déjà validée |
 | `BUSINESS` | 409 ou 422 | Règle métier refusée (doublon, stock insuffisant, solde de congés insuffisant, suppression d'un élément utilisé) |
 | `SERVER` | 503 | Un service appelé est indisponible (par exemple Stock depuis Vente) |
+| `SERVER` | 500 | Erreur inattendue du service (le détail est dans ses logs, jamais dans la réponse) |
+
+Les statuts 400 dus à un paramètre ou un id mal formé valent pour tous les endpoints et ne sont pas répétés dans les tableaux ci-dessous.
 
 Une donnée validée (vente, bon de commande, congé) ne peut plus être modifiée ni supprimée : on corrige par une nouvelle écriture.
 
@@ -142,7 +146,7 @@ Une donnée validée (vente, bon de commande, congé) ne peut plus être modifi�
 | DELETE | `/api/vente/sales/{id}` | Supprime une vente en brouillon | 204, 404, 409 |
 | POST | `/api/vente/sales/{id}/validate` | Valide : une sortie de stock par ligne. Si une ligne échoue, les lignes déjà débitées sont restaurées et la vente reste en brouillon | 200, 404, 409, 422, 503 |
 | GET | `/api/vente/sales/summary` | Chiffre d'affaires, nombre de ventes, panier moyen et détail par jour. Filtres `from`, `to` | 200, 400 |
-| GET | `/api/vente/sales/top-products` | Produits les plus vendus. Paramètre `limit` (5 par défaut, 50 au maximum) | 200 |
+| GET | `/api/vente/sales/top-products` | Produits les plus vendus. Paramètre `limit` (5 par défaut ; une valeur hors de 1 à 50 est ramenée dans ces bornes) | 200 |
 
 ## 7. RH : `/api/rh` (rôles RH, ADMIN)
 
@@ -176,8 +180,8 @@ Une donnée validée (vente, bon de commande, congé) ne peut plus être modifi�
 | Méthode | Chemin | Description | Statuts |
 |---------|--------|-------------|---------|
 | GET | `/api/rh/attendances` | Liste. Filtres `employeeId`, `date` | 200, 400 |
-| POST | `/api/rh/attendances/check-in` | Pointe l'entrée. Refusé si un pointage est déjà ouvert | 201, 404, 422 |
-| POST | `/api/rh/attendances/check-out` | Pointe la sortie et calcule la durée travaillée | 200, 422 |
+| POST | `/api/rh/attendances/check-in` | Pointe l'entrée. Refusé si un pointage est déjà ouvert | 201, 400, 404, 422 |
+| POST | `/api/rh/attendances/check-out` | Pointe la sortie et calcule la durée travaillée. Sans pointage d'entrée ouvert (ou employé inconnu) : 422 | 200, 400, 422 |
 | GET | `/api/rh/summary` | Effectif, effectif par département, personnes en congé aujourd'hui | 200 |
 
 ## 8. CRM : `/api/crm` (rôles CRM, ADMIN)
