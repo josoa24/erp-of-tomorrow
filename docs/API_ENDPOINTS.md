@@ -117,7 +117,7 @@ Un compte désactivé reçoit 401 à la connexion. Un token déjà émis reste v
 |---------|--------|-------------|---------|
 | GET | `/api/stock/suppliers` | Liste. Filtre `search` (nom, téléphone, email) | 200 |
 | GET | `/api/stock/suppliers/{id}` | Détail | 200, 404 |
-| POST | `/api/stock/suppliers` | Crée un fournisseur (nom unique, email, conditions de paiement, délai de livraison) | 201, 400, 409 |
+| POST | `/api/stock/suppliers` | Crée un fournisseur (nom unique, email, conditions de paiement, délai de livraison, `bankAccount` : coordonnées de paiement de référence, renvoyées seulement sous forme `bankAccountLast4`) | 201, 400, 409 |
 | PUT | `/api/stock/suppliers/{id}` | Remplace les champs du fournisseur (les champs omis sont effacés) | 200, 400, 404, 409 |
 | DELETE | `/api/stock/suppliers/{id}` | Supprime. Refusé s'il a des bons de commande | 204, 404, 422 |
 | GET | `/api/stock/suppliers/{id}/profile` | Fiche 360 : commandes, total commandé, délai moyen de réception, produits fournis, dernières commandes | 200, 404 |
@@ -131,6 +131,20 @@ Un compte désactivé reçoit 401 à la connexion. Un token déjà émis reste v
 | POST | `/api/stock/purchase-orders` | Crée un bon en brouillon (fournisseur, lignes produit, quantité, prix) | 201, 400, 404 |
 | POST | `/api/stock/purchase-orders/{id}/validate` | Valide le bon, qui devient immuable | 200, 404, 409 |
 | POST | `/api/stock/purchase-orders/{id}/receive` | Réceptionne un bon validé : une entrée de stock par ligne | 200, 404, 409, 422 |
+
+### Factures fournisseurs et Invoice Shield
+
+Chaque facture est contrôlée par Invoice Shield avant toute décision. Codes d'alerte : `UNKNOWN_SUPPLIER`, `DUPLICATE_INVOICE`, `BANK_ACCOUNT_MISMATCH`, `BANK_ACCOUNT_UNVERIFIED`, `TOTALS_MISMATCH`, `INVALID_DATE`, `PROMPT_INJECTION`, `PURCHASE_ORDER_MISMATCH`, `OVER_INVOICED`, `AMOUNT_ANOMALY` ; gravité `BLOCKING` ou `WARNING`. Verdict : `CLEAR`, `WARNING` ou `BLOCKED`. Détail dans [NEW_FEATURES_IMPLEMENTATION.md](NEW_FEATURES_IMPLEMENTATION.md).
+
+| Méthode | Chemin | Description | Statuts |
+|---------|--------|-------------|---------|
+| POST | `/api/stock/supplier-invoices/check` | Contrôle une facture sans l'enregistrer. Renvoie `{verdict, alerts[]}` | 200, 400 |
+| POST | `/api/stock/supplier-invoices` | Enregistre une facture (`supplierId`, `invoiceNumber`, `invoiceDate`, `lines[]`, `totalAmount` obligatoires ; `purchaseOrderId`, `bankAccount`, `subtotal`, `taxAmount`, `notes` optionnels) après contrôle : statut `CLEARED`, ou `BLOCKED` si une alerte est bloquante | 201, 400 |
+| GET | `/api/stock/supplier-invoices` | Liste, de la plus récente à la plus ancienne. Filtres `status` (`CLEARED`, `BLOCKED`, `APPROVED`, `REJECTED`), `supplierId` | 200, 400 |
+| GET | `/api/stock/supplier-invoices/{id}` | Détail avec lignes et alertes. Le compte bancaire n'est jamais renvoyé en clair (`bankAccountLast4`) | 200, 404 |
+| POST | `/api/stock/supplier-invoices/{id}/approve` | Approuve. Une facture `BLOCKED` exige le rôle `ADMIN`, un autre utilisateur que son auteur, et `{"justification": "..."}`. Devient immuable | 200, 400, 403, 404, 409 |
+| POST | `/api/stock/supplier-invoices/{id}/reject` | Rejette avec `{"reason": "..."}` obligatoire. Devient immuable | 200, 400, 404, 409 |
+| GET | `/api/stock/supplier-invoices/{id}/history` | Journal d'audit : création, contrôle (verdict et codes), décision (qui, quand, justification) | 200, 404 |
 
 ## 6. Vente : `/api/vente` (rôles VENTE, ADMIN)
 
