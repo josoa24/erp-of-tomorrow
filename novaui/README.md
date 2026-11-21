@@ -1,0 +1,55 @@
+# NovaUI
+
+Frontend web de l'ERP (React 19 + TypeScript + Vite).
+
+## Prérequis
+
+- Node.js **20 ou plus** (`nvm use 23.9.0`).
+
+## Démarrage
+
+```bash
+cp .env.example .env   # adresse de la gateway
+npm install
+npm run dev            # http://localhost:5173
+```
+
+Ou, sans Node installé, depuis la racine du dépôt : `docker compose up -d novaui`.
+
+Les appels `/api/...` passent par le proxy du serveur Vite vers la gateway
+(`API_PROXY_TARGET`, `http://localhost:8080` par défaut, `http://gateway:8080` dans Docker) :
+la gateway n'a pas besoin d'autoriser le CORS.
+
+## Écrans
+
+| Route | Écran |
+|-------|-------|
+| `/connexion` | Connexion (e-mail + mot de passe, « Se souvenir de moi » garde la session dans le navigateur) |
+| `/` | Tableau de bord (protégé) : ventes, stock, équipe et points d'attention selon le rôle |
+| `/erreur` | Page d'erreur unique (réseau, accès refusé, session expirée…) |
+
+## Scripts
+
+| Commande | Rôle |
+|----------|------|
+| `npm run dev` | Serveur de développement |
+| `npm run build` | Vérification TypeScript + build de production |
+| `npm test` | Tests unitaires (Vitest + Testing Library) |
+| `npm run lint` | ESLint |
+
+## Structure
+
+```
+src/
+├── components/common/  # Composants réutilisables
+├── screens/            # Écrans (assemblage composants + hooks)
+├── hooks/              # Hooks personnalisés
+├── services/api/       # Appels HTTP
+├── types/              # Types TypeScript
+├── utils/              # Fonctions pures
+├── constants/          # Constantes
+├── navigation/         # Routage
+└── test/               # Configuration des tests
+```
+
+Règles : voir [docs/REGLES_DEVELOPPEMENT.md](../docs/REGLES_DEVELOPPEMENT.md).
