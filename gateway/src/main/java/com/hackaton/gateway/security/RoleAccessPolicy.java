@@ -17,6 +17,7 @@ public class RoleAccessPolicy {
             "/api/vente", Set.of("VENTE"),
             "/api/rh", Set.of("RH"),
             "/api/crm", Set.of("CRM"),
+            "/api/voice", Set.of("RH"),
             "/api/auth", Set.of());
 
     public boolean isPublic(String path) {

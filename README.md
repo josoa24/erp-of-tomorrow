@@ -12,7 +12,8 @@ Hackaton/
 │   ├── vente-service/    # Ventes              — port 8082 — DB 5432
 │   ├── stock-service/    # Stock               — port 8083 — DB 5433
 │   ├── auth-service/     # Utilisateurs, login, JWT — port 8084 — DB 5434
-│   └── crm-service/      # Échanges, relances, pipeline — port 8085 — DB 5435
+│   ├── crm-service/      # Échanges, relances, pipeline — port 8085 — DB 5435
+│   └── voice-service/    # Voix vers texte (Python, Whisper) — port 8087
 ├── apps/
 │   ├── rh-app/           # Front RH (React Native / Expo)
 │   ├── vente-app/        # Front Ventes
@@ -34,6 +35,7 @@ La communication inter-services passe par l'API (via la gateway).
 | `/api/stock/**` | stock-service (8083) |
 | `/api/auth/**` | auth-service (8084) |
 | `/api/crm/**` | crm-service (8085) |
+| `/api/voice/**` | voice-service (8087) |
 
 Le préfixe est retiré avant d'atteindre le service (`/api/stock/products` → `/products`).
 
@@ -41,13 +43,13 @@ Le préfixe est retiré avant d'atteindre le service (`/api/stock/products` → 
 
 Tout passe par la gateway, qui vérifie le JWT (`Authorization: Bearer <token>`) puis le rôle :
 
-| Rôle | `/api/stock` | `/api/vente` | `/api/rh` | `/api/auth/users` |
-|------|:-----------:|:------------:|:---------:|:-----------------:|
-| `STOCK` | oui | non | non | non |
-| `VENTE` | non | oui | non | non |
-| `RH` | non | non | oui | non |
-| `CRM` | non | non | non | non |
-| `ADMIN` | oui | oui | oui | oui |
+| Rôle | `/api/stock` | `/api/vente` | `/api/rh` | `/api/voice` | `/api/auth/users` |
+|------|:-----------:|:------------:|:---------:|:-----------:|:-----------------:|
+| `STOCK` | oui | non | non | non | non |
+| `VENTE` | non | oui | non | non | non |
+| `RH` | non | non | oui | oui | non |
+| `CRM` | non | non | non | non | non |
+| `ADMIN` | oui | oui | oui | oui | oui |
 
 - Seul `POST /api/auth/login` est public.
 - Pas de token ou token invalide : **401** (`UNAUTHORIZED`). Rôle non autorisé : **403** (`FORBIDDEN`).
@@ -98,8 +100,9 @@ Il n'y a pas de fichier `.env` dans le projet. Chaque `application.yml` lit ses 
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | auth-service | Compte admin créé au premier démarrage. |
 | `DB_URL`, `DB_USER`, `DB_PASSWORD` | chaque service | Accès à sa base PostgreSQL. |
 | `STOCK_URL` | vente-service, gateway | Adresse du service Stock. |
-| `AUTH_URL`, `RH_URL`, `VENTE_URL`, `CRM_URL` | gateway | Adresse des autres services. |
+| `AUTH_URL`, `RH_URL`, `VENTE_URL`, `CRM_URL`, `VOICE_URL` | gateway | Adresse des autres services. |
 | `VENTE_URL`, `STOCK_URL` | crm-service | Adresse des services Vente et Stock (fiches clients et fournisseurs). |
+| `VOICE_MODEL_SIZE`, `VOICE_DEVICE`, `VOICE_COMPUTE_TYPE`, `VOICE_LANGUAGE`, `VOICE_MAX_AUDIO_BYTES` | voice-service | Modèle Whisper (`small`), `cpu` ou `cuda`, précision (`int8`), langue par défaut (`fr`), taille maximale de l'audio (10 Mo). |
 | `EXPO_PUBLIC_API_URL` | apps React Native | Adresse de la gateway. |
 
 Définir une variable dans PowerShell, puis lancer le service **dans le même terminal** :
@@ -118,8 +121,9 @@ Le dépôt est public : ne jamais y mettre de vrai secret. Les valeurs par défa
 
 1. Les bases : `docker compose up -d`.
 2. Chaque service, dans son dossier : `mvn spring-boot:run` (auth 8084, stock 8083, vente 8082, rh 8081).
-3. La gateway : `cd gateway`, puis `mvn spring-boot:run`.
-4. Une app : `cd apps/<module>-app`, puis `npm install` et `npm start`.
+3. Le voice-service (facultatif) : voir [services/voice-service/README.md](services/voice-service/README.md).
+4. La gateway : `cd gateway`, puis `mvn spring-boot:run`.
+5. Une app : `cd apps/<module>-app`, puis `npm install` et `npm start`.
 
 Sans PostgreSQL ni Docker, le profil `h2` démarre un service avec une base en mémoire :
 
