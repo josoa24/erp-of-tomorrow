@@ -12,8 +12,8 @@ Hackaton/
 │   ├── vente-service/    # Ventes              — port 8082 — DB 5432
 │   ├── stock-service/    # Stock               — port 8083 — DB 5433
 │   ├── auth-service/     # Utilisateurs, login, JWT — port 8084 — DB 5434
-│   ├── crm-service/      # Échanges, relances, pipeline — port 8085 — DB 5435
-│   └── ai-service/       # Assistant IA (Python, Gemini) — port 8086 — sans base
+│   ├── crm-service/      # Échanges et chronologie des tiers — port 8085 — DB 5435
+│   ├── ai-service/       # Assistant IA (Python, Gemini) — port 8086 — sans base
 │   └── voice-service/    # Voix vers texte (Python, Whisper) — port 8087
 ├── apps/
 │   ├── rh-app/           # Front RH (React Native / Expo)

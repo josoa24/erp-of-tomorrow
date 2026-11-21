@@ -206,7 +206,29 @@ Un compte désactivé reçoit 401 à la connexion. Un token déjà émis reste v
 
 ---
 
-## 9. Pour aller plus loin
+## 9. Voix : `/api/voice` (rôles RH, ADMIN)
+
+Service Python (FastAPI), hors Swagger de la gateway.
+
+| Méthode | Chemin | Description |
+|---------|--------|-------------|
+| GET | `/api/voice/health` | État du service |
+| POST | `/api/voice/transcribe` | Transcrit un fichier audio (multipart) en texte |
+| WS | `/api/voice/stream` | Transcription en temps réel (audio PCM envoyé en continu ; messages `partial`, `processing`, `final`) |
+| GET | `/api/voice/demo` | Page de démonstration |
+
+## 10. Assistant IA : `/api/ai` (rôles STOCK, VENTE, RH, CRM, ADMIN)
+
+| Méthode | Chemin | Description |
+|---------|--------|-------------|
+| POST | `/api/ai/agent/chat` | Question en langage naturel, réponse complète |
+| POST | `/api/ai/agent/chat/stream` | Idem, en flux SSE |
+| GET, DELETE | `/api/ai/agent/conversations/{conversation_id}` | Lire ou supprimer une conversation |
+| POST | `/api/ai/agent/conversations/{conversation_id}/actions/{action_id}/confirm` | Confirme une écriture proposée |
+| POST | `/api/ai/agent/conversations/{conversation_id}/actions/{action_id}/cancel` | Annule une écriture proposée |
+| GET | `/api/ai/tools`, `/api/ai/health` | Outils disponibles, état du service |
+
+## 11. Pour aller plus loin
 
 - Plans de développement : [PLAN_API.md](PLAN_API.md), [PLAN_CRM.md](PLAN_CRM.md), [PLAN_ERP.md](PLAN_ERP.md).
 - Règles de code : [REGLES_DEVELOPPEMENT.md](REGLES_DEVELOPPEMENT.md).

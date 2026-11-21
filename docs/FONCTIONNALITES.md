@@ -2,7 +2,7 @@
 
 Ce que l'ERP sait faire aujourd'hui, côté serveur. Le détail de chaque endpoint est dans [API_ENDPOINTS.md](API_ENDPOINTS.md) ; ce qui reste à faire est dans [PLAN_API.md](PLAN_API.md), [PLAN_CRM.md](PLAN_CRM.md) et [PLAN_ERP.md](PLAN_ERP.md).
 
-Les applications React Native (`apps/`) sont encore des squelettes vides : aucun écran n'existe.
+Les applications React Native (`apps/`) sont encore des squelettes vides : aucun écran n'existe. Seul le front web NovaUI (`novaui/`) a trois écrans (voir plus bas).
 
 ## Accès et sécurité
 
@@ -49,8 +49,22 @@ Les applications React Native (`apps/`) sont encore des squelettes vides : aucun
 - Écriture après confirmation explicite : mouvement de stock, bon de commande (création, validation, réception), vente (création, validation).
 - Historique des conversations, page de test sur `/api/ai/ui`.
 
+## Transcription vocale (`voice-service`, port 8087)
+
+- Voix vers texte, en local et hors ligne (faster-whisper) : envoi d'un fichier audio (`POST /transcribe`, 10 Mo maximum par défaut).
+- Transcription en temps réel par WebSocket (`/stream`) : texte provisoire pendant la phrase, texte final après 0,7 s de silence.
+- Page de démonstration sur `/demo` (choix du micro, niveau sonore, journal de debug).
+- Accessible via la gateway sur `/api/voice/**` (rôles `RH` et `ADMIN`). Pas encore relié à l'assistant IA.
+
+## Front web NovaUI (`novaui/`)
+
+- Connexion (e-mail et mot de passe, option « Se souvenir de moi »).
+- Tableau de bord selon le rôle : chiffre d'affaires et tendance, disponibilité du stock, effectif et congés, points d'attention.
+- Page d'erreur unique (réseau, accès refusé, session expirée).
+
 ## Outillage
 
 - Swagger unique pour tous les services : `http://localhost:8080/swagger-ui.html`.
 - Lancement complet par `docker compose` (bases PostgreSQL, services, gateway ; IA avec le profil `ai`).
+- `docker-compose.dev.yml` : environnement de développement avec rechargement à chaud (Java, Python, NovaUI).
 - Tests unitaires dans chaque service.
