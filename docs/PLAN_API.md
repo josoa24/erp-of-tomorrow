@@ -32,9 +32,9 @@ Gère les **comptes de connexion** (différents des fiches employés du module R
 | A3 | Connexion et JWT | `POST /login` | Renvoie un token signé avec l'email, l'id et le rôle. | Fait |
 | A4 | Compte admin initial | — | Créé au premier démarrage si la base est vide. | Fait |
 | A5 | Contrôle des rôles dans la gateway | — | 401 sans token, 403 si le rôle n'a pas accès au module (RH ne peut pas aller sur Vente ni Stock). | Fait |
-| A6 | Modification d'un compte | `PUT /users/{id}` | Changer le rôle, désactiver un compte. | À faire |
-| A7 | Changement de mot de passe | `POST /users/me/password` | L'utilisateur change son propre mot de passe. | À faire |
-| A8 | Désactivation d'un compte | `POST /users/{id}/disable` | Un compte désactivé ne peut plus se connecter. | À faire |
+| A6 | Modification d'un compte | `PUT /users/{id}` | Changer le rôle. Refusé sur son propre compte. | Fait |
+| A7 | Changement de mot de passe | `POST /users/me/password` | L'utilisateur change son propre mot de passe (mot de passe actuel exigé). Ouvert à tous les rôles par la gateway. | Fait |
+| A8 | Désactivation d'un compte | `POST /users/{id}/disable`, `/enable` | Un compte désactivé ne peut plus se connecter. Refusé sur son propre compte. | Fait |
 | A9 | Lier un compte à un employé | — | `userId` optionnel sur la fiche employé du module RH. | À faire (dépend de R2) |
 | A10 | Services accessibles uniquement via la gateway | — | Chaque service refuse les appels sans les en-têtes `X-User-*` de la gateway. | À faire |
 | A11 | Page de connexion et pages d'erreur 401/403 dans les 3 apps | — | Les erreurs `UNAUTHORIZED` et `FORBIDDEN` ouvrent la page d'erreur dédiée. | À faire |

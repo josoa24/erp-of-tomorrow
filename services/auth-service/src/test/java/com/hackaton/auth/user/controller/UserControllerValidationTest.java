@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.hackaton.auth.user.service.creator.UserCreator;
 import com.hackaton.auth.user.service.reader.UserReader;
+import com.hackaton.auth.user.service.updater.UserUpdater;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -25,6 +26,8 @@ class UserControllerValidationTest {
     private UserCreator userCreator;
     @MockitoBean
     private UserReader userReader;
+    @MockitoBean
+    private UserUpdater userUpdater;
 
     @Test
     void shouldReturn400_whenPasswordIsTooShort() throws Exception {
@@ -51,6 +54,22 @@ class UserControllerValidationTest {
                 .andExpect(jsonPath("$.type").value("VALIDATION"));
 
         verifyNoInteractions(userCreator);
+    }
+
+    @Test
+    void shouldReturn400Validation_whenRoleIsUnknown() throws Exception {
+        createUser("{\"email\":\"stock@erp.local\",\"password\":\"secret123\",\"role\":\"PATRON\"}")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("VALIDATION"));
+
+        verifyNoInteractions(userCreator);
+    }
+
+    @Test
+    void shouldReturn400Validation_whenJsonIsMalformed() throws Exception {
+        createUser("{\"email\":")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("VALIDATION"));
     }
 
     private ResultActions createUser(String body) throws Exception {

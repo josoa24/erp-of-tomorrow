@@ -1,5 +1,6 @@
 package com.hackaton.auth.login.service;
 
+import com.hackaton.auth.common.exception.AccountDisabledException;
 import com.hackaton.auth.common.exception.InvalidCredentialsException;
 import com.hackaton.auth.login.dto.LoginRequest;
 import com.hackaton.auth.login.dto.LoginResponse;
@@ -25,6 +26,9 @@ public class AuthenticatorService implements Authenticator {
                 .orElseThrow(InvalidCredentialsException::new);
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new InvalidCredentialsException();
+        }
+        if (!user.isEnabled()) {
+            throw new AccountDisabledException();
         }
         return new LoginResponse(tokenIssuer.issue(user), user.getEmail(), user.getRole());
     }
