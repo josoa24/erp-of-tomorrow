@@ -56,6 +56,22 @@ class UserControllerValidationTest {
         verifyNoInteractions(userCreator);
     }
 
+    @Test
+    void shouldReturn400Validation_whenRoleIsUnknown() throws Exception {
+        createUser("{\"email\":\"stock@erp.local\",\"password\":\"secret123\",\"role\":\"PATRON\"}")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("VALIDATION"));
+
+        verifyNoInteractions(userCreator);
+    }
+
+    @Test
+    void shouldReturn400Validation_whenJsonIsMalformed() throws Exception {
+        createUser("{\"email\":")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("VALIDATION"));
+    }
+
     private ResultActions createUser(String body) throws Exception {
         return mockMvc.perform(withIdentity(post("/users")).contentType(MediaType.APPLICATION_JSON).content(body));
     }
