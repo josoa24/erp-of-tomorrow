@@ -44,6 +44,12 @@ spring:
             - Path=/api/ai/**
           filters:
             - StripPrefix=2
+        - id: voice-service
+          uri: ${VOICE_URL:http://localhost:8087}
+          predicates:
+            - Path=/api/voice/**
+          filters:
+            - StripPrefix=2
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
