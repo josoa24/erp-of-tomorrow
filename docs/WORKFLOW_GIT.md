@@ -40,6 +40,26 @@ Un commit = une idée. Pas de fichiers générés (`target/`, `node_modules/`).
 3. Ouvrir la PR vers `main` avec la checklist de [REGLES_DEVELOPPEMENT.md](REGLES_DEVELOPPEMENT.md).
 4. Au moins **une relecture** d'un autre développeur avant le merge.
 5. Merge en **squash** pour garder un historique lisible.
+6. **Supprimer la branche dès que la PR est mergée** (voir la section suivante).
+
+## Suppression des branches après merge
+
+Une branche ne vit que le temps de sa PR. **Dès que la PR est mergée, la branche est supprimée.**
+
+- **Sur GitHub** : la suppression est automatique (option « Automatically delete head branches » activée sur le dépôt). Si elle n'a pas eu lieu, cliquer sur « Delete branch » dans la PR.
+- **En local**, chaque développeur nettoie sa copie :
+
+```
+git checkout main
+git pull origin main
+git branch -D <ma-branche>
+git fetch --prune
+```
+
+Le merge en squash empêche `git branch -d` de reconnaître la branche comme fusionnée : utiliser `-D` une fois la PR mergée.
+
+- Ne jamais réutiliser une branche mergée : pour une nouvelle tâche, créer une nouvelle branche depuis un `main` à jour.
+- Les branches de longue durée n'existent pas dans ce projet : `main` est la seule branche permanente.
 
 ## Avant de commencer une tâche
 
