@@ -55,4 +55,22 @@ class RoleAccessPolicyTest {
         assertTrue(policy.isPublic("/api/auth/login"));
         assertFalse(policy.isPublic("/api/auth/users"));
     }
+
+    @Test
+    void shouldOpenAssistantToEveryRole() {
+        assertTrue(policy.isAllowed("/api/ai/agent/chat", "STOCK"));
+        assertTrue(policy.isAllowed("/api/ai/agent/chat/stream", "VENTE"));
+        assertTrue(policy.isAllowed("/api/ai/agent/chat", "RH"));
+        assertTrue(policy.isAllowed("/api/ai/agent/chat", "CRM"));
+        assertTrue(policy.isAllowed("/api/ai/agent/chat", "ADMIN"));
+        assertFalse(policy.isAllowed("/api/aix/agent/chat", "STOCK"));
+    }
+
+    @Test
+    void shouldExposeOnlyAssistantTestPageAsPublic() {
+        assertTrue(policy.isPublic("/api/ai/ui"));
+        assertTrue(policy.isPublic("/api/ai/v3/api-docs"));
+        assertFalse(policy.isPublic("/api/ai/agent/chat"));
+        assertFalse(policy.isPublic("/api/ai/tools"));
+    }
 }

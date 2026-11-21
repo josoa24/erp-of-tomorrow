@@ -12,7 +12,8 @@ Hackaton/
 │   ├── vente-service/    # Ventes              — port 8082 — DB 5432
 │   ├── stock-service/    # Stock               — port 8083 — DB 5433
 │   ├── auth-service/     # Utilisateurs, login, JWT — port 8084 — DB 5434
-│   └── crm-service/      # Échanges, relances, pipeline — port 8085 — DB 5435
+│   ├── crm-service/      # Échanges, relances, pipeline — port 8085 — DB 5435
+│   └── ai-service/       # Assistant IA (Python, Gemini) — port 8086 — sans base
 ├── apps/
 │   ├── rh-app/           # Front RH (React Native / Expo)
 │   ├── vente-app/        # Front Ventes
@@ -34,6 +35,7 @@ La communication inter-services passe par l'API (via la gateway).
 | `/api/stock/**` | stock-service (8083) |
 | `/api/auth/**` | auth-service (8084) |
 | `/api/crm/**` | crm-service (8085) |
+| `/api/ai/**` | ai-service (8086) |
 
 Le préfixe est retiré avant d'atteindre le service (`/api/stock/products` → `/products`).
 
@@ -41,15 +43,18 @@ Le préfixe est retiré avant d'atteindre le service (`/api/stock/products` → 
 
 Tout passe par la gateway, qui vérifie le JWT (`Authorization: Bearer <token>`) puis le rôle :
 
-| Rôle | `/api/stock` | `/api/vente` | `/api/rh` | `/api/auth/users` |
-|------|:-----------:|:------------:|:---------:|:-----------------:|
-| `STOCK` | oui | non | non | non |
-| `VENTE` | non | oui | non | non |
-| `RH` | non | non | oui | non |
-| `CRM` | non | non | non | non |
-| `ADMIN` | oui | oui | oui | oui |
+| Rôle | `/api/stock` | `/api/vente` | `/api/rh` | `/api/ai` | `/api/auth/users` |
+|------|:-----------:|:------------:|:---------:|:---------:|:-----------------:|
+| `STOCK` | oui | non | non | oui | non |
+| `VENTE` | non | oui | non | oui | non |
+| `RH` | non | non | oui | oui | non |
+| `CRM` | non | non | non | oui | non |
+| `ADMIN` | oui | oui | oui | oui | oui |
 
-- Seul `POST /api/auth/login` est public.
+L'assistant (`/api/ai`) est ouvert à tous les rôles : il appelle les autres modules avec le token de
+l'utilisateur, il ne voit donc que ce que ce rôle peut voir.
+
+- Seuls `POST /api/auth/login` et la page de test `GET /api/ai/ui` sont publics.
 - Pas de token ou token invalide : **401** (`UNAUTHORIZED`). Rôle non autorisé : **403** (`FORBIDDEN`).
 - Un compte `ADMIN` est créé au premier démarrage de l'auth-service (`ADMIN_EMAIL` / `ADMIN_PASSWORD`, valeurs de développement par défaut à changer).
 - Le secret `JWT_SECRET` doit être identique dans la gateway et l'auth-service.
@@ -100,6 +105,9 @@ Il n'y a pas de fichier `.env` dans le projet. Chaque `application.yml` lit ses 
 | `STOCK_URL` | vente-service, gateway | Adresse du service Stock. |
 | `AUTH_URL`, `RH_URL`, `VENTE_URL`, `CRM_URL` | gateway | Adresse des autres services. |
 | `VENTE_URL`, `STOCK_URL` | crm-service | Adresse des services Vente et Stock (fiches clients et fournisseurs). |
+| `AI_URL` | gateway | Adresse de l'ai-service. |
+| `GEMINI_API_KEY`, `GEMINI_MODEL` | ai-service | Clé et modèle Gemini (jamais commités). |
+| `ERP_GATEWAY_URL` | ai-service | Adresse de la gateway vue par l'ai-service. |
 | `EXPO_PUBLIC_API_URL` | apps React Native | Adresse de la gateway. |
 
 Définir une variable dans PowerShell, puis lancer le service **dans le même terminal** :
@@ -120,6 +128,9 @@ Le dépôt est public : ne jamais y mettre de vrai secret. Les valeurs par défa
 2. Chaque service, dans son dossier : `mvn spring-boot:run` (auth 8084, stock 8083, vente 8082, rh 8081).
 3. La gateway : `cd gateway`, puis `mvn spring-boot:run`.
 4. Une app : `cd apps/<module>-app`, puis `npm install` et `npm start`.
+5. L'assistant IA (optionnel) : voir [services/ai-service/README.md](services/ai-service/README.md)
+   (`uvicorn` en local, ou `docker compose --profile ai up -d --build`), puis
+   `python services/ai-service/scripts/seed_demo.py` et `python services/ai-service/scripts/test_erp_agent.py`.
 
 Sans PostgreSQL ni Docker, le profil `h2` démarre un service avec une base en mémoire :
 

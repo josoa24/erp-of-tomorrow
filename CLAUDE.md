@@ -26,4 +26,4 @@ Lire et respecter [docs/REGLES_DEVELOPPEMENT.md](docs/REGLES_DEVELOPPEMENT.md). 
 
 ## Contexte du projet
 
-Monorepo microservices : `gateway/`, `services/{auth,stock,vente,rh}-service/`, `apps/{stock,vente,rh}-app/`. Chaque équipe reste dans son dossier ([docs/WORKFLOW_GIT.md](docs/WORKFLOW_GIT.md)). Les tâches sont dans [docs/PLAN_API.md](docs/PLAN_API.md).
+Monorepo microservices : `gateway/`, `services/{auth,stock,vente,rh,crm}-service/`, `services/ai-service/` (Python), `apps/{stock,vente,rh}-app/`. Chaque équipe reste dans son dossier ([docs/WORKFLOW_GIT.md](docs/WORKFLOW_GIT.md)). Les tâches sont dans [docs/PLAN_API.md](docs/PLAN_API.md).
