@@ -110,7 +110,7 @@ Il n'y a pas de fichier `.env` dans le projet. Chaque `application.yml` lit ses 
 | `AI_URL` | gateway | Adresse de l'ai-service. |
 | `GEMINI_API_KEY`, `GEMINI_MODEL` | ai-service | Clé et modèle Gemini (jamais commités). |
 | `ERP_GATEWAY_URL` | ai-service | Adresse de la gateway vue par l'ai-service. |
-| `VOICE_MODEL_SIZE`, `VOICE_DEVICE`, `VOICE_COMPUTE_TYPE`, `VOICE_LANGUAGE`, `VOICE_MAX_AUDIO_BYTES` | voice-service | Modèle Whisper (`small`), `cpu` ou `cuda`, précision (`int8`), langue par défaut (`fr`), taille maximale de l'audio (10 Mo). |
+| `VOICE_MODEL_SIZE`, `VOICE_PARTIAL_MODEL_SIZE`, `VOICE_DEVICE`, `VOICE_COMPUTE_TYPE`, `VOICE_LANGUAGE`, `VOICE_MAX_AUDIO_BYTES` | voice-service | Modèle Whisper (`small`), modèle rapide pour le texte provisoire (facultatif), `cpu` ou `cuda`, précision (`int8`), langue par défaut (`fr`), taille maximale de l'audio (10 Mo). |
 | `EXPO_PUBLIC_API_URL` | apps React Native | Adresse de la gateway. |
 
 Définir une variable dans PowerShell, puis lancer le service **dans le même terminal** :

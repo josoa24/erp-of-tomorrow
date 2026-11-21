@@ -1,0 +1,74 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f7f7f5;
+  --fg: #1d1d1b;
+  --muted: #6b6b66;
+  --accent: #2f6fed;
+  --card: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161615;
+    --fg: #ececea;
+    --muted: #9a9a94;
+    --accent: #6b9bff;
+    --card: #222220;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, sans-serif;
+}
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+.hint,
+#status {
+  color: var(--muted);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+button {
+  padding: 10px 22px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+select {
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.live {
+  min-height: 3em;
+  margin: 24px 0;
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--muted);
+  font-size: 1.4rem;
+  font-style: italic;
+}
+
+.history li {
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
