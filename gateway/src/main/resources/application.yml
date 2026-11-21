@@ -38,6 +38,12 @@ spring:
             - Path=/api/stock/**
           filters:
             - StripPrefix=2
+        - id: ai-service
+          uri: ${AI_URL:http://localhost:8086}
+          predicates:
+            - Path=/api/ai/**
+          filters:
+            - StripPrefix=2
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -53,3 +59,5 @@ springdoc:
         url: /api/rh/v3/api-docs
       - name: CRM
         url: /api/crm/v3/api-docs
+      - name: AI
+        url: /api/ai/v3/api-docs

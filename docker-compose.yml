@@ -156,6 +156,20 @@ services:
       - rh-service
       - crm-service
 
+
+  # Assistant IA : démarré seulement avec le profil "ai" (docker compose --profile ai up -d --build).
+  # Les services Java tournent sur la machine hôte : l'IA joint la gateway via host.docker.internal.
+  ai-service:
+    profiles: ["ai"]
+    build: ./services/ai-service
+    ports:
+      - "8086:8086"
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
+      ERP_GATEWAY_URL: ${ERP_GATEWAY_URL:-http://host.docker.internal:8080}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 volumes:
   crm-data:
   auth-data:

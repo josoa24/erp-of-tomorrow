@@ -10,6 +10,7 @@ public class RoleAccessPolicy {
 
     private static final String ADMIN = "ADMIN";
     private static final String LOGIN_PATH = "/api/auth/login";
+    private static final String AI_TEST_PAGE = "/api/ai/ui";
     private static final Pattern API_DOCS_PATH = Pattern.compile("^/api/[a-z]+/v3/api-docs(/.*)?$");
 
     private static final Map<String, Set<String>> MODULE_ROLES = Map.of(
@@ -17,10 +18,11 @@ public class RoleAccessPolicy {
             "/api/vente", Set.of("VENTE"),
             "/api/rh", Set.of("RH"),
             "/api/crm", Set.of("CRM"),
+            "/api/ai", Set.of("STOCK", "VENTE", "RH", "CRM"),
             "/api/auth", Set.of());
 
     public boolean isPublic(String path) {
-        return LOGIN_PATH.equals(path) || API_DOCS_PATH.matcher(path).matches();
+        return LOGIN_PATH.equals(path) || AI_TEST_PAGE.equals(path) || API_DOCS_PATH.matcher(path).matches();
     }
 
     public boolean isAllowed(String path, String role) {
