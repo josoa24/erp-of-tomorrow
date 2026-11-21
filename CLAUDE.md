@@ -10,6 +10,7 @@ Ce fichier s'applique à tout assistant IA (Claude Code, Copilot, Cursor, etc.) 
 4. **Ne jamais committer de fichier `.env`**, de mot de passe, de clé API, de token ou de secret. Utiliser des variables d'environnement et un `.env.example` sans valeurs réelles.
 5. Ne jamais pousser avec `--force` sur une branche partagée.
 6. Ne pas pousser ni créer de PR sans demande explicite du développeur.
+7. **Supprimer la branche dès que sa PR est mergée**, en local (`git branch -D`, puis `git fetch --prune`) et sur le dépôt distant s'il reste. Ne jamais réutiliser une branche mergée. Ne supprimer que des branches dont la PR est bien au statut MERGED.
 
 ## Règles de code
 
