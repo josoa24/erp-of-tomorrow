@@ -1,5 +1,6 @@
 package com.hackaton.stock.movement.repository;
 
+import com.hackaton.stock.movement.dto.ProductOutQuantity;
 import com.hackaton.stock.movement.entity.MovementType;
 import com.hackaton.stock.movement.entity.StockMovement;
 import java.time.Instant;
@@ -18,4 +19,9 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, Lo
             @Param("productId") Long productId,
             @Param("type") MovementType type,
             @Param("since") Instant since);
+
+    @Query("select new com.hackaton.stock.movement.dto.ProductOutQuantity(m.productId, sum(m.quantity)) "
+            + "from StockMovement m where m.type = :type and m.createdAt >= :since group by m.productId")
+    List<ProductOutQuantity> sumQuantityByProductSince(
+            @Param("type") MovementType type, @Param("since") Instant since);
 }

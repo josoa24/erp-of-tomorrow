@@ -58,6 +58,7 @@ La gateway transmet l'identité aux services (`X-User-Id`, `X-User-Email`, `X-Us
 | S9 | Validation d'un bon de commande | `POST /purchase-orders/{id}/validate` | Passe en `VALIDATED`, devient immuable (C2). | Fait |
 | S10 | Réception d'une commande | `POST /purchase-orders/{id}/receive` | Crée automatiquement un mouvement `IN` par ligne. | Fait |
 | S11 | Tests | — | Tests du reader d'autonomie, de la validation et de la réception. | Fait |
+| S12 | État de stock complet | `GET /status?risk=` (donc `/api/stock/status` via la gateway) | Tous les produits avec quantité, seuil, moyenne vendue par jour, jours restants et risque, triés du plus urgent au moins urgent. Stock à zéro : `CRITICAL`. Stock sous le seuil sans risque de vente : `WARNING`. Filtre optionnel par risque. | Fait |
 
 ---
 
