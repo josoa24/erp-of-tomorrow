@@ -85,7 +85,7 @@ Une donnée validée (vente, bon de commande, congé) ne peut plus être modifi�
 | GET | `/api/stock/products/{id}` | Détail d'un produit | 200, 404 |
 | POST | `/api/stock/products` | Crée un produit (`name`, `sku` unique, `unit`, `quantity`, `minThreshold`, `unitPrice`) | 201, 400, 409 |
 | PUT | `/api/stock/products/{id}` | Modifie nom, unité, seuil et prix. La quantité ne change que par les mouvements | 200, 400, 404 |
-| DELETE | `/api/stock/products/{id}` | Supprime un produit | 204, 404 |
+| DELETE | `/api/stock/products/{id}` | Supprime un produit. Refusé s'il a des mouvements ou figure dans un bon de commande | 204, 404, 422 |
 | GET | `/api/stock/products/{id}/autonomy` | Moyenne vendue par jour (7 jours), jours restants et risque `OK`, `WARNING`, `CRITICAL` | 200, 404 |
 | GET | `/api/stock/status` | État de stock complet : tous les produits avec autonomie et risque, du plus urgent au moins urgent. Filtre `risk` | 200, 400 |
 | GET | `/api/stock/summary` | Nombre de produits, nombre en alerte, valeur totale du stock | 200 |
