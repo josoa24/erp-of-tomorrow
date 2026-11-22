@@ -47,5 +47,4 @@ class ModuleProposal(CamelModel):
     source: ProposalSource
     can_create: bool
     unchecked_columns: list[str] = Field(default_factory=list)
-    hidden_columns: list[str] = Field(default_factory=list)
     note: str | None = None

@@ -11,8 +11,7 @@ async def propose_module(deps: EclipseDeps, body: ModuleRequest, role: str) -> M
     template = choose_template(body.description)
     if template is not None:
         return ModuleProposal(proposal=template.definition.with_description(body.description), source="TEMPLATE",
-                              can_create=can_create, unchecked_columns=list(template.unchecked_columns),
-                              hidden_columns=list(template.hidden_columns))
+                              can_create=can_create, unchecked_columns=list(template.unchecked_columns))
     designed = await deps.designer.design(body.description) if deps.designer is not None else None
     if designed is not None:
         return ModuleProposal(proposal=designed.with_description(body.description), source="GEMINI",
