@@ -6,6 +6,7 @@ import { RelationsScreen } from '../features/relations/screens/RelationsScreen'
 import { SalesScreen } from '../features/sales/screens/SalesScreen'
 import { StockScreen } from '../features/stock/screens/StockScreen'
 import { TeamScreen } from '../features/team/screens/TeamScreen'
+import { validateTeamSearch } from '../features/team/services/teamSearch'
 import { DashboardScreen } from '../screens/Dashboard/DashboardScreen'
 import { protectedRoute } from './baseRoutes'
 import { requireModule } from './routeGuards'
@@ -40,6 +41,7 @@ export const teamRoute = createRoute({
   getParentRoute: parent,
   path: ROUTES.team,
   beforeLoad: requireModule('rh'),
+  validateSearch: validateTeamSearch,
   staticData: { eclipsePlaceholder: ECLIPSE_PLACEHOLDERS.team },
   component: TeamScreen,
 })
