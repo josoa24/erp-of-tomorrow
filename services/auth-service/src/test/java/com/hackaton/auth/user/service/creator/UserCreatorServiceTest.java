@@ -1,5 +1,6 @@
 package com.hackaton.auth.user.service.creator;
 
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -45,7 +46,7 @@ class UserCreatorServiceTest {
     void shouldStoreTrimmedFullNameAndHashedPassword_whenRequestIsValid() {
         when(userRepository.save(any(UserAccount.class))).thenAnswer(call -> call.getArgument(0));
 
-        UserResponse response = service.create(new UserCreateRequest(EMAIL, "motdepasse1", Role.RH, "  Rasoa Andria "));
+        UserResponse response = service.create(new UserCreateRequest(EMAIL, "motdepasse1", List.of(Role.RH), null, "  Rasoa Andria "));
 
         assertEquals("Rasoa Andria", response.fullName());
         assertEquals(Role.RH, response.role());
@@ -56,17 +57,17 @@ class UserCreatorServiceTest {
     void shouldStoreNullFullName_whenNameIsBlank() {
         when(userRepository.save(any(UserAccount.class))).thenAnswer(call -> call.getArgument(0));
 
-        UserResponse response = service.create(new UserCreateRequest(EMAIL, "motdepasse1", Role.RH, "   "));
+        UserResponse response = service.create(new UserCreateRequest(EMAIL, "motdepasse1", List.of(Role.RH), null, "   "));
 
         assertNull(response.fullName());
     }
 
     @Test
     void shouldRefuse_whenEmailAlreadyExists() {
-        when(userRepository.existsByEmail(EMAIL)).thenReturn(true);
+        when(userRepository.existsByEmailIgnoreCase(EMAIL)).thenReturn(true);
 
         DuplicateResourceException error = assertThrows(DuplicateResourceException.class,
-                () -> service.create(new UserCreateRequest(EMAIL, "motdepasse1", Role.RH, "Rasoa Andria")));
+                () -> service.create(new UserCreateRequest(EMAIL, "motdepasse1", List.of(Role.RH), null, "Rasoa Andria")));
 
         assertTrue(error.getMessage().contains(EMAIL));
         verify(userRepository, never()).save(any());

@@ -22,6 +22,7 @@ export function FilterChip({
     <button
       type={type}
       aria-pressed={active}
+      aria-label={count === undefined ? undefined : `${label}, ${count}`}
       className={cn(
         'inline-flex h-9 shrink-0 items-center gap-2 rounded-pill border px-3.5 text-label whitespace-nowrap',
         'outline-none transition-colors focus-visible:shadow-focus-ring disabled:opacity-40',

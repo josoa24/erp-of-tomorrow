@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from typing import Iterable
+
+from app.erp.context import normalize_roles
+
 HOME_MODULE = "accueil"
 BASE_MODULE_LABELS: dict[str, str] = {"ventes": "Ventes", "stock": "Stock", "equipe": "Équipe",
                                       "relations": "Relations"}
@@ -10,14 +14,15 @@ def is_base_module(module_key: str) -> bool:
     return module_key in BASE_MODULE_LABELS
 
 
-def can_access(module_key: str, role: str) -> bool:
-    if role == "ADMIN" or not is_base_module(module_key):
+def can_access(module_key: str, roles: str | Iterable[str]) -> bool:
+    held = normalize_roles(roles)
+    if "ADMIN" in held or not is_base_module(module_key):
         return True
-    return BASE_MODULE_ROLES[module_key] == role
+    return BASE_MODULE_ROLES[module_key] in held
 
 
-def accessible_base_modules(role: str) -> list[str]:
-    return [key for key in BASE_MODULE_LABELS if can_access(key, role)]
+def accessible_base_modules(roles: str | Iterable[str]) -> list[str]:
+    return [key for key in BASE_MODULE_LABELS if can_access(key, roles)]
 
 
 def slug_label(slug: str) -> str:

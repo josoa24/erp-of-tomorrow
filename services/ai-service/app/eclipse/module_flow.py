@@ -17,8 +17,8 @@ def _from_design(designed: DesignedModule, description: str, can_create: bool, k
         explanation=designed.explanation or None, suggestions=designed.suggestions, changes=designed.changes)
 
 
-async def propose_module(deps: EclipseDeps, body: ModuleRequest, role: str) -> ModuleProposal:
-    can_create = role == "ADMIN"
+async def propose_module(deps: EclipseDeps, body: ModuleRequest, roles: tuple[str, ...]) -> ModuleProposal:
+    can_create = "ADMIN" in roles
     designed = await deps.designer.design(body.description) if deps.designer is not None else None
     if designed is not None:
         return _from_design(designed, body.description, can_create)
@@ -30,8 +30,8 @@ async def propose_module(deps: EclipseDeps, body: ModuleRequest, role: str) -> M
                           source="TEMPLATE", can_create=can_create, note=GENERIC_NOTE)
 
 
-async def refine_module(deps: EclipseDeps, body: ModuleRefineRequest, role: str) -> ModuleProposal:
-    can_create = role == "ADMIN"
+async def refine_module(deps: EclipseDeps, body: ModuleRefineRequest, roles: tuple[str, ...]) -> ModuleProposal:
+    can_create = "ADMIN" in roles
     designed = await deps.designer.refine(body.proposal, body.instruction) if deps.designer is not None else None
     if designed is None:
         return ModuleProposal(proposal=body.proposal, source="TEMPLATE", can_create=can_create, note=UNAVAILABLE_NOTE)

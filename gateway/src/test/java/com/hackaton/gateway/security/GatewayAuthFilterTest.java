@@ -33,6 +33,17 @@ class GatewayAuthFilterTest {
                 .compact();
     }
 
+    private String tokenWithRoles(String role, java.util.List<String> roles) {
+        return Jwts.builder()
+                .subject("multi@erp.local")
+                .claim("userId", 7)
+                .claim("role", role)
+                .claim("roles", roles)
+                .expiration(new Date(System.currentTimeMillis() + 60_000))
+                .signWith(Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8)))
+                .compact();
+    }
+
     private MockServerWebExchange exchange(String path, String token) {
         MockServerHttpRequest.BaseBuilder<?> builder = MockServerHttpRequest.get(path);
         if (token != null) {
@@ -116,5 +127,45 @@ class GatewayAuthFilterTest {
         AtomicReference<ServerWebExchange> forwarded = run(exchange);
 
         assertTrue(forwarded.get() != null);
+    }
+
+    @Test
+    void shouldAllowEachModule_whenAnyRoleGrantsIt() {
+        String token = tokenWithRoles("VENTE", java.util.List.of("VENTE", "STOCK"));
+
+        AtomicReference<ServerWebExchange> stock = run(exchange("/api/stock/products", token));
+        MockServerWebExchange rh = exchange("/api/rh/employees", token);
+        run(rh);
+
+        assertTrue(stock.get() != null);
+        assertEquals("STOCK", stock.get().getRequest().getHeaders().getFirst(GatewayAuthFilter.HEADER_USER_ROLE));
+        assertEquals("STOCK,VENTE", stock.get().getRequest().getHeaders().getFirst(GatewayAuthFilter.HEADER_USER_ROLES));
+        assertEquals(HttpStatus.FORBIDDEN, rh.getResponse().getStatusCode());
+    }
+
+    @Test
+    void shouldIgnoreClientSentRolesHeaders() {
+        MockServerHttpRequest request = MockServerHttpRequest.get("/api/auth/users")
+                .header("Authorization", "Bearer " + tokenFor("STOCK", SECRET, 60_000))
+                .header(GatewayAuthFilter.HEADER_USER_ROLES, "ADMIN")
+                .build();
+        MockServerWebExchange exchange = MockServerWebExchange.from(request);
+
+        run(exchange);
+
+        assertEquals(HttpStatus.FORBIDDEN, exchange.getResponse().getStatusCode());
+    }
+
+    @Test
+    void shouldReplaceClientSentRolesHeader_whenRequestIsAllowed() {
+        MockServerHttpRequest request = MockServerHttpRequest.get("/api/stock/products")
+                .header("Authorization", "Bearer " + tokenFor("STOCK", SECRET, 60_000))
+                .header(GatewayAuthFilter.HEADER_USER_ROLES, "ADMIN")
+                .build();
+
+        AtomicReference<ServerWebExchange> forwarded = run(MockServerWebExchange.from(request));
+
+        assertEquals(java.util.List.of("STOCK"),
+                forwarded.get().getRequest().getHeaders().get(GatewayAuthFilter.HEADER_USER_ROLES));
     }
 }

@@ -28,6 +28,7 @@ public class JwtTokenIssuer {
                 .subject(user.getEmail())
                 .claim("userId", user.getId())
                 .claim("role", user.getRole().name())
+                .claim("roles", user.sortedRoles().stream().map(Enum::name).toList())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(ttlMinutes, ChronoUnit.MINUTES)))
                 .signWith(key)

@@ -1,5 +1,6 @@
 package com.hackaton.auth.user.controller;
 
+import java.util.List;
 import static com.hackaton.auth.support.GatewayHeaders.withIdentity;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -31,7 +32,7 @@ class CurrentUserControllerTest {
     @Test
     void shouldReturnCallerAccount_whenIdentityIsPresent() throws Exception {
         when(userReader.findById(1L)).thenReturn(
-                new UserResponse(1L, "hery@boutique-tana.mg", "Hery Rabe", Role.ADMIN, true, Instant.now()));
+                new UserResponse(1L, "hery@boutique-tana.mg", "Hery Rabe", List.of(Role.ADMIN), Role.ADMIN, true, Instant.now(), null));
 
         mockMvc.perform(withIdentity(get(PATH)))
                 .andExpect(status().isOk())

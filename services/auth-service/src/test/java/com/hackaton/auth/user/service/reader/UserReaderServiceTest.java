@@ -66,7 +66,7 @@ class UserReaderServiceTest {
 
     @Test
     void shouldMapEveryAccount_whenListingAll() {
-        when(userRepository.findAll()).thenReturn(List.of(user));
+        when(userRepository.findAll(org.mockito.ArgumentMatchers.any(org.springframework.data.domain.Sort.class))).thenReturn(List.of(user));
 
         List<UserResponse> responses = service.findAll();
 

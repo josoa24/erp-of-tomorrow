@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import date
 
-from app.erp.context import UserContext
+from app.erp.context import UserContext, roles_label
 
 _JOURS = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
 
@@ -53,5 +53,5 @@ def build_system_instruction(today: date | None = None, user: UserContext | None
     t = today or date.today()
     text = f"{SYSTEM_INSTRUCTION}\nDate du jour : {_JOURS[t.weekday()]} {t.isoformat()}."
     if user:
-        text += f"\nUtilisateur connecté : {user.email}, rôle {user.role} (n'a accès qu'aux outils fournis)."
+        text += f"\nUtilisateur connecté : {user.email}, rôle {roles_label(user.roles)} (n'a accès qu'aux outils fournis)."
     return text

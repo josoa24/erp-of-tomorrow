@@ -4,6 +4,7 @@ import com.hackaton.auth.user.dto.UserCreateRequest;
 import com.hackaton.auth.user.entity.Role;
 import com.hackaton.auth.user.repository.UserAccountRepository;
 import com.hackaton.auth.user.service.creator.UserCreator;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -34,7 +35,7 @@ public class AdminSeeder implements CommandLineRunner {
     @Transactional
     public void run(String... args) {
         if (userRepository.count() == 0) {
-            userCreator.create(new UserCreateRequest(adminEmail, adminPassword, Role.ADMIN, adminName));
+            userCreator.create(new UserCreateRequest(adminEmail, adminPassword, List.of(Role.ADMIN), null, adminName));
             return;
         }
         completeMissingName();

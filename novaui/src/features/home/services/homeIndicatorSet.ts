@@ -4,11 +4,11 @@ import { canAccessModule } from '../../../utils/roleAccess'
 import type { useHomeData } from '../hooks/useHomeData'
 import { deliveryIndicator, salesIndicator, stockIndicator, teamIndicator } from './homeIndicators'
 
-export const homeIndicators = (role: Role, data: ReturnType<typeof useHomeData>): KpiItem[] => {
+export const homeIndicators = (roles: readonly Role[], data: ReturnType<typeof useHomeData>): KpiItem[] => {
   const delivery = data.deliveries.data
   return [
-    ...(canAccessModule(role, 'vente') ? [salesIndicator(data.sales)] : []),
-    ...(canAccessModule(role, 'stock') ? [stockIndicator(data.stockSummary)] : []),
-    ...(delivery ? [deliveryIndicator(delivery)] : canAccessModule(role, 'rh') ? [teamIndicator(data.team)] : []),
+    ...(canAccessModule(roles, 'vente') ? [salesIndicator(data.sales)] : []),
+    ...(canAccessModule(roles, 'stock') ? [stockIndicator(data.stockSummary)] : []),
+    ...(delivery ? [deliveryIndicator(delivery)] : canAccessModule(roles, 'rh') ? [teamIndicator(data.team)] : []),
   ]
 }

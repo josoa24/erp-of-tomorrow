@@ -8,12 +8,13 @@ interface FormDialogProps {
   description: string
   submitLabel: string
   saving: boolean
+  submitDisabled?: boolean
   onSubmit: () => void
   onClose: () => void
   children: ReactNode
 }
 
-export const FormDialog = ({ formId, title, description, submitLabel, saving, onSubmit, onClose, children }: FormDialogProps) => (
+export const FormDialog = ({ formId, title, description, submitLabel, saving, submitDisabled, onSubmit, onClose, children }: FormDialogProps) => (
   <Dialog
     open
     onClose={onClose}
@@ -24,7 +25,7 @@ export const FormDialog = ({ formId, title, description, submitLabel, saving, on
         <Button variant="secondary" onClick={onClose} disabled={saving}>
           Annuler
         </Button>
-        <Button type="submit" form={formId} loading={saving}>
+        <Button type="submit" form={formId} loading={saving} disabled={submitDisabled}>
           {submitLabel}
         </Button>
       </>

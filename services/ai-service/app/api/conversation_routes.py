@@ -53,7 +53,7 @@ async def confirm(request: Request, conversation_id: str = Path(pattern=CONV_ID)
             action = _guard(request, conv).take(action_id, by_user=True)
             if isinstance(action, dict):
                 return api_error(404, "NOT_FOUND", action["error"]["message"])
-            result = await request.app.state.registry.execute_pending(action, user.role)
+            result = await request.app.state.registry.execute_pending(action, user.roles)
             ok = result.get("success", False)
             detail = "" if ok else (result.get("error") or {}).get("message", "")
             request.app.state.conversations.append_exchange(

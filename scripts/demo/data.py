@@ -1,8 +1,18 @@
 """Données de démonstration : une PME de distribution alimentaire à Antananarivo (montants en Ariary)."""
 
 PASSWORD = "demo12345"
+ROLE_ORDER = ["ADMIN", "STOCK", "VENTE", "RH", "CRM"]
 ACCOUNTS = [("stock@erp.local", "STOCK"), ("vente@erp.local", "VENTE"), ("rh@erp.local", "RH"),
             ("crm@erp.local", "CRM")]
+
+TEAM_ACCOUNTS = [
+    ("mamy.andrianjaka@erp.local", ["ADMIN"], "Mamy Andrianjaka", True, 0),
+    ("lalaina.rakotomalala@erp.local", ["STOCK", "VENTE"], "Lalaina Rakotomalala", True, 1),
+    ("njaka.rasolofo@erp.local", ["VENTE"], "Njaka Rasolofo", True, 2),
+    ("miora.razafindrabe@erp.local", ["VENTE", "CRM"], "Miora Razafindrabe", True, 9),
+    ("volana.rabemanana@erp.local", ["RH", "CRM"], "Volana Rabemanana", True, None),
+    ("tojo.randrianasolo@erp.local", ["CRM"], "Tojo Randrianasolo", False, 45),
+]
 
 # nom, sku, unité, stock initial, seuil, prix unitaire
 PRODUCTS = [

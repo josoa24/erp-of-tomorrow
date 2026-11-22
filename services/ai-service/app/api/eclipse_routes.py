@@ -25,8 +25,8 @@ LIMITED = [Depends(enforce_rate_limit)]
                          "Rien n’est appliqué : le front applique via /api/modules/adaptations (ADMIN).")
 async def propose_screen_adaptation(body: AdaptationRequest, request: Request):
     user = user_from_request(request)
-    if not can_access(body.module_key, user.role):
-        return api_error(403, "FORBIDDEN", forbidden_module(user.role, body.module_key))
+    if not can_access(body.module_key, user.roles):
+        return api_error(403, "FORBIDDEN", forbidden_module(user.roles, body.module_key))
     result = await propose_adaptation(request.app.state.eclipse, body, user)
     calls, label = adaptation_audit(result)
     record_interaction(request, user, None, body.request, calls, label)
@@ -39,7 +39,7 @@ async def propose_screen_adaptation(body: AdaptationRequest, request: Request):
                          "sinon base générique avec une note. Rien n’est créé.")
 async def propose_custom_module(body: ModuleRequest, request: Request):
     user = user_from_request(request)
-    result = await propose_module(request.app.state.eclipse, body, user.role)
+    result = await propose_module(request.app.state.eclipse, body, user.roles)
     calls, label = module_audit(result)
     record_interaction(request, user, None, body.description, calls, label)
     return result
@@ -51,7 +51,7 @@ async def propose_custom_module(body: ModuleRequest, request: Request):
                          "définition, le validateur la contrôle ; sans Gemini la proposition reste inchangée.")
 async def refine_custom_module(body: ModuleRefineRequest, request: Request):
     user = user_from_request(request)
-    result = await refine_module(request.app.state.eclipse, body, user.role)
+    result = await refine_module(request.app.state.eclipse, body, user.roles)
     calls, label = module_audit(result)
     record_interaction(request, user, None, body.instruction, calls, label)
     return result

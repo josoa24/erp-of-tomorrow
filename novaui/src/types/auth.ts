@@ -9,6 +9,7 @@ export interface Session {
   token: string
   email: string
   role: Role
+  roles?: Role[]
   fullName?: string | null
 }
 
@@ -19,6 +20,8 @@ export interface UserAccount {
   email: string
   fullName: string | null
   role: Role
+  roles: Role[]
+  lastLoginAt?: string | null
   enabled: boolean
   createdAt: string
 }

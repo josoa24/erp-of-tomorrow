@@ -1,5 +1,6 @@
 package com.hackaton.auth.user.service.updater;
 
+import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -46,7 +47,7 @@ class UserUpdaterServiceTest {
     void shouldChangeRole_whenAccountExists() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
 
-        UserResponse response = service.changeRole(USER_ID, Role.STOCK, ADMIN_ID);
+        UserResponse response = service.changeRoles(USER_ID, Set.of(Role.STOCK), ADMIN_ID);
 
         assertEquals(Role.STOCK, response.role());
     }
@@ -62,7 +63,7 @@ class UserUpdaterServiceTest {
     @Test
     void shouldRefuse_whenAdminTargetsOwnAccount() {
         assertThrows(BusinessRuleException.class, () -> service.setEnabled(ADMIN_ID, false, ADMIN_ID));
-        assertThrows(BusinessRuleException.class, () -> service.changeRole(ADMIN_ID, Role.RH, ADMIN_ID));
+        assertThrows(BusinessRuleException.class, () -> service.changeRoles(ADMIN_ID, Set.of(Role.RH), ADMIN_ID));
         verifyNoInteractions(userRepository);
     }
 
@@ -70,6 +71,6 @@ class UserUpdaterServiceTest {
     void shouldThrowNotFound_whenAccountDoesNotExist() {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> service.changeRole(99L, Role.RH, ADMIN_ID));
+        assertThrows(ResourceNotFoundException.class, () -> service.changeRoles(99L, Set.of(Role.RH), ADMIN_ID));
     }
 }

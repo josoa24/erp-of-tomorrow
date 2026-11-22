@@ -32,6 +32,7 @@ class IdentityForwardingTest {
         incoming.addHeader("X-User-Id", "3");
         incoming.addHeader("X-User-Email", "user@erp.local");
         incoming.addHeader("X-User-Role", "ADMIN");
+        incoming.addHeader("X-User-Roles", "ADMIN,STOCK");
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(incoming));
         MockClientHttpRequest outgoing = new MockClientHttpRequest(HttpMethod.GET, URI.create("http://service/x"));
 
@@ -40,6 +41,7 @@ class IdentityForwardingTest {
         assertEquals("3", outgoing.getHeaders().getFirst("X-User-Id"));
         assertEquals("user@erp.local", outgoing.getHeaders().getFirst("X-User-Email"));
         assertEquals("ADMIN", outgoing.getHeaders().getFirst("X-User-Role"));
+        assertEquals("ADMIN,STOCK", outgoing.getHeaders().getFirst("X-User-Roles"));
         verify(execution).execute(any(), any());
     }
 
