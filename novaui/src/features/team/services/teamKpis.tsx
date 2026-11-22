@@ -47,11 +47,8 @@ export const teamKpis = (
       tone: 'mint',
       label: 'Demandes',
       value: summary?.pendingLeaves ?? PENDING_VALUE,
-      hint: (
-        <button type="button" className="text-micro text-ink-secondary underline underline-offset-2" onClick={onOpenLeaveRequests}>
-          congés à valider
-        </button>
-      ),
+      hint: 'congés à valider',
+      onClick: onOpenLeaveRequests,
     },
   ]
   return adaptation.visible ? [...kpis, advanceKpi(advances, adaptation.highlighted)] : kpis
