@@ -1,5 +1,7 @@
 # Brief R11 — Données de démonstration NOVA (réalistes, Madagascar)
 
+Mise à jour : `scripts/demo/` existe déjà sur `songomby_d2` (PR #38 : seed_demo.py, seed_core.py, seed_more.py, data.py, checks.py, verify_*.py). Étendre ces scripts au lieu de créer `scripts/demo/seed.py`.
+
 - Branch: infra/feat-nova-demo-data (created by the orchestrator from the global test branch test/nova-integration once all integrations are merged there)
 - Worktree: /home/saandria/Documents/devfest/erp-of-tomorrow.worktrees/infra-feat-nova-demo-data
 - Scratch dir: <SCRATCH>/work/R11

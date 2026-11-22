@@ -80,7 +80,7 @@ L'ordre de fusion dans `songomby_d2` est celui du tableau. « Relu » signifie q
 6. **Eclipse front** (I7 phase B) : barre et réponses, aperçu et application des adaptations, création de module (04a et 04b), écran de module générique (Livraisons, Réparations, Rendez-vous), import « Reprendre les N ventes ».
 7. **Accueil et navigation** (I1 phase B) : Connexion, page d'erreur, Mon profil, Accueil avec `EclipseHeroBar`.
 8. **Passe de coordination** (`workflows/coordinate.workflow.js`) : vérifier que chaque producteur et chaque consommateur respecte le registre (noms de champs, statuts, rôles).
-9. **Données de démonstration** (`briefs/R11-demo-data.md`) : `scripts/demo/seed.py` via la gateway et `backdate.sql`.
+9. **Données de démonstration** : `scripts/demo/` existe déjà sur `songomby_d2`. Un collègue l'a ajouté (PR #38) : `seed_demo.py`, `seed_core.py`, `seed_more.py`, et les vérifications `verify_*.py`. **Compléter ces scripts**, ne pas en créer d'autres. Il faut y ajouter les nouveaux champs : catégories, prix d'achat, lots et péremptions, encaissements, crédits, à livrer, NIF/STAT et plafonds, contrats, avances, nom complet des comptes. Suivre `briefs/R11-demo-data.md` pour le contenu attendu. Ajouter `backdate.sql` si l'historique sur 60 jours est nécessaire.
 10. **Vérification globale** (`workflows/verify.workflow.js`) sur la vraie pile, aux largeurs 375, 768 et 1440 :
     - Pour chaque écriture, recharger et vérifier la persistance.
     - Pour chaque lecture, comparer les totaux et compteurs avec l'API.
@@ -163,5 +163,5 @@ git -C ../wt-stock merge --no-edit songomby_d2
 - Fuseau `Indian/Antananarivo` pour « aujourd'hui », « cette semaine » et « ce mois ». Plusieurs anciens calculs étaient en UTC.
 - Le rôle VENTE n'a pas accès à `/api/stock` : la saisie de vente passe par le catalogue relayé `GET /api/vente/catalog/products` (V6).
 - Les références d'un module vers client, vente ou employé sont des liens logiques entre schémas (pas de FK physique) : leur existence est vérifiée par l'API du service propriétaire.
-- Les volumes du Figma (64 produits, 412 ventes) n'existent que via le futur seed R11.
+- Les volumes du Figma (64 produits, 412 ventes) n'existent que via les scripts de `scripts/demo/`, complétés selon R11. Le scénario de démonstration du pitch est documenté par le collègue (PR #39).
 - La pile de développement `erp-dev` de l'ancienne machine a été arrêtée sans être supprimée. Rien à faire sur la nouvelle machine.
