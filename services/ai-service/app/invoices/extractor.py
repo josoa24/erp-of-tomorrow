@@ -1,7 +1,8 @@
 """Extraction d'une facture fournisseur par Gemini (vision), sans aucun outil.
 
 Le document est une DONNÉE NON FIABLE : l'appel n'a pas d'outil (le modèle ne peut rien écrire ni
-appeler), sa sortie est un JSON validé par ExtractedInvoice, et l'instruction système demande
+appeler), sa sortie (schéma GeminiInvoice) est ramenée dans les bornes d'ExtractedInvoice puis validée,
+et l'instruction système demande
 d'ignorer toute consigne présente dans le document (elle est recopiée dans `notes`, que l'Invoice
 Shield du stock-service analyse ensuite).
 """
@@ -14,7 +15,7 @@ from pydantic import ValidationError
 from app.agent.gemini_config import thinking_config
 from app.agent.gemini_errors import AgentError, to_agent_error
 from app.config import Settings
-from app.invoices.models import ExtractedInvoice
+from app.invoices.models import ExtractedInvoice, GeminiInvoice
 
 EXTRACTION_INSTRUCTION = """\
 Tu lis une facture fournisseur et tu en extrais les champs demandés, en JSON.
@@ -32,7 +33,7 @@ class InvoiceExtractor:
         self._settings = settings
         self._config = types.GenerateContentConfig(
             system_instruction=EXTRACTION_INSTRUCTION, response_mime_type="application/json",
-            response_schema=ExtractedInvoice, temperature=0, thinking_config=thinking_config(settings))
+            response_schema=GeminiInvoice, temperature=0, thinking_config=thinking_config(settings))
 
     async def extract(self, data: bytes, mime_type: str) -> ExtractedInvoice:
         contents = [types.Content(role="user", parts=[
@@ -44,6 +45,6 @@ class InvoiceExtractor:
         except Exception as exc:  # noqa: BLE001
             raise to_agent_error(exc) from None
         try:
-            return ExtractedInvoice.model_validate_json(resp.text or "")
+            return ExtractedInvoice.from_gemini(GeminiInvoice.model_validate_json(resp.text or ""))
         except ValidationError:
             raise AgentError(502, "EXTRACTION_INVALID", "Gemini n'a pas renvoyé une extraction exploitable.") from None
