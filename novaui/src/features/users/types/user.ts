@@ -15,14 +15,14 @@ export type UsersFilterKey = 'tous' | 'actifs' | 'desactives'
 
 export interface UsersSearch {
   filtre?: UsersFilterKey
-  role?: Role
+  role?: Role[]
   recherche?: string
   page?: number
 }
 
 export interface UsersListQuery {
   search?: string
-  role?: Role
+  role?: readonly Role[]
   enabled?: boolean
   page: number
   size: number
@@ -31,6 +31,6 @@ export interface UsersListQuery {
 export interface CreateUserRequest {
   email: string
   password: string
-  role: Role
+  roles: Role[]
   fullName?: string
 }

@@ -1,5 +1,5 @@
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { ROUTES } from '../../../navigation/routes'
 import type { Role } from '../../../types/auth'
 import { DEFAULT_USERS_FILTER } from '../services/usersFilters'
@@ -8,6 +8,7 @@ import type { UsersFilterKey, UsersSearch } from '../types/user'
 
 export const useUsersSearch = () => {
   const navigate = useNavigate({ from: ROUTES.users })
+  const [resetKey, setResetKey] = useState(0)
   const search = validateUsersSearch(useSearch({ strict: false }))
 
   const update = useCallback(
@@ -19,12 +20,16 @@ export const useUsersSearch = () => {
 
   return {
     search,
-    reset: useCallback(() => update({ filtre: undefined, role: undefined, recherche: undefined, page: undefined }), [update]),
+    resetKey,
+    reset: useCallback(() => {
+      setResetKey((key) => key + 1)
+      update({ filtre: undefined, role: undefined, recherche: undefined, page: undefined })
+    }, [update]),
     setFilter: useCallback(
       (filter: UsersFilterKey) => update({ filtre: filter === DEFAULT_USERS_FILTER ? undefined : filter, page: undefined }),
       [update],
     ),
-    setRole: useCallback((role: Role | undefined) => update({ role, page: undefined }), [update]),
+    setRoles: useCallback((roles: Role[]) => update({ role: roles.length > 0 ? roles : undefined, page: undefined }), [update]),
     setText: useCallback((text: string) => update({ recherche: text || undefined, page: undefined }), [update]),
     setPage: useCallback((page: number) => update({ page: page > 1 ? page : undefined }), [update]),
   }

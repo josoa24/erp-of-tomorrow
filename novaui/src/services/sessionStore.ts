@@ -1,4 +1,5 @@
 import type { Session } from '../types/auth'
+import { sessionRoles } from '../utils/roleAccess'
 import { isTokenExpired } from '../utils/jwt'
 
 const SESSION_KEY = 'eclipse.session'
@@ -16,7 +17,8 @@ const readRaw = (storage: Storage): string | null => {
 const parseSession = (raw: string): Session | null => {
   try {
     const value = JSON.parse(raw) as Partial<Session>
-    return value.token && value.email && value.role ? (value as Session) : null
+    if (!value.token || !value.email || !value.role) return null
+    return { ...value, roles: sessionRoles(value as Session) } as Session
   } catch {
     return null
   }
@@ -34,7 +36,7 @@ export const clearSession = (): void => {
 
 export const saveSession = (session: Session): void => {
   clearSession()
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session))
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ ...session, roles: sessionRoles(session) }))
 }
 
 export const readSession = (now = Date.now()): Session | null => {

@@ -2,13 +2,15 @@ import { Link } from '@tanstack/react-router'
 import type { Breakpoint } from '../../hooks/useBreakpoint'
 import { cn } from '@/lib/utils'
 import { readSession } from '../../services/sessionStore'
+import { sessionRoles } from '../../utils/roleAccess'
 import { NovaLogo } from '../brand/NovaLogo'
 import { MainNav } from './MainNav'
 import { UserMenu } from './UserMenu'
 
 export const AppHeader = ({ breakpoint }: { breakpoint: Breakpoint }) => {
-  const role = readSession()?.role
-  const showNav = breakpoint !== 'mobile' && role !== undefined
+  const session = readSession()
+  const roles = session ? sessionRoles(session) : undefined
+  const showNav = breakpoint !== 'mobile' && roles !== undefined
 
   return (
     <header
@@ -21,7 +23,7 @@ export const AppHeader = ({ breakpoint }: { breakpoint: Breakpoint }) => {
         <NovaLogo />
       </Link>
       <div className="flex min-w-0 justify-center">
-        {showNav && <MainNav role={role} compact={breakpoint === 'tablet'} />}
+        {showNav && <MainNav roles={roles} compact={breakpoint === 'tablet'} />}
       </div>
       <div className="justify-self-end">
         <UserMenu />

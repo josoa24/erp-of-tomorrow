@@ -13,11 +13,11 @@ import { homeIndicators } from '../services/homeIndicatorSet'
 
 export const HomeScreen = () => {
   const user = useCurrentUser()
-  const data = useHomeData(user?.role ?? 'CRM')
+  const data = useHomeData(user?.roles ?? ['CRM'])
   const replenishment = data.replenishment.data?.[0]
   const allowed = (data.suggestions.data ?? []).filter((item) => {
     const module = SUGGESTION_MODULES[item.moduleKey]
-    return module !== undefined && canAccessModule(user?.role ?? 'CRM', module)
+    return module !== undefined && canAccessModule(user?.roles ?? ['CRM'], module)
   })
   const suggestion = allowed[0]
   const decisions = [
@@ -27,7 +27,7 @@ export const HomeScreen = () => {
   ]
   const { act, confirming, closeConfirm } = useDecisionActions(replenishment, suggestion)
   if (!user) return null
-  const indicators = homeIndicators(user.role, data)
+  const indicators = homeIndicators(user.roles, data)
 
   return (
     <div className="mx-auto flex w-full max-w-[960px] flex-col gap-6">

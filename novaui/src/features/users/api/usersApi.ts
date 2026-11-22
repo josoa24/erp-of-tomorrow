@@ -16,8 +16,8 @@ export const getUserCounts = (options: RequestOptions = {}): Promise<UserCounts>
 export const createUser = (request: CreateUserRequest): Promise<ManagedUser> =>
   httpPost<ManagedUser>(USERS_PATH, request)
 
-export const changeUserRole = (id: number, role: Role): Promise<ManagedUser> =>
-  httpPut<ManagedUser>(userUrl(id), { role })
+export const changeUserRoles = (id: number, roles: Role[]): Promise<ManagedUser> =>
+  httpPut<ManagedUser>(userUrl(id), { roles })
 
 export const resetUserPassword = (id: number, newPassword: string): Promise<void> =>
   httpPost<void>(`${userUrl(id)}/password`, { newPassword })

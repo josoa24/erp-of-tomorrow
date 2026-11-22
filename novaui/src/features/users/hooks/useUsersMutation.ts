@@ -15,6 +15,7 @@ export const useUsersMutation = <Args, Result>({ run, message }: UsersMutationOp
 
   return useMutation({
     mutationFn: run,
+    gcTime: 0,
     onSuccess: (result, args) => {
       void queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY })
       if (message) showToast({ message: message(result, args) })

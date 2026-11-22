@@ -19,14 +19,14 @@ describe('sessionStore', () => {
 
     expect(localStorage.getItem('eclipse.session')).not.toBeNull()
     expect(sessionStorage.getItem('eclipse.session')).toBeNull()
-    expect(readSession()).toEqual(value)
+    expect(readSession()).toEqual({ ...value, roles: ['STOCK'] })
   })
 
   it('shouldStillReadLegacySession_whenStoredInSessionStorage', () => {
     const value = session(futureExp())
     sessionStorage.setItem('eclipse.session', JSON.stringify(value))
 
-    expect(readSession()).toEqual(value)
+    expect(readSession()).toEqual({ ...value, roles: ['STOCK'] })
   })
 
   it('shouldReturnNullAndClear_whenTokenExpired', () => {

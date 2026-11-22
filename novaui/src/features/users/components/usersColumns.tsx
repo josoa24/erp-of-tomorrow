@@ -1,14 +1,14 @@
 import { UserCheck, UserX } from 'lucide-react'
 import type { DataTableColumn } from '../../../components/module/types'
 import { StatusPill } from '../../../components/ui/status-pill'
-import { ROLE_LABELS } from '../../../constants/roleLabels'
+import { RoleBadges } from '../../../components/module/RoleBadge'
 import { formatCreatedAt, formatLastLogin, isSameAccount } from '../services/usersFormat'
 import type { ManagedUser } from '../types/user'
 import { UserCell } from './UserCell'
 
 export const buildUsersColumns = (currentEmail: string | undefined): DataTableColumn<ManagedUser>[] => [
   { key: 'user', header: 'Utilisateur', render: (user) => <UserCell user={user} own={isSameAccount(user, currentEmail)} /> },
-  { key: 'role', header: 'Rôle', render: (user) => <StatusPill label={ROLE_LABELS[user.role]} tone="info" /> },
+  { key: 'roles', header: 'Rôles', render: (user) => <RoleBadges roles={user.roles} /> },
   {
     key: 'state',
     header: 'État',

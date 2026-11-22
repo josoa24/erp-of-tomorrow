@@ -10,12 +10,13 @@ export interface AccessChip {
   icon: LucideIcon
 }
 
-export const accessSentence = (role: Role): string =>
-  role === 'ADMIN'
-    ? 'Administrateur : vous accédez à tous les espaces et à tous les modules créés.'
-    : `Rôle ${ROLE_LABELS[role]} : seuls les espaces autorisés apparaissent, dans la navigation comme ici.`
+export const accessSentence = (roles: readonly Role[]): string => {
+  if (roles.includes('ADMIN')) return 'Administrateur : vous accédez à tous les espaces et à tous les modules créés.'
+  const label = roles.map((role) => ROLE_LABELS[role]).join(', ')
+  return `${roles.length > 1 ? 'Rôles' : 'Rôle'} ${label} : seuls les espaces autorisés apparaissent, dans la navigation comme ici.`
+}
 
-export const accessChips = (role: Role, modules: ModuleDefinitionSummary[]): AccessChip[] => [
-  ...visibleNavItems(role).map((item) => ({ label: item.label, icon: item.icon })),
+export const accessChips = (roles: readonly Role[], modules: ModuleDefinitionSummary[]): AccessChip[] => [
+  ...visibleNavItems(roles).map((item) => ({ label: item.label, icon: item.icon })),
   ...modules.map((module) => ({ label: module.name, icon: moduleIconFor(module.icon) })),
 ]

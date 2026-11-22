@@ -1,12 +1,13 @@
-import { ROLE_LABELS } from '../../../constants/roleLabels'
-import type { ComboboxOption } from '../../../components/ui/combobox-types'
 import type { Role } from '../../../types/auth'
 
 export const ROLES: readonly Role[] = ['ADMIN', 'STOCK', 'VENTE', 'RH', 'CRM']
 
-export const ROLE_OPTIONS: ComboboxOption[] = ROLES.map((role) => ({ value: role, label: ROLE_LABELS[role] }))
+export const ROLES_HINT = 'Un compte peut avoir plusieurs rôles : il accède à tous leurs modules.'
 
-export const isRole = (value: unknown): value is Role => ROLES.some((role) => role === value)
+export const sortRoles = (roles: readonly Role[]): Role[] => ROLES.filter((role) => roles.includes(role))
 
-export const roleOption = (role: Role | undefined): ComboboxOption | null =>
-  ROLE_OPTIONS.find((option) => option.value === role) ?? null
+export const toggleRole = (roles: readonly Role[], role: Role): Role[] =>
+  sortRoles(roles.includes(role) ? roles.filter((item) => item !== role) : [...roles, role])
+
+export const sameRoles = (left: readonly Role[], right: readonly Role[]): boolean =>
+  left.length === right.length && left.every((role) => right.includes(role))

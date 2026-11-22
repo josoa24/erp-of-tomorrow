@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { DataTable } from '../../../components/module/DataTable'
 import { buildUserRowActions, type UserRowHandlers } from '../services/userRowActions'
-import { isSameAccount, userDisplayName } from '../services/usersFormat'
+import { isSameAccount, userRowLabel } from '../services/usersFormat'
 import type { ManagedUser } from '../types/user'
 import { buildUsersColumns } from './usersColumns'
 
@@ -19,7 +19,7 @@ export const UsersTable = ({ users, loading, currentEmail, handlers, empty }: Us
     columns={buildUsersColumns(currentEmail)}
     rows={users}
     getRowKey={(user) => user.id}
-    getRowLabel={userDisplayName}
+    getRowLabel={userRowLabel}
     rowActions={(user) => (isSameAccount(user, currentEmail) ? [] : buildUserRowActions(user, handlers))}
     loading={loading}
     empty={empty}

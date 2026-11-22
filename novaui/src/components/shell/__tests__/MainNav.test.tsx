@@ -11,7 +11,7 @@ const LIVRAISONS = { id: 7, slug: 'livraisons', name: 'Livraisons', icon: 'truck
 
 const renderNav = (role: Role, path = '/stock', modules = [LIVRAISONS]) => {
   vi.mocked(useModuleDefinitions).mockReturnValue({ modules, loading: false, unavailable: false })
-  return renderWithRouter(() => <MainNav role={role} />, path)
+  return renderWithRouter(() => <MainNav roles={[role]} />, path)
 }
 
 const linkNames = () =>

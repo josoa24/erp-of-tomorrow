@@ -19,28 +19,28 @@ export const GeneratedPasswordField = ({ label = 'Mot de passe provisoire', valu
   const { copied, copy } = useCopy()
 
   return (
-    <Input
-      label={label}
-      required
-      type={visible ? 'text' : 'password'}
-      autoComplete="new-password"
-      spellCheck={false}
-      placeholder={`Au moins ${MIN_PASSWORD_LENGTH} caractères`}
-      value={value}
-      invalid={error !== undefined}
-      helper={error ?? (copied ? 'Mot de passe copié' : undefined)}
-      onChange={(event) => onChange(event.target.value)}
-      trailing={
-        <>
-          <Button variant="ghost" size="s" onClick={onGenerate}>Générer</Button>
-          <IconButton size="s" aria-label={visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} aria-pressed={visible} onClick={onToggleVisible}>
-            {visible ? <EyeOff /> : <Eye />}
-          </IconButton>
-          <IconButton size="s" aria-label="Copier le mot de passe" disabled={value === ''} onClick={() => void copy(value)}>
-            <Copy />
-          </IconButton>
-        </>
-      }
-    />
+    <div className="flex flex-col gap-2">
+      <Input
+        label={label}
+        required
+        type={visible ? 'text' : 'password'}
+        autoComplete="new-password"
+        spellCheck={false}
+        placeholder={`Au moins ${MIN_PASSWORD_LENGTH} caractères`}
+        value={value}
+        invalid={error !== undefined}
+        helper={error ?? (copied ? 'Mot de passe copié' : undefined)}
+        onChange={(event) => onChange(event.target.value)}
+      />
+      <div className="flex items-center gap-2">
+        <Button variant="secondary" size="s" onClick={onGenerate}>Générer</Button>
+        <IconButton size="s" aria-label={visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} aria-pressed={visible} onClick={onToggleVisible}>
+          {visible ? <EyeOff /> : <Eye />}
+        </IconButton>
+        <IconButton size="s" aria-label="Copier le mot de passe" disabled={value === ''} onClick={() => void copy(value)}>
+          <Copy />
+        </IconButton>
+      </div>
+    </div>
   )
 }

@@ -20,5 +20,7 @@ export const formatCreatedAt = (iso: string): string => date.format(new Date(iso
 
 export const userDisplayName = (user: Pick<ManagedUser, 'fullName'>): string => user.fullName?.trim() || UNNAMED_USER
 
+export const userRowLabel = (user: Pick<ManagedUser, 'fullName' | 'email'>): string => user.fullName?.trim() || user.email
+
 export const isSameAccount = (user: Pick<ManagedUser, 'email'>, currentEmail: string | undefined): boolean =>
   currentEmail !== undefined && user.email.toLowerCase() === currentEmail.toLowerCase()

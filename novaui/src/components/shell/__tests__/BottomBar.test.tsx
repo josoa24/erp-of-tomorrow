@@ -20,7 +20,7 @@ const renderBar = (role: Role) => {
   return renderWithRouter(
     () => (
       <EclipseDockProvider>
-        <BottomBar role={role} />
+        <BottomBar roles={[role]} />
         <DockState />
       </EclipseDockProvider>
     ),

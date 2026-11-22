@@ -18,5 +18,5 @@ export const useUsersList = (query: UsersListQuery) => {
     if (result.error) handleError(result.error)
   }, [result.error, handleError])
 
-  return { users: result.data?.items ?? NO_USERS, total: result.data?.total ?? 0, loading: result.isPending }
+  return { users: result.data?.items ?? NO_USERS, total: result.data?.total ?? 0, loading: result.isPending, settled: !result.isPending && !result.isPlaceholderData }
 }

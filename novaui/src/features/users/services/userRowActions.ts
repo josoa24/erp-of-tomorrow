@@ -10,7 +10,7 @@ export interface UserRowHandlers {
 }
 
 export const buildUserRowActions = (user: ManagedUser, handlers: UserRowHandlers): RowAction[] => [
-  { key: 'role', label: 'Changer le rôle', icon: ShieldCheck, onSelect: () => handlers.changeRole(user) },
+  { key: 'role', label: 'Changer les rôles', icon: ShieldCheck, onSelect: () => handlers.changeRole(user) },
   { key: 'password', label: 'Réinitialiser le mot de passe', icon: KeyRound, onSelect: () => handlers.resetPassword(user) },
   user.enabled
     ? { key: 'disable', label: 'Désactiver', icon: PowerOff, tone: 'danger', onSelect: () => handlers.disable(user) }

@@ -1,11 +1,11 @@
 import { Button } from '../../../components/ui/button'
 import { Dialog } from '../../../components/ui/dialog'
 import { useDisableUser } from '../hooks/useUserCommands'
-import { userDisplayName } from '../services/usersFormat'
+import { userRowLabel } from '../services/usersFormat'
 import type { ManagedUser } from '../types/user'
 
 export const DISABLE_EXPLANATION =
-  'Le compte ne pourra plus se connecter. Une session déjà ouverte reste valable jusqu’à son expiration (8 h).'
+  'Le compte ne pourra plus se connecter. Une session déjà ouverte reste valable jusqu’à son expiration.'
 
 interface DisableUserDialogProps {
   user: ManagedUser
@@ -19,7 +19,7 @@ export const DisableUserDialog = ({ user, onClose }: DisableUserDialogProps) => 
     <Dialog
       open
       onClose={onClose}
-      title={`Désactiver ${userDisplayName(user)}`}
+      title={`Désactiver ${userRowLabel(user)}`}
       description={DISABLE_EXPLANATION}
       footer={
         <>

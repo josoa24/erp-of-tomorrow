@@ -7,10 +7,10 @@ import { loadDeliveryIndicator } from '../services/deliveryIndicator'
 import { getEclipseSuggestions, getReplenishment, getSalesKpis } from '../api/homeApi'
 import { useHomeQuery } from './useHomeQuery'
 
-export const useHomeData = (role: Role) => {
-  const vente = canAccessModule(role, 'vente')
-  const stock = canAccessModule(role, 'stock')
-  const rh = canAccessModule(role, 'rh')
+export const useHomeData = (roles: readonly Role[]) => {
+  const vente = canAccessModule(roles, 'vente')
+  const stock = canAccessModule(roles, 'stock')
+  const rh = canAccessModule(roles, 'rh')
   return {
     sales: useHomeQuery('sales-kpis', (signal) => getSalesKpis({ signal }), vente),
     stockSummary: useHomeQuery('stock-summary', (signal) => getStockSummary({ signal }), stock),

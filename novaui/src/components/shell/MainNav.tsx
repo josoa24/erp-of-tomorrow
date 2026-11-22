@@ -4,16 +4,16 @@ import { MyModulesGroup } from './MyModulesGroup'
 import { NavTab } from './NavTab'
 
 interface MainNavProps {
-  role: Role
+  roles: readonly Role[]
   compact?: boolean
 }
 
-export const MainNav = ({ role, compact = false }: MainNavProps) => (
+export const MainNav = ({ roles, compact = false }: MainNavProps) => (
   <nav
     aria-label="Navigation principale"
     className="flex max-w-full min-w-0 items-center gap-1 overflow-x-auto rounded-pill bg-surface-panel p-2 scrollbar-none"
   >
-    {visibleNavItems(role).map((item) => (
+    {visibleNavItems(roles).map((item) => (
       <NavTab key={item.id} item={item} compact={compact} />
     ))}
     <MyModulesGroup compact={compact} />

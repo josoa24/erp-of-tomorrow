@@ -7,10 +7,10 @@ import { BottomTab, bottomTabClass } from './BottomTab'
 import { useEclipseDock } from './eclipse-dock-context'
 import { MoreSheet } from './MoreSheet'
 
-export const BottomBar = ({ role }: { role: Role }) => {
+export const BottomBar = ({ roles }: { roles: readonly Role[] }) => {
   const [moreOpen, setMoreOpen] = useState(false)
   const { mobileOpen, openDock, closeDock } = useEclipseDock()
-  const { primary, overflow } = splitForBottomBar(visibleNavItems(role))
+  const { primary, overflow } = splitForBottomBar(visibleNavItems(roles))
   const [home, first, second] = primary
 
   return (

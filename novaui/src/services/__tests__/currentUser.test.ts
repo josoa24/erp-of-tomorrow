@@ -20,13 +20,15 @@ describe('toCurrentUser', () => {
     expect(toCurrentUser({ email: 'hery.rabe@boutique-tana.mg', role: 'ADMIN' })).toEqual({
       email: 'hery.rabe@boutique-tana.mg',
       role: 'ADMIN',
+      roles: ['ADMIN'],
       roleLabel: 'Administrateur',
+      roleLabels: ['Administrateur'],
       displayName: 'Hery Rabe',
       initials: 'HR',
     })
   })
 
   it('shouldLabelHumanResourcesRole', () => {
-    expect(toCurrentUser({ email: 'rh@erp.local', role: 'RH' }).roleLabel).toBe('Ressources humaines')
+    expect(toCurrentUser({ email: 'rh@erp.local', role: 'RH' }).roleLabel).toBe('Équipe')
   })
 })
