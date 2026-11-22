@@ -11,7 +11,6 @@ export const useCatalogProducts = (search: string) => {
   const result = useQuery({
     queryKey: salesQueryKeys.catalog(search),
     queryFn: ({ signal }) => searchCatalogProducts(search, { signal }),
-    enabled: search !== '',
   })
   useRedirectOnError(result.error)
 

@@ -11,7 +11,7 @@ interface MainNavProps {
 export const MainNav = ({ role, compact = false }: MainNavProps) => (
   <nav
     aria-label="Navigation principale"
-    className="flex max-w-full min-w-0 items-center gap-1 overflow-x-auto rounded-pill bg-surface-panel p-2 [scrollbar-width:none]"
+    className="flex max-w-full min-w-0 items-center gap-1 overflow-x-auto rounded-pill bg-surface-panel p-2 scrollbar-none"
   >
     {visibleNavItems(role).map((item) => (
       <NavTab key={item.id} item={item} compact={compact} />

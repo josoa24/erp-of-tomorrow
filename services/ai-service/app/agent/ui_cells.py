@@ -46,3 +46,8 @@ def kpi(title: str, items: list[tuple[str, Any, str | None, str]]) -> list[dict[
     return [{"type": "kpi", "title": title, "items": [
         {"label": label, "value": value, "kind": kind, **({"hint": hint} if hint else {})}
         for label, value, hint, kind in items if value is not None]}]
+
+
+def chart(title: str, points: list[tuple[str, Any]], kind: str = "number") -> list[dict[str, Any]]:
+    clean = [{"label": str(label), "value": value} for label, value in points if isinstance(value, (int, float))]
+    return [{"type": "chart", "title": title, "kind": kind, "points": clean}] if len(clean) >= 2 else []

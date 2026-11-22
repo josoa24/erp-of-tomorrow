@@ -32,8 +32,14 @@ export interface UiAlertItem {
   tone: UiTone
 }
 
+export interface UiChartPoint {
+  label: string
+  value: number
+}
+
 export type UiBlock =
   | { type: 'kpi'; title: string; items: UiKpiItem[] }
   | { type: 'table'; title: string; columns: UiColumn[]; rows: Record<string, UiCell>[]; total?: number }
   | { type: 'card'; title: string; subtitle: string; tone: UiTone; fields: UiField[] }
   | { type: 'alerts'; title: string; items: UiAlertItem[] }
+  | { type: 'chart'; title: string; kind: UiCellKind; points: UiChartPoint[] }

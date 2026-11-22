@@ -1,7 +1,8 @@
-import { useState, type RefObject } from 'react'
+import { useCallback, useState, type RefObject } from 'react'
 import { EclipseBar } from '../../../components/eclipse/EclipseBar'
 import { ECLIPSE_UNAVAILABLE_LABEL } from '../../../constants/eclipsePlaceholders'
 import { useEclipseAssistant } from '../hooks/useEclipseAssistant'
+import { useEclipseVoice } from '../voice/hooks/useEclipseVoice'
 import { EclipsePanel, type PanelPlacement } from './EclipsePanel'
 
 interface EclipseAssistantProps {
@@ -15,6 +16,15 @@ interface EclipseAssistantProps {
 export const EclipseAssistant = ({ variant, placeholder, moduleKey, placement, inputRef }: EclipseAssistantProps) => {
   const [value, setValue] = useState('')
   const { chat, submit, status, unavailability, notice, visible, close } = useEclipseAssistant(moduleKey)
+  const onText = useCallback(
+    (text: string, send: boolean) => {
+      if (!send) return setValue(text)
+      setValue('')
+      void submit(text)
+    },
+    [submit],
+  )
+  const voice = useEclipseVoice({ variant, disabled: status !== 'idle', onText })
 
   return (
     <div className="relative">
@@ -31,6 +41,7 @@ export const EclipseAssistant = ({ variant, placeholder, moduleKey, placement, i
           onClose={close}
         />
       )}
+      {voice.status}
       <EclipseBar
         variant={variant}
         placeholder={placeholder}
@@ -44,6 +55,7 @@ export const EclipseAssistant = ({ variant, placeholder, moduleKey, placement, i
         status={status}
         unavailableLabel={ECLIPSE_UNAVAILABLE_LABEL}
         inputRef={inputRef}
+        trailing={voice.button}
       />
     </div>
   )

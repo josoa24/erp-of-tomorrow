@@ -57,7 +57,8 @@ Il n'y a qu'une seule application web, NovaUI (`novaui/`), pour tous les modules
 - Voix vers texte, en local et hors ligne (faster-whisper) : envoi d'un fichier audio (`POST /transcribe`, 10 Mo maximum par défaut).
 - Transcription en temps réel par WebSocket (`/stream`) : texte provisoire pendant la phrase, texte final après 0,7 s de silence.
 - Page de démonstration sur `/demo` (choix du micro, niveau sonore, journal de debug).
-- Accessible via la gateway sur `/api/voice/**` (rôles `RH` et `ADMIN`). Pas encore relié à l'assistant IA.
+- Accessible via la gateway sur `/api/voice/**` (rôles `STOCK`, `VENTE`, `RH`, `CRM` et `ADMIN`). Son port n'est pas publié : seule la gateway est exposée.
+- Relié à Eclipse dans NovaUI : le bouton micro de la barre Eclipse (raccourci `Alt M`) enregistre la voix, l'envoie à `POST /api/voice/transcribe` puis remplit la barre ou envoie la demande à l'assistant. États gérés : permission, micro absent ou occupé, silence, enregistrement trop long, service indisponible. Guide de test : [GUIDE_TEST_VOCAL.md](GUIDE_TEST_VOCAL.md).
 
 ## Front web NovaUI (`novaui/`)
 

@@ -10,7 +10,6 @@ export const useCustomerOptions = (search: string) => {
   const result = useQuery({
     queryKey: salesQueryKeys.customers(search),
     queryFn: ({ signal }) => searchCustomerOptions(search, { signal }),
-    enabled: search !== '',
   })
   useRedirectOnError(result.error)
 
