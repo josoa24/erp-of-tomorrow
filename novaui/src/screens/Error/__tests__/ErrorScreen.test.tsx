@@ -31,22 +31,22 @@ describe('ErrorScreen', () => {
   it('shouldShowNotFound_whenNoStateIsGiven', async () => {
     await renderAt()
 
-    expect(await screen.findByRole('heading', { name: 'Page introuvable' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Introuvable' })).toBeInTheDocument()
   })
 
-  it('shouldGoBackToOrigin_whenRetrying', async () => {
+  it('shouldGoToLogin_whenLoginIsRefused', async () => {
     await renderAt({ type: 'unauthorized', message: 'Refusé', from: '/connexion' })
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Réessayer' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Revenir à la connexion' }))
 
     expect(await screen.findByText('Page de connexion')).toBeInTheDocument()
   })
 
-  it('shouldGoHome_whenClickingBack', async () => {
-    await renderAt({ type: 'server', message: 'Panne', from: '/connexion' })
+  it('shouldGoBackToOrigin_whenRetrying', async () => {
+    await renderAt({ type: 'server', message: 'Panne', from: '/connexion', status: 500, code: 'SERVER' })
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Retour' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Réessayer' }))
 
-    expect(await screen.findByText('Accueil')).toBeInTheDocument()
+    expect(await screen.findByText('Page de connexion')).toBeInTheDocument()
   })
 })

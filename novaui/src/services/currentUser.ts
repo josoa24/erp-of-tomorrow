@@ -12,7 +12,7 @@ export const displayNameFromEmail = (email: string): string => {
   return words.length > 0 ? words.map(capitalize).join(' ') : email
 }
 
-export const toCurrentUser = ({ email, role }: Pick<Session, 'email' | 'role'>): CurrentUser => {
-  const displayName = displayNameFromEmail(email)
+export const toCurrentUser = ({ email, role, fullName }: Pick<Session, 'email' | 'role' | 'fullName'>): CurrentUser => {
+  const displayName = fullName?.trim() || displayNameFromEmail(email)
   return { email, role, roleLabel: ROLE_LABELS[role], displayName, initials: toInitials(displayName) }
 }
