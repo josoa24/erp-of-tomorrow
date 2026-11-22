@@ -1,4 +1,5 @@
 import { Outlet, createRootRoute, createRoute, redirect } from '@tanstack/react-router'
+import { AppShell } from '../components/shell/AppShell'
 import { ErrorScreen } from '../screens/Error/ErrorScreen'
 import { LoginScreen } from '../screens/Login/LoginScreen'
 import { readSession } from '../services/sessionStore'
@@ -32,5 +33,5 @@ export const protectedRoute = createRoute({
   beforeLoad: () => {
     if (!readSession()) throw redirect({ to: ROUTES.login, replace: true })
   },
-  component: Outlet,
+  component: AppShell,
 })
