@@ -49,7 +49,7 @@ class StockMovementCreatorServiceTest {
 
     @Test
     void shouldIncreaseStock_whenMovementIsIn() {
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productRepository.findForUpdateById(1L)).thenReturn(Optional.of(product));
         when(movementRepository.save(any(StockMovement.class))).thenAnswer(call -> call.getArgument(0));
 
         MovementResponse response = service.record(1L, new MovementRequest(MovementType.IN, 40, "livraison"));
@@ -60,7 +60,7 @@ class StockMovementCreatorServiceTest {
 
     @Test
     void shouldDecreaseStock_whenMovementIsOut() {
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productRepository.findForUpdateById(1L)).thenReturn(Optional.of(product));
         when(movementRepository.save(any(StockMovement.class))).thenAnswer(call -> call.getArgument(0));
 
         MovementResponse response = service.record(1L, new MovementRequest(MovementType.OUT, 9, "vente"));
@@ -70,7 +70,7 @@ class StockMovementCreatorServiceTest {
 
     @Test
     void shouldThrowInsufficientStock_whenOutExceedsQuantity() {
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(productRepository.findForUpdateById(1L)).thenReturn(Optional.of(product));
 
         assertThrows(InsufficientStockException.class,
                 () -> service.record(1L, new MovementRequest(MovementType.OUT, 45, "vente")));
@@ -79,7 +79,7 @@ class StockMovementCreatorServiceTest {
 
     @Test
     void shouldThrowNotFound_whenProductDoesNotExist() {
-        when(productRepository.findById(2L)).thenReturn(Optional.empty());
+        when(productRepository.findForUpdateById(2L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
                 () -> service.record(2L, new MovementRequest(MovementType.IN, 1, null)));

@@ -5,6 +5,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+import com.hackaton.stock.lot.service.allocator.StockLotAllocator;
 import com.hackaton.stock.lot.service.creator.StockLotCreator;
 import com.hackaton.stock.lot.service.validator.LotEntryValidator;
 import com.hackaton.stock.movement.dto.MovementRequest;
@@ -27,6 +28,8 @@ class MovementLotTrackerServiceTest {
     private LotEntryValidator entryValidator;
     @Mock
     private StockLotCreator lotCreator;
+    @Mock
+    private StockLotAllocator lotAllocator;
     @InjectMocks
     private MovementLotTrackerService tracker;
 
@@ -55,6 +58,17 @@ class MovementLotTrackerServiceTest {
         tracker.track(product, entry, new MovementRequest(MovementType.IN, 12, null, " LC-1 ", EXPIRY));
 
         verify(lotCreator).receive(product, entry, "LC-1", EXPIRY);
+        verifyNoInteractions(lotAllocator);
+    }
+
+    @Test
+    void shouldAllocateFefo_whenMovementIsExit() {
+        StockMovement exit = movement(MovementType.OUT);
+
+        tracker.track(product, exit, new MovementRequest(MovementType.OUT, 12, "Vente V-0412"));
+
+        verify(lotAllocator).allocate(exit);
+        verifyNoInteractions(lotCreator);
     }
 
     @Test

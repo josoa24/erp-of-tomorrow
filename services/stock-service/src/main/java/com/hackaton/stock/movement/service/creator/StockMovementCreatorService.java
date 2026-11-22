@@ -28,7 +28,7 @@ public class StockMovementCreatorService implements StockMovementCreator {
     @Transactional
     public MovementResponse record(Long productId, MovementRequest request) {
         lotTracker.check(request);
-        Product product = productRepository.findById(productId)
+        Product product = productRepository.findForUpdateById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Produit", productId));
         int newQuantity = computeNewQuantity(product, request);
         product.setQuantity(newQuantity);

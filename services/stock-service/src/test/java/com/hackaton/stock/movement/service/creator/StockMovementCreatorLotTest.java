@@ -55,7 +55,7 @@ class StockMovementCreatorLotTest {
 
     @Test
     void shouldTrackLotOfSavedMovement_whenEntryIsRecorded() {
-        when(productRepository.findById(3L)).thenReturn(Optional.of(product));
+        when(productRepository.findForUpdateById(3L)).thenReturn(Optional.of(product));
         when(movementRepository.save(any(StockMovement.class))).thenAnswer(call -> call.getArgument(0));
 
         service.record(3L, ENTRY_WITH_LOT);
