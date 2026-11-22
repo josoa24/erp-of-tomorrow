@@ -1,5 +1,7 @@
 package com.hackaton.gateway.security;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -29,11 +31,15 @@ public class RoleAccessPolicy {
     }
 
     public boolean isAllowed(String path, String role) {
-        if (ADMIN.equals(role) || matches(path, OWN_ACCOUNT_PATH)) {
+        return isAllowed(path, List.of(role));
+    }
+
+    public boolean isAllowed(String path, Collection<String> roles) {
+        if (roles.contains(ADMIN) || matches(path, OWN_ACCOUNT_PATH)) {
             return true;
         }
         return MODULE_ROLES.entrySet().stream()
-                .anyMatch(rule -> matches(path, rule.getKey()) && rule.getValue().contains(role));
+                .anyMatch(rule -> matches(path, rule.getKey()) && roles.stream().anyMatch(rule.getValue()::contains));
     }
 
     private boolean matches(String path, String prefix) {

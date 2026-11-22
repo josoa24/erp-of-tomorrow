@@ -15,7 +15,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 public class IdentityForwarding implements ClientHttpRequestInterceptor, RestClientCustomizer {
 
-    static final List<String> HEADERS = List.of("X-User-Id", "X-User-Email", "X-User-Role");
+    static final List<String> HEADERS = List.of("X-User-Id", "X-User-Email", "X-User-Role", "X-User-Roles");
 
     @Override
     public void customize(RestClient.Builder builder) {
