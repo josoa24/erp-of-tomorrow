@@ -3,6 +3,7 @@ package com.hackaton.vente.customer.controller;
 import com.hackaton.vente.common.page.PageResult;
 import com.hackaton.vente.customer.dto.CustomerRequest;
 import com.hackaton.vente.customer.dto.CustomerResponse;
+import com.hackaton.vente.customer.entity.CustomerType;
 import com.hackaton.vente.customer.service.creator.CustomerCreator;
 import com.hackaton.vente.customer.service.deleter.CustomerDeleter;
 import com.hackaton.vente.customer.service.reader.CustomerReader;
@@ -38,9 +39,10 @@ public class CustomerController {
     @GetMapping
     public ResponseEntity<List<CustomerResponse>> search(
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) CustomerType type,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
-        PageResult<CustomerResponse> result = customerReader.search(search, page, size);
+        PageResult<CustomerResponse> result = customerReader.search(search, type, page, size);
         return ResponseEntity.ok()
                 .header(TOTAL_COUNT_HEADER, String.valueOf(result.total()))
                 .body(result.items());

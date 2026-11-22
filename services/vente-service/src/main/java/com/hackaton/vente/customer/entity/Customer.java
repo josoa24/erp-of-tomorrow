@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.Instant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,6 +42,15 @@ public class Customer {
 
     @Column(length = 2000)
     private String notes;
+
+    @Column(length = 20)
+    private String nif;
+
+    @Column(length = 30)
+    private String stat;
+
+    @Column(precision = 14, scale = 2)
+    private BigDecimal creditLimit;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
