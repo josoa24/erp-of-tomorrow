@@ -1,4 +1,5 @@
 import { Outlet } from '@tanstack/react-router'
+import { CreateModuleFlow } from '../../features/modules/screens/CreateModuleFlow'
 import { EclipseAdaptationProvider } from '../../features/eclipse/components/EclipseAdaptationProvider'
 import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { readSession } from '../../services/sessionStore'
@@ -31,6 +32,7 @@ export const AppShell = () => {
             <Outlet />
           </main>
           <ShellBottomArea mobile={mobile} role={role} />
+          <CreateModuleFlow />
         </EclipseAdaptationProvider>
       </EclipseDockProvider>
     </ToastProvider>

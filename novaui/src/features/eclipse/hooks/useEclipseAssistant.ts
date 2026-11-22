@@ -4,6 +4,8 @@ import { toApiError } from '../../../utils/toApiError'
 import { proposeAdaptation } from '../api/proposeApi'
 import { ECLIPSE_RETRY_DELAY_MS, unavailabilityOf, type EclipseUnavailability } from '../services/eclipseAvailability'
 import { answerOf, toPreview } from '../services/proposalOutcome'
+import { useCreateModuleRequest } from '../../modules/hooks/useCreateModuleRequest'
+import { setCreateModuleDraft } from '../../modules/services/createModuleDraft'
 import { useEclipseAdaptation } from './eclipse-adaptation-context'
 import { useAgentChat } from './useAgentChat'
 
@@ -12,6 +14,7 @@ export const useEclipseAssistant = (moduleKey: string) => {
   const handleError = useApiError()
   const [unavailability, setUnavailability] = useState<EclipseUnavailability | null>(null)
   const chat = useAgentChat(setUnavailability)
+  const { open: openCreateModule } = useCreateModuleRequest()
   const [open, setOpen] = useState(false)
   const [notice, setNotice] = useState<string | null>(null)
   const [proposing, setProposing] = useState(false)
@@ -33,6 +36,10 @@ export const useEclipseAssistant = (moduleKey: string) => {
         if (preview) {
           setOpen(false)
           startPreview(preview)
+        } else if (response.outcome === 'CREATE_MODULE') {
+          setOpen(false)
+          setCreateModuleDraft(text)
+          openCreateModule()
         } else if (response.outcome === 'QUESTION') {
           setProposing(false)
           await chat.send(text)
@@ -47,7 +54,7 @@ export const useEclipseAssistant = (moduleKey: string) => {
         setProposing(false)
       }
     },
-    [moduleKey, startPreview, handleError, chat],
+    [moduleKey, startPreview, handleError, chat, openCreateModule],
   )
 
   const status = unavailability ? 'unavailable' : proposing || chat.busy ? 'streaming' : 'idle'

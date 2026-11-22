@@ -6,12 +6,14 @@ import {
   Receipt,
   Truck,
   Users,
+  Clock,
   Wrench,
   type LucideIcon,
 } from 'lucide-react'
 
 const MODULE_ICONS: Record<string, LucideIcon> = {
   truck: Truck,
+  clock: Clock,
   wrench: Wrench,
   'calendar-days': CalendarDays,
   package: Package,
