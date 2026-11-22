@@ -16,8 +16,8 @@ Ce document permet de reprendre l'intégration des écrans Figma NOVA (sections 
 3. **Droits** : tout le monde peut demander et voir l'aperçu. Appliquer une adaptation et créer ou supprimer un module exigent le rôle ADMIN (gérant), contrôlé côté serveur.
 4. **Décisions de contrat** prises pendant l'intégration (détail dans `registry.md`, section « Décisions et écarts ») :
    - D1 : `CREATE_MODULE` devient un résultat possible de `POST /api/ai/eclipse/adaptations/propose`.
-   - D2 : les colonnes de module ont un booléen `listed`. Il est **à faire** (suivi F-I6, F-I7).
-   - D3 : la validation des définitions côté ai-service doit être aussi stricte que celle du module-service. **À faire** (F-I7).
+   - D2 : les colonnes de module ont un booléen `listed` (`true` par défaut). Fait : module-service (migration 102) et ai-service (F-I6, F-I7).
+   - D3 : la validation des définitions côté ai-service est aussi stricte que celle du module-service. Fait (F-I7).
    - Changement de propriétaire : `useModuleAdaptation`, `EclipseAdaptationProvider`, les constantes d'adaptation et le type `AdaptationProposal` appartiennent au socle (registre R3b).
 5. **Git** : branche par intégration `<module>/<type>-<description>`. Commits au format `type(scope): action précise`, au nom du développeur. **Jamais** de ligne `Co-Authored-By` ni de mention d'IA. Aucune fusion dans `songomby_d2` sans validation explicite d'un SHA par le responsable.
 6. **Code** : 100 lignes au maximum par fichier, **aucun commentaire dans le code**, séparation des couches API, services, hooks et composants, erreurs sur la page d'erreur dédiée, données validées immuables, tests pour toute nouvelle logique (voir `common-rules.md`).
@@ -71,7 +71,7 @@ L'ordre de fusion dans `songomby_d2` est celui du tableau. « Relu » signifie q
 1. **Préparer la nouvelle machine** (section 7) : cloner, `git checkout songomby_d2`, installer Node 22+, Docker et Python 3.13 (JDK 17 et Maven facultatifs si l'on passe par Docker). Lancer les contrôles de la section 6 pour repartir d'un état connu.
 2. **Relire les commits « sauvegarder le travail en cours »** de chaque branche (`git log --grep "travail en cours"`). Les compléter ou les corriger en petits commits propres. Les fichiers de plus de 100 lignes et les commentaires sont interdits.
 3. **Terminer le socle** (I0 et I0b), puis le relire : c'est la base de tous les écrans.
-4. **Suivis de contrat** : F-I6 (`listed` dans module-service, migration 102) et F-I7 (alignement ai-service, D1–D3).
+4. **Suivis de contrat** : F-I6 et F-I7 faits (`listed`, migration 102, alignement ai-service D1–D3).
 5. **Écrans métier**, chacun selon son brief (phase B), en réutilisant le gabarit ModulePage et `useModuleAdaptation` :
    - Stock : finir et brancher l'adaptation.
    - Ventes : écran et fenêtres.

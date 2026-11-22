@@ -4,6 +4,7 @@ from pydantic import Field, model_validator
 
 from app.eclipse.definition_parts import CamelModel, ColumnSpec, IndicatorSpec, ModuleIcon, StatusSpec
 from app.eclipse.definition_rules import check_definition
+from app.eclipse.module_slug import check_module_name
 
 
 class ModuleDefinitionRequest(CamelModel):
@@ -16,6 +17,7 @@ class ModuleDefinitionRequest(CamelModel):
 
     @model_validator(mode="after")
     def _coherent(self) -> ModuleDefinitionRequest:
+        check_module_name(self.name)
         check_definition(self.columns, self.statuses, self.indicators)
         return self
 

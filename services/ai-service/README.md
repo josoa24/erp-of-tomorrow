@@ -197,14 +197,17 @@ caractères). Module de base hors des droits du rôle : 403 `FORBIDDEN`.
 mot-clé ; une clé hors du module ou une erreur Gemini font revenir à la reconnaissance par mots-clés.
 
 `POST /eclipse/modules/propose` — corps `{"description": "Suivre les livraisons de mes clients"}`. Réponse
-`{proposal, accessText, source, canCreate, uncheckedColumns, hiddenColumns, note?}` : `proposal` a la forme de
+`{proposal, accessText, source, canCreate, uncheckedColumns, note?}` : `proposal` a la forme de
 `ModuleDefinitionRequest` du module-service (`name`, `icon`, `description`, `columns`, `statuses`, `indicators`).
 Modèles par mots-clés : **Livraisons** (Client · Vente d'origine · Quartier · Livreur · Heure prévue, statuts
 À préparer → En route → Livrée, indicateurs Livrées aujourd'hui, En route, À encaisser ; `uncheckedColumns` =
-`signature_client`, `hiddenColumns` = `montant_a_encaisser` utilisé par À encaisser), **Réparations**,
+`signature_client` ; Vente d'origine, Montant à encaisser et Signature du client ont `listed: false`, visibles
+seulement dans le détail), **Réparations**,
 **Rendez-vous** (`source` = `TEMPLATE`). Sinon Gemini si la clé est présente (`source` = `GEMINI`, JSON validé,
 icône de la liste autorisée), sinon base générique Nom · Date · Montant, statuts À faire → En cours → Terminé,
-avec `note` qui le dit. `canCreate` = rôle ADMIN.
+avec `note` qui le dit. `canCreate` = rôle ADMIN. La proposition suit les mêmes règles que le module-service
+(au moins une colonne `listed`, choix distincts, indicateurs cohérents, nom non réservé : `stock`, `ventes`,
+`relations`, `equipe`).
 
 `GET /eclipse/suggestions` — `[{adaptationKey, moduleKey, title, reason}]` (ex. `title` « Eclipse suggère un champ
 « N° de lot » dans Stock »), adaptations non actives des modules accessibles au rôle ; module-service injoignable :

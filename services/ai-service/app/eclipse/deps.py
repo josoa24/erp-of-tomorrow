@@ -6,7 +6,7 @@ from typing import Any
 import httpx
 
 from app.config import Settings
-from app.eclipse.gemini_designer import ModuleDesigner
+from app.eclipse.module_designer import ModuleDesigner
 from app.eclipse.gemini_intent import IntentClassifier
 from app.erp.client import ErpClient
 

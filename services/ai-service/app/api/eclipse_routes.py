@@ -9,9 +9,10 @@ from app.api.turn_support import record_interaction
 from app.eclipse.adaptation_flow import propose_adaptation
 from app.eclipse.audit_calls import adaptation_audit, module_audit
 from app.eclipse.messages import forbidden_module
-from app.eclipse.module_flow import propose_module
+from app.eclipse.module_flow import propose_module, refine_module
 from app.eclipse.modules import can_access
-from app.eclipse.schemas import AdaptationProposal, AdaptationRequest, ModuleProposal, ModuleRequest, Suggestion
+from app.eclipse.schemas import (AdaptationProposal, AdaptationRequest, ModuleProposal, ModuleRefineRequest,
+                                 ModuleRequest, Suggestion)
 from app.eclipse.suggestions import list_suggestions
 
 router = APIRouter(prefix="/eclipse", tags=["eclipse"])
@@ -41,6 +42,18 @@ async def propose_custom_module(body: ModuleRequest, request: Request):
     result = await propose_module(request.app.state.eclipse, body, user.role)
     calls, label = module_audit(result)
     record_interaction(request, user, None, body.description, calls, label)
+    return result
+
+
+@router.post("/modules/refine", response_model=ModuleProposal, response_model_exclude_none=True,
+             dependencies=LIMITED, summary="Ajuste la définition proposée d’un module",
+             description="Instruction en langage naturel (« ajoute une colonne Priorité »). Gemini modifie la "
+                         "définition, le validateur la contrôle ; sans Gemini la proposition reste inchangée.")
+async def refine_custom_module(body: ModuleRefineRequest, request: Request):
+    user = user_from_request(request)
+    result = await refine_module(request.app.state.eclipse, body, user.role)
+    calls, label = module_audit(result)
+    record_interaction(request, user, None, body.instruction, calls, label)
     return result
 
 

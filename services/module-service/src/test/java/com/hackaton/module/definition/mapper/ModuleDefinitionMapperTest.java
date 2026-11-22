@@ -44,6 +44,18 @@ class ModuleDefinitionMapperTest {
     }
 
     @Test
+    void shouldListColumnByDefault_andKeepExplicitHiddenFlag() {
+        ModuleColumn byDefault = partsMapper.toEntity(new ColumnSpec("note", "Note", ColumnType.TEXT, false, null, null), 0);
+        ModuleColumn hidden = partsMapper.toEntity(
+                new ColumnSpec("signature", "Signature", ColumnType.TEXT, false, null, null, false), 1);
+
+        assertEquals(true, byDefault.isListed());
+        assertEquals(false, hidden.isListed());
+        assertEquals(false, partsMapper.toSpec(hidden).listed());
+        assertEquals(true, partsMapper.toSpec(byDefault).listed());
+    }
+
+    @Test
     void shouldKeepChoicesAndTargetOnlyForMatchingTypes() {
         ModuleColumn text = partsMapper.toEntity(
                 new ColumnSpec("note", "Note", ColumnType.TEXT, false, List.of("x"), ReferenceTarget.SALE), 0);
