@@ -4,7 +4,6 @@ import { TrendBadge } from '../../../components/common/TrendBadge'
 import type { StockCardData } from '../../../types/dashboard'
 import { formatDecimal } from '../../../utils/format'
 import { LockedCard } from './LockedCard'
-import styles from './StockCard.module.css'
 
 interface StockCardProps {
   data: StockCardData | null
@@ -17,7 +16,7 @@ const rateValue = (rate: number | null) =>
   ) : (
     <>
       {formatDecimal(rate)}
-      <span className={styles.unit}>%</span>
+      <span className="ml-0.5 text-[0.72em] font-medium">%</span>
     </>
   )
 

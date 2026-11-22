@@ -6,7 +6,6 @@ import { useLogin } from '../../hooks/useLogin'
 import { ROUTES } from '../../navigation/routes'
 import { readSession } from '../../services/sessionStore'
 import { LoginForm } from './components/LoginForm'
-import styles from './LoginScreen.module.css'
 
 export const LoginScreen = () => {
   const { submit, submitting } = useLogin()
@@ -15,11 +14,11 @@ export const LoginScreen = () => {
 
   return (
     <CenteredLayout>
-      <GlassCard variant="outline" className={styles.card}>
-        <Lock className={styles.icon} size={40} strokeWidth={1.6} aria-hidden="true" />
-        <h1 className={styles.title}>Connexion</h1>
+      <GlassCard variant="outline" className="flex w-[min(414px,100%)] flex-col items-center px-7.5 py-5.5 -mt-20 max-sm:mt-0 max-sm:px-5">
+        <Lock className="text-white" size={40} strokeWidth={1.6} aria-hidden="true" />
+        <h1 className="mt-3 mb-6.5 text-2xl font-semibold">Connexion</h1>
         <LoginForm onSubmit={submit} submitting={submitting} />
-        <p className={styles.footer}>Pas de compte ? Contactez votre administrateur.</p>
+        <p className="mt-4.5 text-center text-[15px] text-[#e4e5ff]">Pas de compte ? Contactez votre administrateur.</p>
       </GlassCard>
     </CenteredLayout>
   )

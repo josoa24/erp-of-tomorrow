@@ -1,5 +1,5 @@
-@import 'tailwindcss/theme.css' layer(theme);
-@import 'tailwindcss/utilities.css' layer(utilities);
+@import 'tailwindcss';
+@import './eclipse.css';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -170,10 +170,6 @@
 }
 
 @layer base {
-  body {
-    @apply bg-bg-surface font-sans text-text-primary antialiased;
-  }
-
   /* Iconographie du DS : icônes Lucide, trait de 1,5. */
   .lucide {
     stroke-width: 1.5;

@@ -1,12 +1,11 @@
 import { APP_NAME } from '../../constants/appInfo'
-import styles from './EclipseLogo.module.css'
 
 interface EclipseMarkProps {
   size?: number
 }
 
 export const EclipseMark = ({ size = 48 }: EclipseMarkProps) => (
-  <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" className={styles.mark}>
+  <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" className="shrink-0 drop-shadow-[0_0_10px_rgba(140,100,255,0.85)]">
     <defs>
       <linearGradient id="eclipse-mark-fill" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%" stopColor="#f1ecff" />
@@ -23,8 +22,8 @@ export const EclipseMark = ({ size = 48 }: EclipseMarkProps) => (
 )
 
 export const EclipseLogo = () => (
-  <div className={styles.logo}>
+  <div className="inline-flex items-center gap-5.5">
     <EclipseMark />
-    <span className={styles.wordmark}>{APP_NAME}</span>
+    <span className="text-[30px] font-medium tracking-[0.24em] uppercase max-sm:text-[22px]">{APP_NAME}</span>
   </div>
 )

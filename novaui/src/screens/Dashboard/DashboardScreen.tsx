@@ -5,7 +5,6 @@ import type { PeriodKey } from '../../types/dashboard'
 import { DashboardHeader } from './components/DashboardHeader'
 import { DashboardStage } from './components/DashboardStage'
 import { Greeting } from './components/Greeting'
-import styles from './DashboardScreen.module.css'
 
 export const DashboardScreen = () => {
   const [period, setPeriod] = useState<PeriodKey>('month')
@@ -13,7 +12,7 @@ export const DashboardScreen = () => {
 
   return (
     <SpaceBackground variant="dashboard">
-      <div className={styles.page}>
+      <div className="mx-auto max-w-420 px-12 pt-7.5 max-sm:px-4 max-sm:pt-5">
         <DashboardHeader
           period={period}
           onPeriodChange={setPeriod}

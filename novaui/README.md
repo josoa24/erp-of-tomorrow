@@ -39,9 +39,7 @@ la gateway n'a pas besoin d'autoriser le CORS.
 
 ## Stack
 
-React 19, TypeScript, Vite, Tailwind CSS 4 (jetons du design system dans `src/styles.css`), composants de base type shadcn/ui (`src/components/ui`, `cva` + `clsx` + `tailwind-merge`), TanStack Query (`src/lib/queryClient.ts`), TanStack Router (installé, pas encore branché : le routage actuel est react-router), PWA (`vite-plugin-pwa`). Alias `@` = `src/`.
-
-Tailwind est chargé sans le reset (`preflight`) pour ne pas modifier les écrans existants.
+React 19, TypeScript, Vite, Tailwind CSS 4 (jetons du design system dans `src/styles.css`, thème Eclipse dans `src/eclipse.css`), composants de base type shadcn/ui (`src/components/ui`, `cva` + `clsx` + `tailwind-merge`), TanStack Query (`src/lib/queryClient.ts`), TanStack Router (installé, pas encore branché : le routage actuel est react-router), PWA (`vite-plugin-pwa`). Alias `@` = `src/`.
 
 ## Structure
 

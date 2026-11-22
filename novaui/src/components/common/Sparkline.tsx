@@ -1,5 +1,4 @@
 import { buildSparklinePath } from '../../utils/sparklinePath'
-import styles from './Sparkline.module.css'
 
 interface SparklineProps {
   values: number[]
@@ -14,7 +13,7 @@ export const Sparkline = ({ values, width = 132, height = 84, label }: Sparkline
 
   return (
     <svg
-      className={styles.sparkline}
+      className="block overflow-visible drop-shadow-[0_0_6px_rgba(45,212,191,0.75)]"
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
