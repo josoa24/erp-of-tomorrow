@@ -6,6 +6,7 @@ import { useBreakpoint } from '../../../hooks/useBreakpoint'
 import type { ProposalSelection } from '../services/proposalSelection'
 import type { ModuleProposal } from '../types/moduleRecord'
 import { EclipseOrb } from './EclipseOrb'
+import { ProposalAssistant } from './ProposalAssistant'
 import { ProposalChecklist, ProposalSide } from './ProposalChecklist'
 
 const NAME_MAX = 40
@@ -16,6 +17,8 @@ interface CreateModulePreviewDialogProps {
   selection: ProposalSelection
   canCreate: boolean
   creating: boolean
+  refining: boolean
+  onRefine: (instruction: string) => void
   onName: (name: string) => void
   onColumn: (key: string, checked: boolean) => void
   onIndicator: (key: string, checked: boolean) => void
@@ -25,7 +28,7 @@ interface CreateModulePreviewDialogProps {
 }
 
 export const CreateModulePreviewDialog = (props: CreateModulePreviewDialogProps) => {
-  const { proposal, selection, canCreate, creating, onName, onColumn, onIndicator, onBack, onCreate, onClose } = props
+  const { proposal, selection, canCreate, creating, refining, onRefine, onName, onColumn, onIndicator, onBack, onCreate, onClose } = props
   const placement = useBreakpoint() === 'mobile' ? 'sheet' : 'center'
   const nameTooShort = selection.name.trim().length < 2
 
@@ -49,6 +52,15 @@ export const CreateModulePreviewDialog = (props: CreateModulePreviewDialogProps)
         </>
       }
     >
+      <div className="flex flex-col gap-5">
+      <ProposalAssistant
+        explanation={proposal.explanation}
+        suggestions={proposal.suggestions ?? []}
+        changes={proposal.changes ?? []}
+        refining={refining}
+        onRefine={onRefine}
+      />
+      {proposal.note && <p className="text-body-s text-ink-secondary">{proposal.note}</p>}
       <div className="grid gap-6 md:grid-cols-[1fr_300px]">
         <div className="flex flex-col gap-5">
           <Input
@@ -61,6 +73,7 @@ export const CreateModulePreviewDialog = (props: CreateModulePreviewDialogProps)
           <ProposalChecklist proposal={proposal.proposal} selection={selection} onColumn={onColumn} />
         </div>
         <ProposalSide proposal={proposal.proposal} selection={selection} accessText={proposal.accessText} onIndicator={onIndicator} />
+      </div>
       </div>
     </Dialog>
   )

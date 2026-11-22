@@ -9,8 +9,8 @@ from app.eclipse.templates import choose_template
 UNAVAILABLE_NOTE = "Eclipse n’a pas pu ajuster ce module pour le moment : la proposition reste inchangée."
 
 
-def _from_design(designed: DesignedModule, description: str, can_create: bool) -> ModuleProposal:
-    known = {column.key for column in designed.definition.columns}
+def _from_design(designed: DesignedModule, description: str, can_create: bool, keep_optional: bool = True) -> ModuleProposal:
+    known = {column.key for column in designed.definition.columns} if keep_optional else set()
     return ModuleProposal(
         proposal=designed.definition.with_description(description), source="GEMINI", can_create=can_create,
         unchecked_columns=[key for key in designed.optional_columns if key in known],
@@ -36,4 +36,4 @@ async def refine_module(deps: EclipseDeps, body: ModuleRefineRequest, role: str)
     designed = await deps.designer.refine(body.proposal, body.instruction) if deps.designer is not None else None
     if designed is None:
         return ModuleProposal(proposal=body.proposal, source="TEMPLATE", can_create=can_create, note=UNAVAILABLE_NOTE)
-    return _from_design(designed, body.proposal.description or "", can_create)
+    return _from_design(designed, body.proposal.description or "", can_create, keep_optional=False)
