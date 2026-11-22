@@ -3,6 +3,7 @@ import { ECLIPSE_PLACEHOLDERS } from '../constants/eclipsePlaceholders'
 import { CustomModuleScreen } from '../features/modules/screens/CustomModuleScreen'
 import { ProfileScreen } from '../features/profile/screens/ProfileScreen'
 import { RelationsScreen } from '../features/relations/screens/RelationsScreen'
+import { validateRelationsSearch } from '../features/relations/services/relationsSearch'
 import { SalesScreen } from '../features/sales/screens/SalesScreen'
 import { StockScreen } from '../features/stock/screens/StockScreen'
 import { validateStockSearch } from '../features/stock/services/stockSearch'
@@ -52,6 +53,7 @@ export const relationsRoute = createRoute({
   getParentRoute: parent,
   path: ROUTES.relations,
   beforeLoad: requireModule('crm'),
+  validateSearch: validateRelationsSearch,
   staticData: { eclipsePlaceholder: ECLIPSE_PLACEHOLDERS.relations },
   component: RelationsScreen,
 })
