@@ -1,6 +1,5 @@
 package com.hackaton.vente.report.service;
 
-import com.hackaton.vente.common.status.DocumentStatus;
 import com.hackaton.vente.report.dto.TopProductResponse;
 import com.hackaton.vente.sale.repository.SaleRepository;
 import java.util.List;
@@ -20,6 +19,6 @@ public class TopProductsReaderService implements TopProductsReader {
     @Override
     public List<TopProductResponse> findTop(int limit) {
         int safeLimit = Math.max(1, Math.min(limit, MAX_LIMIT));
-        return ProductSalesAggregation.top(saleRepository.findByStatus(DocumentStatus.VALIDATED), safeLimit);
+        return ProductSalesAggregation.top(saleRepository.findEffective(), safeLimit);
     }
 }

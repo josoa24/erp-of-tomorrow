@@ -27,6 +27,8 @@ spring:
           create_namespaces: true
 stock:
   url: ${STOCK_URL:http://localhost:8083}
+app:
+  zone: ${APP_ZONE:Indian/Antananarivo}
 management:
   endpoints:
     web:

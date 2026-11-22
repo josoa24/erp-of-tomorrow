@@ -1,14 +1,14 @@
 package com.hackaton.vente.report.service;
 
-import com.hackaton.vente.common.status.DocumentStatus;
+import com.hackaton.vente.common.time.LocalDays;
 import com.hackaton.vente.report.dto.DailyRevenue;
 import com.hackaton.vente.report.dto.SalesSummaryResponse;
 import com.hackaton.vente.sale.entity.Sale;
 import com.hackaton.vente.sale.repository.SaleRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Clock;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -23,12 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class SalesSummaryReaderService implements SalesSummaryReader {
 
     private final SaleRepository saleRepository;
+    private final Clock clock;
 
     @Override
     public SalesSummaryResponse summarize(LocalDate from, LocalDate to) {
-        List<Sale> sales = saleRepository.findByStatus(DocumentStatus.VALIDATED).stream()
-                .filter(sale -> from == null || !dayOf(sale).isBefore(from))
-                .filter(sale -> to == null || !dayOf(sale).isAfter(to))
+        List<Sale> sales = saleRepository.findEffective().stream()
+                .filter(sale -> LocalDays.isWithin(sale.getValidatedAt(), from, to, clock.getZone()))
                 .toList();
         BigDecimal total = sum(sales);
         BigDecimal average = sales.isEmpty()
@@ -50,6 +50,6 @@ public class SalesSummaryReaderService implements SalesSummaryReader {
     }
 
     private LocalDate dayOf(Sale sale) {
-        return sale.getValidatedAt().atZone(ZoneOffset.UTC).toLocalDate();
+        return LocalDays.dayOf(sale.getValidatedAt(), clock.getZone());
     }
 }
