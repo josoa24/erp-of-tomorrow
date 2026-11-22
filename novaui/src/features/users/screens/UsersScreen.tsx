@@ -25,7 +25,7 @@ export const UsersScreen = () => {
   const dialogs = useUsersDialogs()
   const handlers = useUserRowHandlers(dialogs)
   const filter = resolveUsersFilter(search.filtre)
-  const filtered = filter.key !== 'tous' || search.role !== undefined
+  const filtered = filter.key !== 'tous' || search.role !== undefined || search.recherche !== undefined
   const currentEmail = useCurrentUser()?.email
 
   return (

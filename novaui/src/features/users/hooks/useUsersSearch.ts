@@ -19,7 +19,7 @@ export const useUsersSearch = () => {
 
   return {
     search,
-    reset: useCallback(() => update({ filtre: undefined, role: undefined, page: undefined }), [update]),
+    reset: useCallback(() => update({ filtre: undefined, role: undefined, recherche: undefined, page: undefined }), [update]),
     setFilter: useCallback(
       (filter: UsersFilterKey) => update({ filtre: filter === DEFAULT_USERS_FILTER ? undefined : filter, page: undefined }),
       [update],
