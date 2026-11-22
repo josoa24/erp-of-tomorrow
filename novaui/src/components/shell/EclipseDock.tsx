@@ -1,7 +1,9 @@
-import { useLocation, useMatches } from '@tanstack/react-router'
+import { useLocation, useMatches, useParams } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { ECLIPSE_UNAVAILABLE_LABEL } from '../../constants/eclipsePlaceholders'
 import { EclipseAnswer } from '../../features/eclipse/components/EclipseAnswer'
+import { useModuleDefinitions } from '../../features/modules/hooks/useModuleDefinitions'
+import { dockPlaceholder } from '../../features/modules/services/moduleLabels'
 import { useEclipseRequest } from '../../features/eclipse/hooks/useEclipseRequest'
 import { EclipseBar } from '../eclipse/EclipseBar'
 import { dockPlaceholderFor, isDockHiddenFor } from './dockPlaceholder'
@@ -13,7 +15,10 @@ export const EclipseDock = ({ mobile = false }: { mobile?: boolean }) => {
   const { hidden, mobileOpen, closeDock, focusSignal } = useEclipseDock()
   const [value, setValue] = useState('')
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  const { submit, pending, answer, unavailable, dismiss } = useEclipseRequest(staticData?.adaptationModule ?? 'accueil')
+  const customSlug = useParams({ strict: false, select: (params) => params.slug })
+  const { modules } = useModuleDefinitions()
+  const customName = modules.find((module) => module.slug === customSlug)?.name
+  const { submit, pending, answer, unavailable, dismiss } = useEclipseRequest(customSlug ?? staticData?.adaptationModule ?? 'accueil')
 
   useEffect(() => {
     if (focusSignal > 0) inputRef.current?.focus()
@@ -30,7 +35,7 @@ export const EclipseDock = ({ mobile = false }: { mobile?: boolean }) => {
       {answer && <EclipseAnswer text={answer} onDismiss={dismiss} />}
       <EclipseBar
         variant="light"
-        placeholder={dockPlaceholderFor(staticData)}
+        placeholder={customName ? dockPlaceholder(customName) : dockPlaceholderFor(staticData)}
         value={value}
         onChange={setValue}
         onSubmit={(text) => {
