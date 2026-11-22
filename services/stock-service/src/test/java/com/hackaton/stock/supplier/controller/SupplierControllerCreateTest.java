@@ -48,7 +48,7 @@ class SupplierControllerCreateTest {
     @Test
     void shouldReturn201_whenSupplierIsCreated() throws Exception {
         when(supplierCreator.create(any(SupplierRequest.class))).thenReturn(new SupplierResponse(
-                1L, "Agri Sud", null, "contact@agrisud.mg", null, null, 5, Instant.now()));
+                1L, "Agri Sud", null, "contact@agrisud.mg", null, null, 5, Instant.now(), null));
 
         mockMvc.perform(createRequest(VALID_BODY))
                 .andExpect(status().isCreated())

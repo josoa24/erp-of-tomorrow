@@ -36,6 +36,8 @@ public class Supplier {
 
     private Integer usualDeliveryDays;
 
+    private String bankAccount;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
