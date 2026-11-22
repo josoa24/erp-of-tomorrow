@@ -49,6 +49,7 @@ services:
       DB_PASSWORD: ${AUTH_DB_PASSWORD:-auth_svc}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@erp.local}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin1234}
+      ADMIN_NAME: ${ADMIN_NAME:-Administrateur}
     volumes:
       - ./services/auth-service:/app
       - /app/target

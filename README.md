@@ -99,7 +99,7 @@ Il n'y a pas de fichier `.env` dans le projet. Chaque `application.yml` lit ses 
 |----------|---------|------|
 | `JWT_SECRET` | gateway **et** auth-service | Secret de signature des tokens. Doit être identique dans les deux. |
 | `JWT_TTL_MINUTES` | auth-service | Durée de validité d'un token (480 par défaut). |
-| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | auth-service | Compte admin créé au premier démarrage. |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME` | auth-service | Compte admin créé au premier démarrage, et son nom affiché (`Administrateur` par défaut, complété au démarrage s'il manque). |
 | `DB_URL`, `DB_USER`, `DB_PASSWORD` | chaque service | Accès à son schéma PostgreSQL (utilisateur dédié `<service>_svc`). |
 | `STOCK_URL` | vente-service, gateway | Adresse du service Stock. |
 | `AUTH_URL`, `RH_URL`, `VENTE_URL`, `CRM_URL`, `VOICE_URL` | gateway | Adresse des autres services. |
