@@ -52,8 +52,18 @@ Les calculs restent dans les services métier. L'IA comprend la demande, appelle
 | AI-12 | Journal des actions IA | Qui a demandé quoi, ce qui a été proposé, ce qui a été confirmé | M | SYS-4 | À faire |
 | AI-13 | Sécurité | Aucune écriture sans confirmation, limite de débit, pas de données personnelles envoyées inutilement, jeux de tests de demandes piégées. Confirmation avant écriture déjà en place ; restent la limite de débit et les tests de demandes piégées | M | AI-3 | À faire |
 | AI-14 | Compréhension du malgache | Demandes en malgache (priorité basse) | M | AI-2 | À faire |
+| AI-15 | Rôle `DG` | Ajouter le rôle dans `auth-service` et `RoleAccessPolicy` : lecture vente, stock, RH et CRM, accès à `/api/ai` (le rôle `RH` y accède aussi) | S | | À faire |
+| AI-16 | Transcription | Nouveau `voice-service` en Python (port 8087, route gateway `/api/voice`) avec faster-whisper : `POST /transcribe`, audio multipart vers texte, français par défaut | M | | En cours |
+| AI-17 | Enrôlement vocal | `POST /voiceprints` : l'utilisateur connecté lit 3 à 5 phrases ; on garde l'empreinte vocale (SpeechBrain ECAPA) liée à son identifiant, jamais l'audio ; consentement explicite et suppression à la demande | M | AI-16 | À faire |
+| AI-18 | Vérification du locuteur | À chaque question vocale, comparer la voix à l'empreinte du compte connecté (similarité cosinus, seuil configurable) ; refus si elle ne correspond pas | M | AI-17 | À faire |
+| AI-19 | Question vocale de bout en bout | Micro, puis transcription, vérification du locuteur, orchestrateur et réponse ; démo « Quel est notre chiffre d'affaires ? » via `GET /sales/summary` | M | AI-3, AI-18 | À faire |
+| AI-20 | Anti-rejeu | Phrase aléatoire à lire avant une question sensible (salaires, chiffre d'affaires), pour bloquer un simple enregistrement rejoué ; tentatives refusées tracées dans AI-12 | S | AI-18 | À faire |
+| AI-21 | Réponse parlée | L'assistant répond à voix haute avec une voix neuronale naturelle (Piper en local, ou une API de synthèse) ; la réponse est rédigée pour l'oral, courte, sans tableau lu ligne à ligne, tandis que l'écran affiche les détails (AI-4) | M | AI-19 | À faire |
+| AI-22 | Conversation continue | Mode « appel » : WebSocket en flux, détection de fin de parole (Silero VAD), interruption possible pendant que l'assistant parle, mémoire de la conversation (« et le mois dernier ? ») ; réponse qui commence en moins de 2 secondes | L | AI-21 | À faire |
 
-## Phase B. Applications React Native
+**Règle de sécurité de la voix.** Les droits viennent toujours du JWT de la connexion. La voix ne donne aucun droit : elle confirme seulement que la personne qui parle est bien le titulaire du compte connecté. Un RH qui imite la voix du DG n'obtient donc jamais les données du DG.
+
+## Phase B. Application web (NovaUI, une seule pour tous les modules)
 
 | # | Tâche | Détail | Taille | Dépend de | Statut |
 |---|-------|--------|--------|-----------|--------|
@@ -136,7 +146,7 @@ Les calculs restent dans les services métier. L'IA comprend la demande, appelle
 | # | Tâche | Détail | Taille | Dépend de | Statut |
 |---|-------|--------|--------|-----------|--------|
 | SYS-1 | Permissions fines | Droits par action, pas seulement par module | L | | À faire |
-| SYS-2 | Sécurité des comptes | Renouvellement de token, déconnexion, changement de mot de passe (A6 à A8) | M | | À faire |
+| SYS-2 | Sécurité des comptes | Faits : modification de compte, changement de mot de passe, désactivation (A6 à A8). Reste : renouvellement de token et déconnexion | M | | En cours |
 | SYS-3 | Services joignables uniquement par la gateway | En-têtes `X-User-*` obligatoires (A10). Reste : secret partagé entre gateway et services, ou réseau privé | M | | Fait |
 | SYS-4 | Journal d'audit | Qui a fait quoi et quand, dans tous les services | L | | À faire |
 | SYS-5 | Notifications | Dans l'application, par email ou push | L | | À faire |

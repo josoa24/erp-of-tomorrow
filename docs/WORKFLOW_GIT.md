@@ -6,9 +6,9 @@ Un seul dépôt (monorepo). Chaque équipe travaille dans **son dossier** pour �
 
 | Équipe | Dossiers autorisés |
 |--------|--------------------|
-| Stock | `services/stock-service/`, `apps/stock-app/` |
-| Vente | `services/vente-service/`, `apps/vente-app/` |
-| RH | `services/rh-service/`, `apps/rh-app/` |
+| Stock | `services/stock-service/`, `novaui/src/features/stock/` |
+| Vente | `services/vente-service/`, `novaui/src/features/vente/` |
+| RH | `services/rh-service/`, `novaui/src/features/rh/` |
 | Auth / Gateway | `services/auth-service/`, `gateway/` |
 
 Les fichiers communs (`README.md`, `docs/`, `docker-compose.yml`, `.gitignore`) se modifient par Pull Request, avec l'accord des autres équipes.

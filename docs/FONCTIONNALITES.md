@@ -2,7 +2,7 @@
 
 Ce que l'ERP sait faire aujourd'hui, côté serveur. Ce qui a été ajouté et corrigé dans la branche `songomby_d2` est détaillé dans [BILAN_SONGOMBY_D2.md](BILAN_SONGOMBY_D2.md). Le détail de chaque endpoint est dans [API_ENDPOINTS.md](API_ENDPOINTS.md) ; ce qui reste à faire est dans [PLAN_API.md](PLAN_API.md), [PLAN_CRM.md](PLAN_CRM.md) et [PLAN_ERP.md](PLAN_ERP.md).
 
-Les applications React Native (`apps/`) sont encore des squelettes vides : aucun écran n'existe.
+Il n'y a qu'une seule application web, NovaUI (`novaui/`), pour tous les modules ; elle a trois écrans pour l'instant (voir plus bas). Les écrans de chaque module iront dans `novaui/src/features/<module>/`.
 
 ## Accès et sécurité
 
@@ -52,8 +52,22 @@ Les applications React Native (`apps/`) sont encore des squelettes vides : aucun
 - Écriture après confirmation explicite : mouvement de stock, bon de commande (création, validation, réception), vente (création, validation).
 - Historique des conversations, page de test sur `/api/ai/ui`.
 
+## Transcription vocale (`voice-service`, port 8087)
+
+- Voix vers texte, en local et hors ligne (faster-whisper) : envoi d'un fichier audio (`POST /transcribe`, 10 Mo maximum par défaut).
+- Transcription en temps réel par WebSocket (`/stream`) : texte provisoire pendant la phrase, texte final après 0,7 s de silence.
+- Page de démonstration sur `/demo` (choix du micro, niveau sonore, journal de debug).
+- Accessible via la gateway sur `/api/voice/**` (rôles `RH` et `ADMIN`). Pas encore relié à l'assistant IA.
+
+## Front web NovaUI (`novaui/`)
+
+- Connexion (e-mail et mot de passe, option « Se souvenir de moi »).
+- Tableau de bord selon le rôle : chiffre d'affaires et tendance, disponibilité du stock, effectif et congés, points d'attention.
+- Page d'erreur unique (réseau, accès refusé, session expirée).
+
 ## Outillage
 
 - Swagger unique pour tous les services : `http://localhost:8080/swagger-ui.html`.
-- Lancement complet par `docker compose` (bases PostgreSQL, services, gateway ; IA avec le profil `ai`).
+- Lancement complet par `docker compose` (base PostgreSQL unique avec un schéma par service, services, gateway ; IA avec le profil `ai`).
+- `docker-compose.dev.yml` : environnement de développement avec rechargement à chaud (Java, Python, NovaUI).
 - Tests unitaires et tests `@WebMvcTest` de chaque controller, dans chaque service (385 tests).

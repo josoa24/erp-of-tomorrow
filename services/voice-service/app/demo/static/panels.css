@@ -1,0 +1,50 @@
+.meter {
+  margin-top: 24px;
+}
+
+.meter canvas {
+  display: block;
+  width: 100%;
+  height: 80px;
+  margin-top: 8px;
+  border-radius: 8px;
+  background: var(--card);
+}
+
+.meter-label {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.meter-label.hearing {
+  color: var(--accent);
+}
+
+.debug {
+  max-height: 240px;
+  overflow: auto;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--muted);
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.device {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+  color: var(--muted);
+}
+
+.device select {
+  flex: 1;
+  min-width: 0;
+}

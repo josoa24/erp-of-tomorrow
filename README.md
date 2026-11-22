@@ -1,6 +1,6 @@
 # ERP of Tomorrow — Monorepo
 
-ERP intelligent en architecture **microservices**, un module = un service Spring Boot + une application React Native.
+ERP intelligent en architecture **microservices**, un module = un service Spring Boot ; une seule application web (NovaUI) pour tous les modules.
 
 ## Architecture
 
@@ -13,11 +13,9 @@ Hackaton/
 │   ├── stock-service/    # Stock               — port 8083 — schéma stock
 │   ├── auth-service/     # Utilisateurs, login, JWT — port 8084 — schéma auth
 │   ├── crm-service/      # Échanges, relances, pipeline — port 8085 — schéma crm
-│   └── ai-service/       # Assistant IA (Python, Gemini) — port 8086 — sans base
-├── apps/
-│   ├── rh-app/           # Front RH (React Native / Expo)
-│   ├── vente-app/        # Front Ventes
-│   └── stock-app/        # Front Stock
+│   ├── ai-service/       # Assistant IA (Python, Gemini) — port 8086 — sans base
+│   └── voice-service/    # Voix vers texte (Python, Whisper) — port 8087
+├── novaui/               # Application web unique (React + Vite), tous les modules
 ├── docs/
 │   └── REGLES_DEVELOPPEMENT.md
 └── docker-compose.yml    # 1 instance PostgreSQL (base erp), 1 schéma par service
@@ -36,6 +34,7 @@ La communication inter-services passe par l'API (via la gateway).
 | `/api/auth/**` | auth-service (8084) |
 | `/api/crm/**` | crm-service (8085) |
 | `/api/ai/**` | ai-service (8086) |
+| `/api/voice/**` | voice-service (8087) |
 
 Le préfixe est retiré avant d'atteindre le service (`/api/stock/products` → `/products`).
 
@@ -43,13 +42,13 @@ Le préfixe est retiré avant d'atteindre le service (`/api/stock/products` → 
 
 Tout passe par la gateway, qui vérifie le JWT (`Authorization: Bearer <token>`) puis le rôle :
 
-| Rôle | `/api/stock` | `/api/vente` | `/api/rh` | `/api/ai` | `/api/auth/users` |
-|------|:-----------:|:------------:|:---------:|:---------:|:-----------------:|
-| `STOCK` | oui | non | non | oui | non |
-| `VENTE` | non | oui | non | oui | non |
-| `RH` | non | non | oui | oui | non |
-| `CRM` | non | non | non | oui | non |
-| `ADMIN` | oui | oui | oui | oui | oui |
+| Rôle | `/api/stock` | `/api/vente` | `/api/rh` | `/api/ai` | `/api/voice` | `/api/auth/users` |
+|------|:-----------:|:------------:|:---------:|:---------:|:------------:|:-----------------:|
+| `STOCK` | oui | non | non | oui | non | non |
+| `VENTE` | non | oui | non | oui | non | non |
+| `RH` | non | non | oui | oui | oui | non |
+| `CRM` | non | non | non | oui | non | non |
+| `ADMIN` | oui | oui | oui | oui | oui | oui |
 
 L'assistant (`/api/ai`) est ouvert à tous les rôles : il appelle les autres modules avec le token de
 l'utilisateur, il ne voit donc que ce que ce rôle peut voir.
@@ -82,12 +81,12 @@ cd gateway
 mvn spring-boot:run
 ```
 
-Une application (exemple : stock) :
+Le front web (tous les modules) :
 
 ```powershell
-cd apps/stock-app
+cd novaui
 npm install
-npm start
+npm run dev
 ```
 
 ## Variables d'environnement
@@ -101,15 +100,15 @@ Il n'y a pas de fichier `.env` dans le projet. Chaque `application.yml` lit ses 
 | `JWT_SECRET` | gateway **et** auth-service | Secret de signature des tokens. Doit être identique dans les deux. |
 | `JWT_TTL_MINUTES` | auth-service | Durée de validité d'un token (480 par défaut). |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | auth-service | Compte admin créé au premier démarrage. |
-| `DB_URL`, `DB_USER`, `DB_PASSWORD` | chaque service | Accès à sa base PostgreSQL. |
+| `DB_URL`, `DB_USER`, `DB_PASSWORD` | chaque service | Accès à son schéma PostgreSQL (utilisateur dédié `<service>_svc`). |
 | `STOCK_URL` | vente-service, gateway | Adresse du service Stock. |
-| `AUTH_URL`, `RH_URL`, `VENTE_URL`, `CRM_URL` | gateway | Adresse des autres services. |
+| `AUTH_URL`, `RH_URL`, `VENTE_URL`, `CRM_URL`, `VOICE_URL` | gateway | Adresse des autres services. |
 | `VENTE_URL`, `STOCK_URL` | crm-service | Adresse des services Vente et Stock (fiches clients et fournisseurs). |
 | `AI_URL` | gateway | Adresse de l'ai-service. |
 | `CORS_ALLOWED_ORIGINS` | gateway | Origines web autorisées, séparées par des virgules (`http://localhost:*,http://127.0.0.1:*` par défaut). |
 | `GEMINI_API_KEY`, `GEMINI_MODEL` | ai-service | Clé et modèle Gemini (jamais commités). |
 | `ERP_GATEWAY_URL` | ai-service | Adresse de la gateway vue par l'ai-service. |
-| `EXPO_PUBLIC_API_URL` | apps React Native | Adresse de la gateway. |
+| `VOICE_MODEL_SIZE`, `VOICE_PARTIAL_MODEL_SIZE`, `VOICE_DEVICE`, `VOICE_COMPUTE_TYPE`, `VOICE_LANGUAGE`, `VOICE_MAX_AUDIO_BYTES` | voice-service | Modèle Whisper (`small`), modèle rapide pour le texte provisoire (facultatif), `cpu` ou `cuda`, précision (`int8`), langue par défaut (`fr`), taille maximale de l'audio (10 Mo). |
 
 Définir une variable dans PowerShell, puis lancer le service **dans le même terminal** :
 
@@ -119,8 +118,6 @@ $env:DB_PASSWORD = "mon_mot_de_passe"
 
 Dans IntelliJ : Run Configuration, Environment variables.
 
-Attention : `DB_URL`, `DB_USER` et `DB_PASSWORD` ont le même nom dans tous les services. Les définir service par service, dans le terminal de chacun, sinon un service utiliserait la base d'un autre.
-
 Le dépôt est public : ne jamais y mettre de vrai secret. Les valeurs par défaut (`admin1234`, secret JWT de test) ne servent qu'en développement et doivent être remplacées avant toute mise en production.
 
 ## Lancer le projet
@@ -128,10 +125,11 @@ Le dépôt est public : ne jamais y mettre de vrai secret. Les valeurs par défa
 1. La base : `docker compose up -d erp-db` (ou tout l'ERP conteneurisé : `docker compose up -d --build`).
 2. Chaque service, dans son dossier : `mvn spring-boot:run` (auth 8084, stock 8083, vente 8082, rh 8081).
 3. La gateway : `cd gateway`, puis `mvn spring-boot:run`.
-4. Une app : `cd apps/<module>-app`, puis `npm install` et `npm start`.
+4. Le front web : `cd novaui`, puis `npm install` et `npm run dev` (ou `docker compose up -d novaui`).
 5. L'assistant IA (optionnel) : voir [services/ai-service/README.md](services/ai-service/README.md)
    (`uvicorn` en local, ou `docker compose --profile ai up -d --build`), puis
    `python services/ai-service/scripts/seed_demo.py` et `python services/ai-service/scripts/test_erp_agent.py`.
+6. Le voice-service (facultatif) : voir [services/voice-service/README.md](services/voice-service/README.md).
 
 Sous Windows, si `docker compose up --build` échoue avec « additional privileges requested: pass --allow=fs.read=docker\Dockerfile.java », construire les images une par une puis démarrer sans reconstruire :
 
@@ -178,4 +176,13 @@ Test sans PostgreSQL ni Docker : démarrer `auth-service` ou `stock-service` ave
 
 **Service Spring Boot** : `<entité>/{controller, service/{reader,creator,updater,deleter}, repository, entity, dto, mapper}` + `common/{exception, config}`.
 
-**App React Native** : `src/{components/common, screens, hooks, services/api, types, utils, constants, navigation}`.
+**Front web (`novaui/`)** : `src/{components/common, screens, hooks, services, types, utils, constants, navigation}` ; le code propre à un module va dans `src/features/<module>/` (mêmes sous-dossiers : `components`, `hooks`, `services`, `types`).
+
+## Mode développement avec rechargement à chaud
+
+```bash
+docker compose -f docker-compose.dev.yml up                                # base, services Java, gateway, NovaUI
+docker compose -f docker-compose.dev.yml --profile ai --profile voice up   # + assistant IA et voix
+```
+
+Le code source est monté dans les conteneurs. Java : recompilation automatique puis redémarrage par spring-boot-devtools. Python : `uvicorn --reload`. NovaUI : Vite (http://localhost:5173). Gateway sur http://localhost:8080. Le premier démarrage est long (téléchargement des dépendances Maven, mises en cache dans un volume). 

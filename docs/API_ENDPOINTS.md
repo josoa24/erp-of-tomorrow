@@ -229,7 +229,18 @@ Chaque facture est contrôlée par Invoice Shield avant toute décision. Codes d
 
 ---
 
-## 9. IA : `/api/ai` (tous les rôles connectés)
+## 9. Voix : `/api/voice` (rôles RH, ADMIN)
+
+Service Python (FastAPI), hors Swagger de la gateway.
+
+| Méthode | Chemin | Description |
+|---------|--------|-------------|
+| GET | `/api/voice/health` | État du service |
+| POST | `/api/voice/transcribe` | Transcrit un fichier audio (multipart) en texte |
+| WS | `/api/voice/stream` | Transcription en temps réel (audio PCM envoyé en continu ; messages `partial`, `processing`, `final`) |
+| GET | `/api/voice/demo` | Page de démonstration |
+
+## 10. Assistant IA : `/api/ai` (tous les rôles connectés)
 
 L'assistant appelle les autres modules via la gateway **avec le token de l'utilisateur** : il n'a jamais plus de droits que lui, et Gemini ne reçoit que les outils du rôle connecté. Détails et exemples : [services/ai-service/README.md](../services/ai-service/README.md).
 
@@ -248,7 +259,7 @@ Au-delà de `AI_RATE_LIMIT_PER_MINUTE` requêtes par minute et par utilisateur (
 
 ---
 
-## 10. Pour aller plus loin
+## 11. Pour aller plus loin
 
 - Plans de développement : [PLAN_API.md](PLAN_API.md), [PLAN_CRM.md](PLAN_CRM.md), [PLAN_ERP.md](PLAN_ERP.md).
 - Règles de code : [REGLES_DEVELOPPEMENT.md](REGLES_DEVELOPPEMENT.md).

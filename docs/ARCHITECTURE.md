@@ -4,12 +4,12 @@ Ce document explique comment l'ERP est construit, comment une requête le traver
 
 ## 1. Vue d'ensemble
 
-L'ERP est un ensemble de microservices. Chaque module métier (Stock, Vente, RH, CRM) est un service Spring Boot avec son propre schéma dans une instance PostgreSQL unique, accessible seulement par son utilisateur dédié ([ADR-006](adr/ADR-006-instance-postgresql-unique.md)). Un service d'authentification délivre les tokens JWT. Une gateway unique (Spring Cloud Gateway) est la seule porte d'entrée : elle vérifie le token, contrôle le rôle, puis transmet la requête au bon service. Un assistant IA (Python, FastAPI, Google Gemini) se place derrière la même gateway et n'utilise que les API métier, avec le token de l'utilisateur. Les applications React Native (`apps/`) sont encore des squelettes.
+L'ERP est un ensemble de microservices. Chaque module métier (Stock, Vente, RH, CRM) est un service Spring Boot avec son propre schéma dans une instance PostgreSQL unique, accessible seulement par son utilisateur dédié ([ADR-006](adr/ADR-006-instance-postgresql-unique.md)). Un service d'authentification délivre les tokens JWT. Une gateway unique (Spring Cloud Gateway) est la seule porte d'entrée : elle vérifie le token, contrôle le rôle, puis transmet la requête au bon service. Un assistant IA (Python, FastAPI, Google Gemini) se place derrière la même gateway et n'utilise que les API métier, avec le token de l'utilisateur. Une seule application web (NovaUI, `novaui/`) sert tous les modules.
 
 ```mermaid
 flowchart LR
     subgraph Clients
-        APPS["apps/ stock, vente, rh<br/>(React Native, squelettes)"]
+        APPS["NovaUI<br/>(application web unique, novaui/)"]
         WEB["Page de test IA<br/>/api/ai/ui"]
     end
 
@@ -66,7 +66,7 @@ flowchart LR
 
 La gateway retire le préfixe avant de transmettre (`/api/stock/products` devient `/products` sur le stock-service). L'instance PostgreSQL est publiée sur le port 5432 pour le développement.
 
-Les services ne lisent jamais la base d'un autre. Quand un service a besoin d'une donnée d'un autre module, il l'appelle en HTTP :
+Les services ne lisent jamais le schéma d'un autre. Quand un service a besoin d'une donnée d'un autre module, il l'appelle en HTTP :
 
 - vente-service appelle stock-service (`StockClient`) pour lire le prix d'un produit et enregistrer les sorties de stock ;
 - crm-service appelle vente-service (`CustomerClient`) et stock-service (`SupplierClient`) pour construire la chronologie d'un tiers.
