@@ -11,14 +11,14 @@ import { useContactCounts } from '../hooks/useContactCounts'
 import { useContactDialogs } from '../hooks/useContactDialogs'
 import { useContacts } from '../hooks/useContacts'
 import { useContactSummary } from '../hooks/useContactSummary'
+import { useRelationsAdaptation } from '../hooks/useRelationsAdaptation'
 import { useRelationsSearch } from '../hooks/useRelationsSearch'
 import { toContactQuery, visibleFilter } from '../services/contactQuery'
 import { relationsKpis, relationsSubtitle } from '../services/relationsKpis'
-import { GENERIC_VIEW } from '../types/adaptationView'
 import { RelationsDialogs } from './RelationsDialogs'
 
 export const RelationsScreen = () => {
-  const adaptation = GENERIC_VIEW
+  const adaptation = useRelationsAdaptation()
   const search = useRelationsSearch()
   const filter = visibleFilter(search.filter, adaptation.visible)
   const { contacts, loading } = useContacts(toContactQuery(filter, search.query))
