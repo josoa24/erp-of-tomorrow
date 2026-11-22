@@ -24,10 +24,10 @@ export const ErrorScreen = () => {
         <span className="inline-flex size-[72px] items-center justify-center rounded-pill bg-status-critical-bg">
           <Icon aria-hidden="true" className="size-8 text-status-critical-fg" />
         </span>
-        <h1 className="text-title text-ink-primary">{title}</h1>
+        <h1 className="text-display-m text-ink-primary max-sm:text-title">{title}</h1>
         <p className="text-body text-ink-secondary">{error?.message ?? 'Cette page n’existe pas ou a été déplacée.'}</p>
-        {chip && <span className="rounded-pill bg-bg-lilac px-3 py-1 text-caption text-ink-secondary">{chip}</span>}
-        <Button className="mt-2 w-full" onClick={run}>
+        {chip && <span className="rounded-pill bg-surface-sunken px-3 py-1 text-caption text-ink-secondary">{chip}</span>}
+        <Button className="mt-2" onClick={run}>
           {ACTION_LABELS[action]}
         </Button>
       </Panel>

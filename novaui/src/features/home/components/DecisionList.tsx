@@ -7,6 +7,12 @@ import type { Decision, DecisionKind } from '../services/homeDecisions'
 
 const ICONS: Record<DecisionKind, LucideIcon> = { order: PackageX, leaves: CalendarDays, suggestion: Sparkles }
 
+const ICON_TONES: Record<DecisionKind, string> = {
+  order: 'bg-status-critical-bg text-status-critical-fg',
+  leaves: 'bg-bg-lilac text-ink-primary',
+  suggestion: 'bg-bg-lilac text-ink-primary',
+}
+
 interface DecisionListProps {
   decisions: Decision[]
   onAct: (decision: Decision) => void
@@ -19,12 +25,14 @@ export const DecisionList = ({ decisions, onAct }: DecisionListProps) => (
       <Count value={decisions.length} tone="night" />
     </div>
     {decisions.length === 0 && <EmptyState icon={Sparkles} title="Tout est traité" />}
-    <ul className="flex flex-col gap-2">
+    <ul className="flex flex-col divide-y divide-line-subtle">
       {decisions.map((decision) => {
         const Icon = ICONS[decision.kind]
         return (
-          <li key={decision.key} className="flex flex-wrap items-center gap-3 rounded-md border border-line-strong px-4 py-3">
-            <Icon aria-hidden="true" className="size-5 shrink-0 text-ink-primary" />
+          <li key={decision.key} className="flex flex-wrap items-center gap-3 py-3">
+            <span className={`inline-flex size-9 shrink-0 items-center justify-center rounded-pill ${ICON_TONES[decision.kind]}`}>
+              <Icon aria-hidden="true" className="size-5" />
+            </span>
             <span className="flex min-w-0 flex-1 flex-col">
               <span className="text-label text-ink-primary">{decision.title}</span>
               <span className="text-micro text-ink-tertiary">{decision.detail}</span>
