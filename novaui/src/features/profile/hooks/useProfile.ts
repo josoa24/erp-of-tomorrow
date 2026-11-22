@@ -1,7 +1,7 @@
 import { useCurrentUser } from '../../../hooks/useCurrentUser'
 import { useLogout } from '../../../hooks/useLogout'
 import { useModuleDefinitions } from '../../modules/hooks/useModuleDefinitions'
-import { accessLabels, accessSentence } from '../services/profileAccess'
+import { accessChips, accessSentence } from '../services/profileAccess'
 import { useAccount } from './useAccount'
 
 export const useProfile = () => {
@@ -17,7 +17,7 @@ export const useProfile = () => {
     initials: user.initials,
     roleLabel: user.roleLabel,
     sentence: accessSentence(user.role),
-    accesses: accessLabels(user.role, modules.map((module) => module.name)),
+    accesses: accessChips(user.role, modules),
     logout,
   }
 }
