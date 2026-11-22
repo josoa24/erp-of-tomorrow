@@ -4,6 +4,16 @@ PASSWORD = "demo12345"
 ACCOUNTS = [("stock@erp.local", "STOCK"), ("vente@erp.local", "VENTE"), ("rh@erp.local", "RH"),
             ("crm@erp.local", "CRM")]
 
+# email, rôle, nom complet, actif, dernière connexion (en jours, None = jamais)
+TEAM_ACCOUNTS = [
+    ("mamy.andrianjaka@erp.local", "ADMIN", "Mamy Andrianjaka", True, 0),
+    ("lalaina.rakotomalala@erp.local", "STOCK", "Lalaina Rakotomalala", True, 1),
+    ("njaka.rasolofo@erp.local", "VENTE", "Njaka Rasolofo", True, 2),
+    ("miora.razafindrabe@erp.local", "VENTE", "Miora Razafindrabe", True, 9),
+    ("volana.rabemanana@erp.local", "RH", "Volana Rabemanana", True, None),
+    ("tojo.randrianasolo@erp.local", "CRM", "Tojo Randrianasolo", False, 45),
+]
+
 # nom, sku, unité, stock initial, seuil, prix unitaire
 PRODUCTS = [
     ("Riz blanc 25 kg", "RIZ-25", "sac", 34, 15, 45000),
