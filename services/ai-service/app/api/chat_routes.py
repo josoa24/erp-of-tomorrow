@@ -44,9 +44,9 @@ async def chat(body: ChatRequest, request: Request):
 
 
 @router.post("/chat/stream", responses={200: {"content": {"text/event-stream": {}}, "description":
-             "Événements SSE : start, token, tool_call, tool_result, done (ou error)"}})
+             "Événements SSE : start, token, tool_call, tool_result, ui, done (ou error)"}})
 async def chat_stream(body: ChatRequest, request: Request):
-    """Événements : `start` {conversation_id} → `token` {text} ×N, `tool_call`, `tool_result`
+    """Événements : `start` {conversation_id} → `token` {text} ×N, `tool_call`, `tool_result`, `ui` {tool, blocks}
     → `done` {response, tool_calls, pending_actions, metrics, history_turns, trust} — ou `error`."""
     user = user_from_request(request)
     agent, store = request.app.state.agent, request.app.state.conversations

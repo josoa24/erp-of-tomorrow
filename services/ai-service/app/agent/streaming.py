@@ -11,6 +11,7 @@ from app.agent.agent_base import AgentBase
 from app.agent.confirmation import ActionGuard
 from app.agent.gemini_errors import to_agent_error
 from app.agent.records import ToolCallRecord
+from app.agent.ui_blocks import blocks_for
 from app.trust.assessment import assess
 
 logger = logging.getLogger(__name__)
@@ -83,6 +84,9 @@ class StreamingAgent(AgentBase):
                 contents.append(types.Content(role="user", parts=response_parts))
                 for rec in records[n_before:]:
                     yield {"type": "tool_result", **rec.as_dict()}
+                    blocks = blocks_for(rec)
+                    if blocks:
+                        yield {"type": "ui", "tool": rec.name, "blocks": blocks}
                 continue
 
             if not acc["text"]:
