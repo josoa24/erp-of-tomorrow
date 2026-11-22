@@ -1,10 +1,16 @@
+export interface ListItem {
+  text: string
+  children: string[]
+}
+
 export type MarkdownBlock =
   | { kind: 'paragraph'; text: string }
   | { kind: 'heading'; text: string }
-  | { kind: 'list'; ordered: boolean; items: string[] }
+  | { kind: 'list'; ordered: boolean; items: ListItem[] }
   | { kind: 'table'; head: string[]; rows: string[][] }
 
 const BULLET = /^\s*[-*•]\s+(.*)$/
+const NESTED = /^\s{2,}[-*•]\s+(.*)$/
 const NUMBERED = /^\s*\d+[.)]\s+(.*)$/
 const HEADING = /^\s*#{1,6}\s+(.*)$/
 const TABLE_ROW = /^\s*\|(.+)\|\s*$/
@@ -23,9 +29,15 @@ const takeTable = (lines: string[], start: number): [MarkdownBlock, number] => {
 }
 
 const takeList = (lines: string[], start: number, pattern: RegExp): [MarkdownBlock, number] => {
-  const items: string[] = []
+  const items: ListItem[] = []
   let index = start
-  while (index < lines.length && pattern.test(lines[index] ?? '')) items.push((lines[index++] ?? '').replace(pattern, '$1'))
+  while (index < lines.length) {
+    const line = lines[index] ?? ''
+    if (NESTED.test(line) && items.length > 0 && pattern === NUMBERED) items[items.length - 1]?.children.push(line.replace(NESTED, '$1'))
+    else if (pattern.test(line)) items.push({ text: line.replace(pattern, '$1'), children: [] })
+    else break
+    index += 1
+  }
   return [{ kind: 'list', ordered: pattern === NUMBERED, items }, index]
 }
 

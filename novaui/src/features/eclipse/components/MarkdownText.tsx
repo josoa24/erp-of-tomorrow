@@ -43,7 +43,16 @@ const Block = ({ block }: { block: MarkdownBlock }) => {
     return (
       <List className={`flex flex-col gap-1 pl-5 ${block.ordered ? 'list-decimal' : 'list-disc'}`}>
         {block.items.map((item, index) => (
-          <li key={index}><Inline text={item} /></li>
+          <li key={index}>
+            <Inline text={item.text} />
+            {item.children.length > 0 && (
+              <ul className="mt-1 flex list-disc flex-col gap-1 pl-5">
+                {item.children.map((child, childIndex) => (
+                  <li key={childIndex}><Inline text={child} /></li>
+                ))}
+              </ul>
+            )}
+          </li>
         ))}
       </List>
     )

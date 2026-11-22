@@ -27,10 +27,17 @@ const PLACEMENT: Record<PanelPlacement, string> = { above: 'bottom-full mb-3', b
 
 export const EclipsePanel = ({ chat, notice, unavailability, placement, onConfirm, onCancel, onRetry, onReset, onClose }: EclipsePanelProps) => {
   const endRef = useRef<HTMLDivElement>(null)
+  const questionRef = useRef<HTMLParagraphElement>(null)
+  const lastUserId = [...chat.messages].reverse().find((message) => message.role === 'user')?.id
+  const actionCount = Object.keys(chat.actions).length
+
+  useEffect(() => {
+    questionRef.current?.scrollIntoView?.({ block: 'start' })
+  }, [lastUserId])
 
   useEffect(() => {
     endRef.current?.scrollIntoView?.({ block: 'end' })
-  }, [chat.messages, chat.actions, notice, unavailability])
+  }, [actionCount, notice, unavailability])
 
   return (
     <section
@@ -47,7 +54,7 @@ export const EclipsePanel = ({ chat, notice, unavailability, placement, onConfir
       <div role="log" aria-live="polite" className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
         {chat.messages.map((message) =>
           message.role === 'user' ? (
-            <p key={message.id} className="max-w-[85%] self-end rounded-lg bg-surface-night px-4 py-2 text-body text-ink-inverse">{message.text}</p>
+            <p key={message.id} ref={message.id === lastUserId ? questionRef : undefined} className="max-w-[85%] self-end rounded-lg bg-surface-night px-4 py-2 text-body text-ink-inverse">{message.text}</p>
           ) : (
             <AssistantMessage key={message.id} message={message} actions={chat.actions} onConfirm={onConfirm} onCancel={onCancel} onRetry={onRetry} />
           ),
