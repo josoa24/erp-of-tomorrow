@@ -267,6 +267,8 @@ Service Python (FastAPI), hors Swagger de la gateway.
 | WS | `/api/voice/stream` | Transcription en temps réel (audio PCM envoyé en continu ; messages `partial`, `processing`, `final`) |
 | GET | `/api/voice/demo` | Page de démonstration |
 
+NovaUI utilise `POST /api/voice/transcribe` (champs `audio` et `language`, jeton `Authorization: Bearer`). Erreurs gérées côté écran : 400 (audio vide), 413 (plus de 10 Mo), 415 (format), 422 (audio illisible), 502/503/504 (service indisponible). Le WebSocket `/stream` n'est pas utilisé par NovaUI : un navigateur ne peut pas envoyer l'en-tête `Authorization` sur un WebSocket.
+
 ## 10. Assistant IA : `/api/ai` (tous les rôles connectés)
 
 L'assistant appelle les autres modules via la gateway **avec le token de l'utilisateur** : il n'a jamais plus de droits que lui, et Gemini ne reçoit que les outils du rôle connecté. Détails et exemples : [services/ai-service/README.md](../services/ai-service/README.md).
