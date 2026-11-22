@@ -9,7 +9,8 @@ import { StockTable } from '../components/StockTable'
 import { useStockDialogs } from '../hooks/useStockDialogs'
 import { useStockOverview } from '../hooks/useStockOverview'
 import { useStockSearchParams } from '../hooks/useStockSearchParams'
-import { GENERIC_STOCK_VIEW } from '../services/stockAdaptation'
+import { useModuleAdaptation } from '../../eclipse/hooks/useModuleAdaptation'
+import { toStockAdaptationView } from '../services/stockAdaptation'
 import { effectiveFilter, filterStockItems, stockFilterChips } from '../services/stockFilters'
 import { buildStockKpis, stockSubtitle } from '../services/stockKpis'
 
@@ -18,7 +19,8 @@ export const STOCK_SEARCH_PLACEHOLDER = 'Rechercher un produit…'
 const KPI_PLACEHOLDER = <Skeleton className="h-8 w-24" />
 
 export const StockScreen = () => {
-  const adaptation = GENERIC_STOCK_VIEW
+  const { active, preview } = useModuleAdaptation('stock')
+  const adaptation = toStockAdaptationView(active, preview !== null)
   const { filter, search, setFilter, setSearch } = useStockSearchParams()
   const { items, loading, counts, summary } = useStockOverview(search)
   const { dialog, openEntry, openExit, openLots, close } = useStockDialogs()
