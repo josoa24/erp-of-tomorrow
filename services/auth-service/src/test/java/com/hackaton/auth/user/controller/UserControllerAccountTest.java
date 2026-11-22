@@ -1,5 +1,7 @@
 package com.hackaton.auth.user.controller;
 
+import java.util.Set;
+import java.util.List;
 import static com.hackaton.auth.support.GatewayHeaders.withIdentity;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -27,7 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(UserController.class)
 class UserControllerAccountTest {
 
-    private static final UserResponse DISABLED = new UserResponse(2L, "vente@erp.local", "Rasoa Andria", Role.VENTE, false,
+    private static final UserResponse DISABLED = new UserResponse(2L, "vente@erp.local", "Rasoa Andria", List.of(Role.VENTE), Role.VENTE, false,
             Instant.now(), null);
 
     @Autowired
@@ -41,7 +43,7 @@ class UserControllerAccountTest {
 
     @Test
     void shouldReturn200_whenRoleIsChanged() throws Exception {
-        when(userUpdater.changeRole(2L, Role.STOCK, 1L)).thenReturn(DISABLED);
+        when(userUpdater.changeRoles(2L, Set.of(Role.STOCK), 1L)).thenReturn(DISABLED);
 
         mockMvc.perform(withIdentity(put("/users/2")).contentType(MediaType.APPLICATION_JSON).content("{\"role\":\"STOCK\"}"))
                 .andExpect(status().isOk())

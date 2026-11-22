@@ -2,6 +2,7 @@ package com.hackaton.auth.user.repository;
 
 import com.hackaton.auth.user.dto.UserSearchCriteria;
 import com.hackaton.auth.user.entity.UserAccount;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +25,9 @@ public final class UserSpecifications {
                         builder.like(builder.lower(builder.coalesce(root.<String>get("fullName"), "")), pattern, ESCAPE),
                         builder.like(builder.lower(root.get("email")), pattern, ESCAPE)));
             }
-            if (criteria.role() != null) {
-                predicates.add(builder.equal(root.get("role"), criteria.role()));
+            if (criteria.roles() != null && !criteria.roles().isEmpty()) {
+                query.distinct(true);
+                predicates.add(root.join("roles", JoinType.INNER).in(criteria.roles()));
             }
             if (criteria.enabled() != null) {
                 predicates.add(builder.equal(root.get("enabled"), criteria.enabled()));

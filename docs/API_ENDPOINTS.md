@@ -33,7 +33,7 @@ Toutes les requêtes passent par la gateway (`http://localhost:8080`) avec l'en-
 Authorization: Bearer <token>
 ```
 
-Seul `POST /api/auth/login` est public. Sans token ou avec un token invalide ou expiré : **401**. Avec un rôle qui n'a pas accès au module : **403**.
+Seul `POST /api/auth/login` est public. Sans token ou avec un token invalide ou expiré : **401**. Avec un rôle qui n'a pas accès au module : **403**. Un compte peut avoir plusieurs rôles (claim `roles` du token, `[role]` si absent) : l'accès est accordé dès qu'un seul de ses rôles le permet. Le rôle principal (`role`) est le premier dans l'ordre ADMIN, STOCK, VENTE, RH, CRM.
 
 | Rôle | `/api/stock` | `/api/vente` | `/api/rh` | `/api/crm` | `/api/modules` | `/api/auth/users` |
 |------|:-----------:|:------------:|:---------:|:----------:|:--------------:|:-----------------:|
@@ -45,7 +45,7 @@ Seul `POST /api/auth/login` est public. Sans token ou avec un token invalide ou 
 
 Exception : `/api/auth/users/me` et `/api/auth/users/me/...` (son propre compte) sont ouverts à tous les rôles connectés.
 
-La gateway transmet l'identité aux services dans les en-têtes `X-User-Id`, `X-User-Email` et `X-User-Role` (utilisés par le CRM pour enregistrer l'auteur d'un échange).
+La gateway transmet l'identité aux services dans les en-têtes `X-User-Id`, `X-User-Email`, `X-User-Role` (rôle principal) et `X-User-Roles` (tous les rôles, séparés par des virgules, dans l'ordre de priorité) ; les valeurs envoyées par le client sont supprimées (utilisés par le CRM pour enregistrer l'auteur d'un échange).
 
 Chaque service refuse (401 `UNAUTHORIZED`) un appel sans `X-User-Id` et `X-User-Role` : il faut passer par la gateway. Restent ouverts en direct : `/v3/api-docs`, `/swagger-ui`, `/actuator` et `POST /login` (auth). Les appels entre services (Vente vers Stock, CRM vers Vente et Stock) recopient ces en-têtes.
 
@@ -79,15 +79,15 @@ Une donnée validée (vente, bon de commande, congé) ne peut plus être modifi�
 
 | Méthode | Chemin | Rôles | Description | Statuts |
 |---------|--------|-------|-------------|---------|
-| POST | `/api/auth/login` | public | Connexion. Corps : `email`, `password`. Renvoie `token`, `email`, `fullName` (nom complet, `null` s'il n'est pas renseigné), `role` | 200, 400, 401 |
-| GET | `/api/auth/users` | ADMIN | Liste des comptes, du plus récent au plus ancien. Paramètres facultatifs : `search` (sous-chaîne du nom ou de l'email, sans casse), `role` (ADMIN, STOCK, VENTE, RH, CRM), `enabled` (`true` ou `false`), `page` (à partir de 0) et `size` (20 par défaut dès que `page` est fourni, 100 au maximum). Sans `page` la liste complète est renvoyée. L'en-tête `X-Total-Count` donne le nombre total de comptes correspondant aux filtres. Chaque compte porte `lastLoginAt` | 200, 400, 403 |
-| GET | `/api/auth/users/counts` | ADMIN | Compteurs : `all`, `active`, `disabled`, `admins` | 200, 403 |
+| POST | `/api/auth/login` | public | Connexion. Corps : `email` (insensible à la casse), `password`. Renvoie `token`, `email`, `fullName` (nom complet, `null` s'il n'est pas renseigné), `role` (rôle principal) et `roles` (tous les rôles, dans l'ordre ADMIN, STOCK, VENTE, RH, CRM). Le token porte les claims `role` (principal) et `roles` (tableau). L'email est nettoyé (espaces retirés) et mis en minuscules | 200, 400, 401 |
+| GET | `/api/auth/users` | ADMIN | Liste des comptes, du plus récent au plus ancien. Paramètres facultatifs : `search` (sous-chaîne du nom ou de l'email, sans casse), `role` (ADMIN, STOCK, VENTE, RH, CRM ; répétable : `?role=STOCK&role=VENTE` renvoie les comptes ayant l'un de ces rôles, valeur inconnue : 400), `enabled` (`true` ou `false`), `page` (à partir de 0) et `size` (20 par défaut dès que `page` est fourni, 100 au maximum). `size` sans `page` équivaut à `page=0` (liste paginée). Sans `page` ni `size` la liste complète est renvoyée. `search` est tronqué à 120 caractères. L'ordre est toujours `createdAt` décroissant puis `id` décroissant, y compris sans paramètre. L'en-tête `X-Total-Count` donne le nombre total de comptes correspondant aux filtres. Chaque compte porte `roles`, `role` et `lastLoginAt`. Un compte à plusieurs rôles n'apparaît qu'une fois | 200, 400, 403 |
+| GET | `/api/auth/users/counts` | ADMIN | Compteurs : `all`, `active`, `disabled`, `admins` (comptes ayant le rôle ADMIN) | 200, 403 |
 | POST | `/api/auth/users/{id}/password` | ADMIN | Réinitialise le mot de passe d'un autre compte. Corps : `newPassword` (8 à 72 caractères). Jamais renvoyé ni journalisé. Refusé sur son propre compte (utiliser `/users/me/password`) | 204, 400, 403, 404, 422 |
-| POST | `/api/auth/users` | ADMIN | Crée un compte. `email` unique, `password` de 8 caractères minimum, `role` parmi ADMIN, STOCK, VENTE, RH, CRM, `fullName` facultatif (120 caractères maximum) | 201, 400, 409 |
-| PUT | `/api/auth/users/{id}` | ADMIN | Change le rôle d'un compte. Corps : `role`. Refusé sur son propre compte | 200, 400, 404, 422 |
-| POST | `/api/auth/users/{id}/disable` | ADMIN | Désactive un compte : il ne peut plus se connecter. Refusé sur son propre compte | 200, 404, 422 |
+| POST | `/api/auth/users` | ADMIN | Crée un compte. `email` unique sans tenir compte de la casse (normalisé en minuscules, espaces retirés ; 409 si un compte existe déjà avec une autre casse), `password` de 8 caractères minimum, `roles` : tableau de 1 à 5 rôles parmi ADMIN, STOCK, VENTE, RH, CRM (l'ancien champ `role` seul reste accepté et équivaut à `roles: [role]` ; aucun rôle ou valeur inconnue : 400), `fullName` facultatif (120 caractères maximum). Renvoie le compte avec `roles` (dans l'ordre de priorité) et `role` (le premier). Les valeurs refusées (mot de passe) ne sont jamais journalisées | 201, 400, 409 |
+| PUT | `/api/auth/users/{id}` | ADMIN | Remplace les rôles d'un compte. Corps : `roles` (tableau, 1 à 5 rôles ; `role` seul accepté comme avant). Refusé sur son propre compte (422). Refusé (422 `BUSINESS`) si cela retire ADMIN au dernier compte actif qui l'a. Renvoie le compte mis à jour | 200, 400, 404, 422 |
+| POST | `/api/auth/users/{id}/disable` | ADMIN | Désactive un compte : il ne peut plus se connecter. Refusé sur son propre compte et sur le dernier compte ADMIN actif (422) | 200, 404, 422 |
 | POST | `/api/auth/users/{id}/enable` | ADMIN | Réactive un compte | 200, 404, 422 |
-| GET | `/api/auth/users/me` | tous les rôles | Son propre compte : `id`, `email`, `fullName`, `role`, `enabled`, `createdAt`, `lastLoginAt` (dernière connexion réussie, `null` si jamais connecté ; identité lue dans `X-User-Id`) | 200, 401, 404 |
+| GET | `/api/auth/users/me` | tous les rôles | Son propre compte : `id`, `email`, `fullName`, `roles`, `role` (principal), `enabled`, `createdAt`, `lastLoginAt` (dernière connexion réussie, `null` si jamais connecté ; identité lue dans `X-User-Id`) | 200, 401, 404 |
 | POST | `/api/auth/users/me/password` | tous les rôles | Change son propre mot de passe. Corps : `currentPassword`, `newPassword` (8 caractères minimum, différent de l'actuel) | 204, 400, 422 |
 
 Les endpoints ADMIN sont contrôlés à la fois par la gateway et par l'auth-service (`X-User-Role`) : 403 sinon. Un compte désactivé reçoit 401 à la connexion. Un token déjà émis reste valable jusqu'à son expiration (`JWT_TTL_MINUTES`).

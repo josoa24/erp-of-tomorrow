@@ -14,11 +14,15 @@ public interface UserAccountRepository extends JpaRepository<UserAccount, Long>,
 
     Optional<UserAccount> findByEmail(String email);
 
-    boolean existsByEmail(String email);
+    Optional<UserAccount> findByEmailIgnoreCase(String email);
+
+    boolean existsByEmailIgnoreCase(String email);
 
     long countByEnabled(boolean enabled);
 
     long countByRole(Role role);
+
+    long countByRoleAndEnabled(Role role, boolean enabled);
 
     @Modifying
     @Query("update UserAccount u set u.lastLoginAt = :at where u.id = :id")

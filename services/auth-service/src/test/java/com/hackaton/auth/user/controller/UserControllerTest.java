@@ -53,7 +53,7 @@ class UserControllerTest {
 
     @Test
     void shouldReturn201WithCreatedUser_whenRequestIsValid() throws Exception {
-        UserCreateRequest request = new UserCreateRequest("stock@erp.local", "secret123", Role.STOCK, "Toky Rakoto");
+        UserCreateRequest request = new UserCreateRequest("stock@erp.local", "secret123", null, Role.STOCK, "Toky Rakoto");
         when(userCreator.create(request)).thenReturn(user());
 
         mockMvc.perform(withIdentity(post("/users")).contentType(MediaType.APPLICATION_JSON).content(NEW_USER))

@@ -1,5 +1,6 @@
 package com.hackaton.auth.login.controller;
 
+import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -33,7 +34,7 @@ class LoginControllerTest {
     @Test
     void shouldReturn200WithToken_whenCredentialsAreValid() throws Exception {
         LoginRequest request = new LoginRequest("admin@erp.local", "secret123");
-        when(authenticator.login(request)).thenReturn(new LoginResponse("jwt-token", "admin@erp.local", "Hery Rabe", Role.ADMIN));
+        when(authenticator.login(request)).thenReturn(new LoginResponse("jwt-token", "admin@erp.local", "Hery Rabe", Role.ADMIN, List.of(Role.ADMIN)));
 
         login(CREDENTIALS)
                 .andExpect(status().isOk())

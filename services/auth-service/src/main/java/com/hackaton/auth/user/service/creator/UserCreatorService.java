@@ -6,6 +6,7 @@ import com.hackaton.auth.user.dto.UserResponse;
 import com.hackaton.auth.user.entity.UserAccount;
 import com.hackaton.auth.user.mapper.UserMapper;
 import com.hackaton.auth.user.repository.UserAccountRepository;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,14 +24,15 @@ public class UserCreatorService implements UserCreator {
     @Override
     @Transactional
     public UserResponse create(UserCreateRequest request) {
-        if (userRepository.existsByEmail(request.email())) {
-            throw new DuplicateResourceException("Un compte avec l'email " + request.email() + " existe déjà");
+        String email = request.email().strip().toLowerCase(Locale.ROOT);
+        if (userRepository.existsByEmailIgnoreCase(email)) {
+            throw new DuplicateResourceException("Un compte avec l'email " + email + " existe déjà");
         }
         UserAccount user = new UserAccount();
-        user.setEmail(request.email());
+        user.setEmail(email);
         user.setFullName(StringUtils.hasText(request.fullName()) ? request.fullName().strip() : null);
         user.setPasswordHash(passwordEncoder.encode(request.password()));
-        user.setRole(request.role());
+        user.setRoles(request.effectiveRoles());
         return userMapper.toResponse(userRepository.save(user));
     }
 }

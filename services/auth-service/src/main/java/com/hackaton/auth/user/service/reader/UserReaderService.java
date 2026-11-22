@@ -31,18 +31,18 @@ public class UserReaderService implements UserReader {
 
     @Override
     public List<UserResponse> findAll() {
-        return userRepository.findAll().stream().map(userMapper::toResponse).toList();
+        return userRepository.findAll(SORT).stream().map(userMapper::toResponse).toList();
     }
 
     @Override
     public UserPage search(UserSearchCriteria criteria) {
         Specification<UserAccount> spec = UserSpecifications.matching(criteria);
-        if (criteria.page() == null) {
+        if (criteria.page() == null && criteria.size() == null) {
             List<UserResponse> all = userRepository.findAll(spec, SORT).stream().map(userMapper::toResponse).toList();
             return new UserPage(all, all.size());
         }
         int size = criteria.size() == null ? DEFAULT_SIZE : Math.min(Math.max(criteria.size(), 1), MAX_SIZE);
-        Page<UserAccount> page = userRepository.findAll(spec, PageRequest.of(Math.max(criteria.page(), 0), size, SORT));
+        Page<UserAccount> page = userRepository.findAll(spec, PageRequest.of(criteria.page() == null ? 0 : Math.max(criteria.page(), 0), size, SORT));
         return new UserPage(page.getContent().stream().map(userMapper::toResponse).toList(), page.getTotalElements());
     }
 

@@ -4,9 +4,9 @@ import com.hackaton.auth.common.identity.IdentityHeaders;
 import com.hackaton.auth.user.dto.UserCreateRequest;
 import com.hackaton.auth.user.dto.UserPage;
 import com.hackaton.auth.user.dto.UserResponse;
+import com.hackaton.auth.user.dto.UserRolesUpdateRequest;
 import com.hackaton.auth.user.dto.UserSearchCriteria;
 import com.hackaton.auth.user.entity.Role;
-import com.hackaton.auth.user.dto.UserRoleUpdateRequest;
 import com.hackaton.auth.user.service.creator.UserCreator;
 import com.hackaton.auth.user.service.reader.UserReader;
 import com.hackaton.auth.user.service.updater.UserUpdater;
@@ -32,6 +32,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
 
+    private static final int MAX_SEARCH = 120;
+
     public static final String TOTAL_COUNT = "X-Total-Count";
 
     private final UserCreator userCreator;
@@ -41,11 +43,11 @@ public class UserController {
     @Operation(summary = "Liste les comptes (filtres et pagination facultatifs, total dans X-Total-Count)")
     @GetMapping
     public ResponseEntity<List<UserResponse>> findAll(@RequestParam(required = false) String search,
-                                                      @RequestParam(required = false) Role role,
+                                                      @RequestParam(name = "role", required = false) List<Role> roles,
                                                       @RequestParam(required = false) Boolean enabled,
                                                       @RequestParam(required = false) Integer page,
                                                       @RequestParam(required = false) Integer size) {
-        UserSearchCriteria criteria = new UserSearchCriteria(search, role, enabled, page, size);
+        UserSearchCriteria criteria = new UserSearchCriteria(search == null || search.length() <= MAX_SEARCH ? search : search.substring(0, MAX_SEARCH), roles, enabled, page, size);
         if (criteria.isUnfiltered()) {
             List<UserResponse> all = userReader.findAll();
             return withTotal(all, all.size());
@@ -64,9 +66,9 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public UserResponse changeRole(@PathVariable Long id, @Valid @RequestBody UserRoleUpdateRequest request,
+    public UserResponse changeRoles(@PathVariable Long id, @Valid @RequestBody UserRolesUpdateRequest request,
                                    @Parameter(hidden = true) @RequestHeader(IdentityHeaders.USER_ID) Long actorId) {
-        return userUpdater.changeRole(id, request.role(), actorId);
+        return userUpdater.changeRoles(id, request.effectiveRoles(), actorId);
     }
 
     @PostMapping("/{id}/disable")

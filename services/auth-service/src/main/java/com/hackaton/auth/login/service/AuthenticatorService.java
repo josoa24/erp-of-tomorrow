@@ -6,6 +6,7 @@ import com.hackaton.auth.login.dto.LoginRequest;
 import com.hackaton.auth.login.dto.LoginResponse;
 import com.hackaton.auth.user.entity.UserAccount;
 import com.hackaton.auth.user.repository.UserAccountRepository;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class AuthenticatorService implements Authenticator {
 
     @Override
     public LoginResponse login(LoginRequest request) {
-        UserAccount user = userRepository.findByEmail(request.email())
+        UserAccount user = userRepository.findByEmailIgnoreCase(request.email().strip().toLowerCase(Locale.ROOT))
                 .orElseThrow(InvalidCredentialsException::new);
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new InvalidCredentialsException();
@@ -32,6 +33,7 @@ public class AuthenticatorService implements Authenticator {
             throw new AccountDisabledException();
         }
         loginRecorder.record(user.getId());
-        return new LoginResponse(tokenIssuer.issue(user), user.getEmail(), user.getFullName(), user.getRole());
+        return new LoginResponse(tokenIssuer.issue(user), user.getEmail(), user.getFullName(), user.getRole(),
+                user.sortedRoles());
     }
 }
