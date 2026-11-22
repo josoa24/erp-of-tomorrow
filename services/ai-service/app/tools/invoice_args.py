@@ -12,7 +12,7 @@ _AMOUNT = {"ge": 0, "le": 1e13}
 
 class InvoiceLineArgs(Args):
     product_id: int | None = Field(default=None, ge=1)
-    description: str = Field(min_length=1, max_length=300)
+    description: str = Field(min_length=1, max_length=255)
     quantity: int = Field(ge=1, le=1_000_000)
     unit_price: float = Field(**_AMOUNT)
 

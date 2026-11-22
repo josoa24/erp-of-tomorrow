@@ -38,7 +38,8 @@ def check_body(inv: ExtractedInvoice, supplier_id: int) -> dict[str, Any] | str:
     for line in inv.lines:
         qty = max(1, round(line.quantity or 1))
         price = line.unitPrice if line.unitPrice is not None else (line.amount or 0) / qty
-        lines.append({"description": line.description or "Ligne sans libellé", "quantity": qty, "unitPrice": price})
+        label = (line.description or "Ligne sans libellé")[:255]  # limite du stock-service
+        lines.append({"description": label, "quantity": qty, "unitPrice": price})
     body = {"supplierId": supplier_id, "invoiceNumber": inv.invoiceNumber, "invoiceDate": inv.invoiceDate,
             "bankAccount": inv.bankAccount, "lines": lines, "subtotal": inv.subtotal, "taxAmount": inv.taxAmount,
             "totalAmount": inv.totalAmount, "notes": inv.notes}
