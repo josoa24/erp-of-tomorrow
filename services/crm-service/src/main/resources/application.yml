@@ -28,6 +28,10 @@ spring:
 remote:
   vente-url: ${VENTE_URL:http://localhost:8082}
   stock-url: ${STOCK_URL:http://localhost:8083}
+app:
+  zone: ${APP_ZONE:Indian/Antananarivo}
+crm:
+  follow-up-days: ${CRM_FOLLOW_UP_DAYS:30}
 management:
   endpoints:
     web:
