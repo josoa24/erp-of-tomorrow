@@ -66,6 +66,7 @@ export const EclipseBar = ({
       <textarea
         ref={textareaRef}
         rows={1}
+        wrap={value === '' ? 'off' : 'soft'}
         value={value}
         disabled={unavailable}
         aria-label={label}
@@ -75,6 +76,7 @@ export const EclipseBar = ({
         onBlur={onBlur}
         className={cn(
           'relative max-h-12 min-w-0 flex-1 resize-none overflow-y-auto bg-transparent text-body outline-none [field-sizing:content]',
+          value === '' && 'overflow-hidden',
           variant === 'night' ? 'placeholder:text-ink-inverse/80' : 'placeholder:text-ink-tertiary',
         )}
       />
