@@ -1,6 +1,6 @@
-import { useId } from 'react'
-import { Field } from '../../../components/ui/field'
-import { fieldControlClass, helperIdFor } from '../../../components/ui/field-styles'
+import { useMemo } from 'react'
+import { Combobox } from '@/components/ui/combobox'
+import type { ComboboxOption } from '@/components/ui/combobox-types'
 import type { Department } from '../types/employee'
 
 interface DepartmentSelectProps {
@@ -11,27 +11,20 @@ interface DepartmentSelectProps {
 }
 
 export const DepartmentSelect = ({ departments, value, error, onChange }: DepartmentSelectProps) => {
-  const id = useId()
+  const options = useMemo<ComboboxOption[]>(
+    () => departments.map((department) => ({ value: String(department.id), label: department.name })),
+    [departments],
+  )
+
   return (
-    <Field id={id} label="Service" helper={error}>
-      <div className={fieldControlClass}>
-        <select
-          id={id}
-          required
-          value={value}
-          aria-invalid={error !== undefined || undefined}
-          aria-describedby={error ? helperIdFor(id) : undefined}
-          className="h-12 min-w-0 flex-1 bg-transparent text-body text-ink-primary outline-none"
-          onChange={(event) => onChange(event.target.value)}
-        >
-          <option value="">Choisir un service</option>
-          {departments.map((department) => (
-            <option key={department.id} value={String(department.id)}>
-              {department.name}
-            </option>
-          ))}
-        </select>
-      </div>
-    </Field>
+    <Combobox
+      label="Service"
+      placeholder="Choisir un service"
+      options={options}
+      value={options.find((option) => option.value === value) ?? null}
+      invalid={Boolean(error)}
+      helper={error}
+      onChange={(option) => onChange(option?.value ?? '')}
+    />
   )
 }
