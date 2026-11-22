@@ -145,6 +145,13 @@ Si le port 8081 est déjà pris (Docker/WSL sur certains postes), lancer le serv
 mvn spring-boot:run "-Dspring-boot.run.arguments=--server.port=8091"
 ```
 
+## Documentation
+
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) : composants, chemin d'une requête, sécurité, tests, place de l'IA
+- [docs/adr/](docs/adr/README.md) : décisions d'architecture et leurs raisons
+- [docs/API_ENDPOINTS.md](docs/API_ENDPOINTS.md) : tous les endpoints et les rôles autorisés
+- [docs/FONCTIONNALITES.md](docs/FONCTIONNALITES.md) : ce que l'ERP sait faire aujourd'hui
+
 ## Règles d'équipe
 
 Lire impérativement avant de coder :
