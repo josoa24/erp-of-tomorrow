@@ -58,7 +58,7 @@ Le dépôt a été **créé par une première équipe** (21/11/2026), puis **rep
 | | MAMIARILAZA To | Premier design de NovaUI, connexion et tableau de bord |
 | **Après la reprise (songomby_d2)** | Arthinez | Gestion des comptes, sécurité de la gateway, tests, Invoice Shield, prévision, Trust Layer IA, CI, données et scénario de démo, finition du socle NOVA |
 | | saotra | Intégration des maquettes Figma NOVA : design system et shell, Eclipse, moteur de modules (module-service), lots et péremption, avances sur salaire, nom complet des comptes |
-| | Nekena Rabeharivonjy | Environnement de développement à chaud, base PostgreSQL unique, front web unique, migration Tailwind et TanStack Router |
+| | Nekena Rabeharivonjy | Environnement de développement à chaud, base PostgreSQL unique, front web unique, migration Tailwind et TanStack Router ; écrans Accueil, Équipe et Relations, réponses d'Eclipse dans le dock, ports internes non publiés |
 | | herifanantenana | Écran Ventes (nouvelle vente, encaissement, annulation, adaptation paiement), adaptation lots et péremption sur l'écran Stock |
 
 Le détail des ajouts, avec leur auteur, est à la [section 6.2](#62-nouvelles-fonctionnalités-new_features-ajoutées-depuis-la-reprise).
@@ -73,7 +73,7 @@ Le détail des ajouts, avec leur auteur, est à la [section 6.2](#62-nouvelles-f
 | **En cours** | Commencé ; du travail reste à relire ou à finir ([docs/integration-nova/SUITE.md](docs/integration-nova/SUITE.md)) |
 | **Prévu** | Conçu et planifié pour une version suivante |
 
-**Aujourd'hui** : le backend est complet pour la démonstration (8 services + gateway, plus de 1 000 tests Java, 228 tests Python, 628 tests front). Le front NOVA a son socle complet (design system, shell, navigation par rôle, gabarit d'écran de module, page d'erreur) ; l'écran Ventes et l'adaptation Stock sont faits ; les écrans Équipe, Relations, Accueil et les parcours Eclipse côté front sont **en cours**.
+**Aujourd'hui** : le backend est complet pour la démonstration (8 services + gateway, plus de 1 000 tests Java, 228 tests Python, 628 tests front). Le front NOVA a son socle complet (design system, shell, navigation par rôle, gabarit d'écran de module, page d'erreur) ; les écrans Accueil, Stock, Ventes, Équipe et Relations sont faits, et Eclipse répond dans le dock ; Mon profil, la création de module et l'écran de module générique côté front sont **en cours**.
 
 ---
 
@@ -249,6 +249,8 @@ Détail : [docs/NEW_FEATURES_IMPLEMENTATION.md](docs/NEW_FEATURES_IMPLEMENTATION
 | Finition du socle | Bascule dock Eclipse ↔ barre d'adaptation, erreurs de rendu redirigées vers la page d'erreur, API publique du socle figée | Arthinez (#41) |
 | Écran Ventes | Nouvelle vente, encaissement, annulation, crédit interdit sans client, adaptation Mobile Money et crédit | herifanantenana |
 | Écran Stock | Adaptation lots et péremption branchée | herifanantenana |
+| Écrans Accueil, Équipe, Relations | Accueil avec EclipseHeroBar et liste « À décider », Équipe, Relations | Nekena Rabeharivonjy |
+| Eclipse dans le dock | Demandes envoyées à Eclipse, réponse diffusée en direct, aperçu d'adaptation | Nekena Rabeharivonjy |
 
 #### Eclipse et moteur de modules — *saotra*, *Arthinez*
 
@@ -274,9 +276,9 @@ Détail : [docs/NEW_FEATURES_IMPLEMENTATION.md](docs/NEW_FEATURES_IMPLEMENTATION
 
 | Élément | Statut |
 |---|---|
-| Écran Ventes, adaptation lots et péremption sur l'écran Stock | En place |
-| Écrans Équipe, Relations, Accueil, Mon profil | En cours |
-| Parcours Eclipse côté front (réponses, aperçu et application, création de module, écran de module générique) | En cours |
+| Écrans Accueil, Ventes, Équipe, Relations ; adaptation lots et péremption sur l'écran Stock | En place |
+| Eclipse dans le dock : réponses en flux, aperçu d'adaptation | En place |
+| Mon profil ; création de module et écran de module générique côté front | En cours |
 | Contacts CRM agrégés (P3) | En cours |
 | Compléter les données de démonstration avec les nouveaux champs | En cours |
 | CRM : tâches, relances, pipeline, segments | Prévu ([docs/PLAN_CRM.md](docs/PLAN_CRM.md)) |
@@ -578,7 +580,7 @@ cd novaui && npm run lint && npx tsc -b && npx vitest run      # front
 |---|---|
 | **Socle d'origine** (en place) | Microservices, gateway JWT, Stock, Ventes, RH, CRM, assistant IA, voix |
 | **Reprise songomby_d2** (en place) | Comptes, sécurité gateway, tests, Invoice Shield, prévision, Trust Layer, base unique, CI, design system et shell NOVA, moteur de modules, Eclipse backend, lots et avances |
-| **Hackathon** (en cours) | Écrans NOVA Équipe, Relations, Accueil ; parcours Eclipse côté front ; données de démonstration complètes ; vérification de bout en bout |
+| **Hackathon** (en cours) | Mon profil ; création de module côté front ; données de démonstration complètes ; vérification de bout en bout |
 | **Version suivante** (prévu) | CRM complet (tâches, relances, pipeline), Finance, paie, entrepôts, renouvellement de token |
 
 ---
