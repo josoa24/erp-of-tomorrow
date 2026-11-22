@@ -7,6 +7,7 @@ export const ROUTES = {
   team: '/equipe',
   relations: '/relations',
   profile: '/profil',
+  users: '/utilisateurs',
   customModule: '/modules/$slug',
 } as const
 

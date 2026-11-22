@@ -1,5 +1,7 @@
+import { useNavigate } from '@tanstack/react-router'
 import { useCurrentUser } from '../../../hooks/useCurrentUser'
 import { useLogout } from '../../../hooks/useLogout'
+import { ROUTES } from '../../../navigation/routes'
 import { useModuleDefinitions } from '../../modules/hooks/useModuleDefinitions'
 import { accessChips, accessSentence } from '../services/profileAccess'
 import { useAccount } from './useAccount'
@@ -9,6 +11,7 @@ export const useProfile = () => {
   const account = useAccount()
   const { modules } = useModuleDefinitions()
   const logout = useLogout()
+  const navigate = useNavigate()
   if (!user) return null
 
   return {
@@ -19,5 +22,7 @@ export const useProfile = () => {
     sentence: accessSentence(user.role),
     accesses: accessChips(user.role, modules),
     logout,
+    isAdmin: user.role === 'ADMIN',
+    openUsers: () => void navigate({ to: ROUTES.users }),
   }
 }

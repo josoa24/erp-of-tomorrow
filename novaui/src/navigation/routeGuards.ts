@@ -23,3 +23,8 @@ export const requireModule = (module: ErpModule) => () => {
   const session = readSession()
   if (session && !canAccessModule(session.role, module)) throw forbiddenRedirect()
 }
+
+export const requireAdmin = () => {
+  const session = readSession()
+  if (session && session.role !== 'ADMIN') throw forbiddenRedirect()
+}

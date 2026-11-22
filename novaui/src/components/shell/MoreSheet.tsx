@@ -1,9 +1,10 @@
 import { Link, useNavigate } from '@tanstack/react-router'
-import { LogOut, Plus, User } from 'lucide-react'
+import { LogOut, Plus, User, UserCog } from 'lucide-react'
 import type { NavItem } from '../../constants/moduleNav'
 import { useCreateModuleRequest } from '../../features/modules/hooks/useCreateModuleRequest'
 import { useModuleDefinitions } from '../../features/modules/hooks/useModuleDefinitions'
 import { moduleIconFor } from '../../features/modules/services/moduleIcon'
+import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { useLogout } from '../../hooks/useLogout'
 import { ROUTES } from '../../navigation/routes'
 import { Dialog } from '../ui/dialog'
@@ -21,6 +22,7 @@ export const MoreSheet = ({ open, onClose, overflow }: MoreSheetProps) => {
   const { modules } = useModuleDefinitions()
   const createModule = useCreateModuleRequest()
   const logout = useLogout()
+  const user = useCurrentUser()
   const navigate = useNavigate()
   const run = (action: () => void) => () => {
     onClose()
@@ -48,6 +50,11 @@ export const MoreSheet = ({ open, onClose, overflow }: MoreSheetProps) => {
         <button type="button" onClick={run(() => void navigate({ to: ROUTES.profile }))} className={moreSheetRowClass()}>
           <MoreSheetRowContent icon={User}>Mon profil</MoreSheetRowContent>
         </button>
+        {user?.role === 'ADMIN' && (
+          <button type="button" onClick={run(() => void navigate({ to: ROUTES.users }))} className={moreSheetRowClass()}>
+            <MoreSheetRowContent icon={UserCog}>Gestion des utilisateurs</MoreSheetRowContent>
+          </button>
+        )}
         <button type="button" onClick={run(logout)} className={moreSheetRowClass(true)}>
           <MoreSheetRowContent icon={LogOut}>Se déconnecter</MoreSheetRowContent>
         </button>

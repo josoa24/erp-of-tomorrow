@@ -1,5 +1,6 @@
 import { ModulePage } from '../../../components/module/ModulePage'
 import { AccessCard } from '../components/AccessCard'
+import { AdminCard } from '../components/AdminCard'
 import { IdentityCard } from '../components/IdentityCard'
 import { SecurityCard } from '../components/SecurityCard'
 import { useProfile } from '../hooks/useProfile'
@@ -15,6 +16,7 @@ export const ProfileScreen = () => {
           <IdentityCard name={profile.name} email={profile.email} roleLabel={profile.roleLabel} />
           <AccessCard sentence={profile.sentence} accesses={profile.accesses} />
         </div>
+        {profile.isAdmin && <AdminCard onOpen={profile.openUsers} />}
         <SecurityCard onLogout={profile.logout} />
       </div>
     </ModulePage>
