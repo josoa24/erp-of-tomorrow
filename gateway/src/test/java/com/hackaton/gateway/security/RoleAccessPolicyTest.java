@@ -39,11 +39,11 @@ class RoleAccessPolicyTest {
     }
 
     @Test
-    void shouldAllowVoiceOnlyForRhAndAdmin() {
-        assertTrue(policy.isAllowed("/api/voice/transcribe", "RH"));
-        assertTrue(policy.isAllowed("/api/voice/transcribe", "ADMIN"));
-        assertFalse(policy.isAllowed("/api/voice/transcribe", "VENTE"));
-        assertFalse(policy.isAllowed("/api/voice/transcribe", "STOCK"));
+    void shouldAllowVoiceForEveryBusinessRole() {
+        for (String role : new String[] {"STOCK", "VENTE", "RH", "CRM", "ADMIN"}) {
+            assertTrue(policy.isAllowed("/api/voice/transcribe", role), role);
+        }
+        assertFalse(policy.isAllowed("/api/voice/transcribe", "INCONNU"));
     }
 
     @Test

@@ -44,10 +44,10 @@ Tout passe par la gateway, qui vérifie le JWT (`Authorization: Bearer <token>`)
 
 | Rôle | `/api/stock` | `/api/vente` | `/api/rh` | `/api/ai` | `/api/voice` | `/api/auth/users` |
 |------|:-----------:|:------------:|:---------:|:---------:|:------------:|:-----------------:|
-| `STOCK` | oui | non | non | oui | non | non |
-| `VENTE` | non | oui | non | oui | non | non |
+| `STOCK` | oui | non | non | oui | oui | non |
+| `VENTE` | non | oui | non | oui | oui | non |
 | `RH` | non | non | oui | oui | oui | non |
-| `CRM` | non | non | non | oui | non | non |
+| `CRM` | non | non | non | oui | oui | non |
 | `ADMIN` | oui | oui | oui | oui | oui | oui |
 
 L'assistant (`/api/ai`) est ouvert à tous les rôles : il appelle les autres modules avec le token de
