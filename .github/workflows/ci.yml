@@ -1,0 +1,60 @@
+name: CI
+
+# Build et tests de chaque module à chaque Pull Request vers songomby_d2 ou main,
+# et à chaque push sur ces deux branches.
+on:
+  pull_request:
+    branches: [songomby_d2, main]
+  push:
+    branches: [songomby_d2, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  java:
+    name: Tests ${{ matrix.module }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module:
+          - gateway
+          - services/auth-service
+          - services/stock-service
+          - services/vente-service
+          - services/rh-service
+          - services/crm-service
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+          cache-dependency-path: ${{ matrix.module }}/pom.xml
+      - name: Build et tests
+        working-directory: ${{ matrix.module }}
+        run: mvn -B -ntp verify
+
+  ai-service:
+    name: Tests services/ai-service
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/ai-service
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: services/ai-service/requirements*.txt
+      - name: Dépendances
+        run: pip install -r requirements-dev.txt
+      - name: "Tests (sans réseau : faux Gemini et fausse gateway)"
+        run: python -m pytest -q
