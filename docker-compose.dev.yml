@@ -175,6 +175,9 @@ services:
     command: sh -c "pip install -r requirements.txt && uvicorn app.main:app --host 0.0.0.0 --port 8086 --reload"
     ports:
       - "8086:8086"
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     environment:
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
