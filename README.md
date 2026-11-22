@@ -19,7 +19,8 @@ Hackaton/
 ├── novaui/               # Application web unique (React + Vite), tous les modules
 ├── docs/
 │   └── REGLES_DEVELOPPEMENT.md
-└── docker-compose.yml    # 1 instance PostgreSQL (base erp), 1 schéma par service
+├── docker-compose.yml    # Production (Dokploy) : aucun port publié, voir docs/DEPLOIEMENT.md
+└── docker-compose.dev.yml # Développement : rechargement à chaud, ports sur 127.0.0.1
 ```
 
 Une seule instance PostgreSQL (port 5432, base `erp`) héberge **un schéma et un utilisateur par service** (`auth_svc`, `stock_svc`, `vente_svc`, `rh_svc`, `crm_svc`, `module_svc`), créés par [docker/postgres/init/01-schemas.sh](docker/postgres/init/01-schemas.sh). Chaque service ne peut lire et écrire que son propre schéma : l'isolation des microservices est garantie par la base, sans le coût de cinq serveurs (voir [ADR-006](docs/adr/ADR-006-instance-postgresql-unique.md)).
@@ -69,7 +70,7 @@ créer ou supprimer un module et activer une adaptation restent réservés au r�
 Base de données (une seule instance pour tous les services) :
 
 ```powershell
-docker compose up -d erp-db
+docker compose -f docker-compose.dev.yml up -d erp-db
 ```
 
 Un service (exemple : stock) :
@@ -130,10 +131,10 @@ Le dépôt est public : ne jamais y mettre de vrai secret. Les valeurs par défa
 
 ## Lancer le projet
 
-1. La base : `docker compose up -d erp-db` (ou tout l'ERP conteneurisé : `docker compose up -d --build`).
+1. La base : `docker compose up -d erp-db` (ou tout l'ERP en développement : `docker compose -f docker-compose.dev.yml up`).
 2. Chaque service, dans son dossier : `mvn spring-boot:run` (auth 8084, stock 8083, vente 8082, rh 8081).
 3. La gateway : `cd gateway`, puis `mvn spring-boot:run`.
-4. Le front web : `cd novaui`, puis `npm install` et `npm run dev` (ou `docker compose up -d novaui`).
+4. Le front web : `cd novaui`, puis `npm install` et `npm run dev` (ou `docker compose -f docker-compose.dev.yml up -d novaui`).
 5. L'assistant IA (optionnel) : voir [services/ai-service/README.md](services/ai-service/README.md)
    (`uvicorn` en local, ou `docker compose --profile ai up -d --build`), puis
    `python services/ai-service/scripts/seed_demo.py` et `python services/ai-service/scripts/test_erp_agent.py`.
@@ -146,7 +147,6 @@ Le script d'initialisation ne s'exécute qu'à la création du volume. Sur une b
 migrations (scripts idempotents, rejouables sans risque) avant de démarrer les services :
 
 ```bash
-./docker/postgres/apply-migrations.sh                              # docker-compose.yml
 ./docker/postgres/apply-migrations.sh -f docker-compose.dev.yml    # environnement de développement
 ```
 
@@ -176,6 +176,7 @@ mvn spring-boot:run "-Dspring-boot.run.arguments=--server.port=8091"
 
 ## Documentation
 
+- [docs/DEPLOIEMENT.md](docs/DEPLOIEMENT.md) : déploiement en production avec Dokploy (aucun port exposé, variables, migrations)
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) : composants, chemin d'une requête, sécurité, tests, place de l'IA
 - [docs/adr/](docs/adr/README.md) : décisions d'architecture et leurs raisons
 - [docs/API_ENDPOINTS.md](docs/API_ENDPOINTS.md) : tous les endpoints et les rôles autorisés
