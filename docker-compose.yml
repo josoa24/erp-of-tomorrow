@@ -3,7 +3,8 @@ x-service: &service
   deploy:
     resources:
       limits:
-        memory: ${JAVA_SERVICE_MEMORY:-512m}
+        memory: ${JAVA_SERVICE_MEMORY:-384m}
+        cpus: ${JAVA_SERVICE_CPUS:-1.0}
 
 x-java-build: &java-build
   context: .
@@ -44,7 +45,8 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512m
+          memory: 384m
+          cpus: "1.0"
 
   migrate:
     build:
@@ -60,17 +62,17 @@ services:
       erp-db:
         condition: service_healthy
       auth-service:
-        condition: service_started
+        condition: service_healthy
       stock-service:
-        condition: service_started
+        condition: service_healthy
       vente-service:
-        condition: service_started
+        condition: service_healthy
       rh-service:
-        condition: service_started
+        condition: service_healthy
       crm-service:
-        condition: service_started
+        condition: service_healthy
       module-service:
-        condition: service_started
+        condition: service_healthy
 
   auth-service:
     <<: [*service, *after-db]
@@ -89,6 +91,12 @@ services:
       ADMIN_NAME: ${ADMIN_NAME:-Administrateur}
     expose:
       - "8084"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8084"]
+      interval: 15s
+      timeout: 3s
+      retries: 10
+      start_period: 90s
 
   stock-service:
     <<: [*service, *after-db]
@@ -102,6 +110,12 @@ services:
       DB_PASSWORD: ${STOCK_DB_PASSWORD}
     expose:
       - "8083"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8083"]
+      interval: 15s
+      timeout: 3s
+      retries: 10
+      start_period: 90s
 
   vente-service:
     <<: [*service, *after-db]
@@ -116,6 +130,17 @@ services:
       STOCK_URL: http://stock-service:8083
     expose:
       - "8082"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8082"]
+      interval: 15s
+      timeout: 3s
+      retries: 10
+      start_period: 90s
+    depends_on:
+      erp-db:
+        condition: service_healthy
+      stock-service:
+        condition: service_healthy
 
   rh-service:
     <<: [*service, *after-db]
@@ -129,6 +154,17 @@ services:
       DB_PASSWORD: ${RH_DB_PASSWORD}
     expose:
       - "8081"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8081"]
+      interval: 15s
+      timeout: 3s
+      retries: 10
+      start_period: 90s
+    depends_on:
+      erp-db:
+        condition: service_healthy
+      stock-service:
+        condition: service_healthy
 
   crm-service:
     <<: [*service, *after-db]
@@ -144,6 +180,17 @@ services:
       STOCK_URL: http://stock-service:8083
     expose:
       - "8085"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8085"]
+      interval: 15s
+      timeout: 3s
+      retries: 10
+      start_period: 90s
+    depends_on:
+      erp-db:
+        condition: service_healthy
+      vente-service:
+        condition: service_healthy
 
   module-service:
     <<: [*service, *after-db]
@@ -160,6 +207,17 @@ services:
       STOCK_URL: http://stock-service:8083
     expose:
       - "8088"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8088"]
+      interval: 15s
+      timeout: 3s
+      retries: 10
+      start_period: 90s
+    depends_on:
+      erp-db:
+        condition: service_healthy
+      rh-service:
+        condition: service_healthy
 
   gateway:
     <<: *service
@@ -181,13 +239,20 @@ services:
     expose:
       - "8080"
     depends_on:
-      - auth-service
-      - stock-service
-      - vente-service
-      - rh-service
-      - crm-service
-      - module-service
-      - ai-service
+      auth-service:
+        condition: service_healthy
+      stock-service:
+        condition: service_healthy
+      vente-service:
+        condition: service_healthy
+      rh-service:
+        condition: service_healthy
+      crm-service:
+        condition: service_healthy
+      module-service:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
 
   ai-service:
     build: ./services/ai-service
@@ -215,6 +280,7 @@ services:
       VOICE_DEVICE: ${VOICE_DEVICE:-cpu}
       VOICE_COMPUTE_TYPE: ${VOICE_COMPUTE_TYPE:-int8}
       VOICE_LANGUAGE: ${VOICE_LANGUAGE:-fr}
+      OMP_NUM_THREADS: ${VOICE_CPU_THREADS:-2}
     volumes:
       - hf-cache:/home/appuser/.cache/huggingface
     expose:
