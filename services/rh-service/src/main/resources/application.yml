@@ -25,6 +25,8 @@ spring:
         default_schema: ${DB_SCHEMA:rh}
         hbm2ddl:
           create_namespaces: true
+app:
+  zone: ${APP_ZONE:Indian/Antananarivo}
 management:
   endpoints:
     web:
