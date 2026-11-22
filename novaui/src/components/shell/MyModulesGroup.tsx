@@ -5,7 +5,7 @@ import { useModuleDefinitions } from '../../features/modules/hooks/useModuleDefi
 import { moduleIconFor } from '../../features/modules/services/moduleIcon'
 import { ROUTES } from '../../navigation/routes'
 import { IconButton } from '../ui/icon-button'
-import { NAV_TAB_ACTIVE, NAV_TAB_INACTIVE, navTabClass } from './navTabStyles'
+import { NAV_TAB_ACTIVE, NAV_TAB_INACTIVE, navLabelClass, navTabClass } from './navTabStyles'
 
 export const CREATE_MODULE_LABEL = 'Créer un module'
 
@@ -14,7 +14,7 @@ export const MyModulesGroup = ({ compact = false }: { compact?: boolean }) => {
   const { open } = useCreateModuleRequest()
 
   return (
-    <div role="group" aria-label="Mes modules" className="flex shrink-0 items-center gap-1 rounded-pill bg-bg-lilac p-1">
+    <div role="group" aria-label="Mes modules" className="flex min-h-[52px] shrink-0 items-center gap-1 rounded-pill bg-bg-lilac p-1">
       {modules.map((module) => {
         const Icon = moduleIconFor(module.icon)
         return (
@@ -25,9 +25,10 @@ export const MyModulesGroup = ({ compact = false }: { compact?: boolean }) => {
             className={navTabClass(compact)}
             activeProps={{ className: NAV_TAB_ACTIVE }}
             inactiveProps={{ className: NAV_TAB_INACTIVE }}
+            title={compact ? module.name : undefined}
           >
             <Icon aria-hidden="true" />
-            {module.name}
+            <span className={navLabelClass(compact)}>{module.name}</span>
           </Link>
         )
       })}

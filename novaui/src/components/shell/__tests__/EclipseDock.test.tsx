@@ -32,22 +32,18 @@ const renderDockAt = async (path: string, withProposal = false) => {
 }
 
 describe('EclipseDock', () => {
-  it('shouldUseTheRoutePlaceholder_andAnnounceUpcomingEclipse', async () => {
+  it('shouldAnnounceUpcomingEclipse_onModuleRoutes', async () => {
     await renderDockAt('/stock')
 
     const input = await screen.findByRole('textbox', { name: 'Demander à Eclipse' })
-    expect(input).toHaveAttribute('placeholder', 'Demandez ou adaptez « Stock »…')
+    expect(input).toHaveAttribute('placeholder', 'Eclipse arrive bientôt')
     expect(input).toBeDisabled()
-    expect(screen.getByText('Eclipse arrive bientôt')).toBeInTheDocument()
   })
 
-  it('shouldFallBackToGenericPlaceholder', async () => {
+  it('shouldShowOnCustomModuleRoutesToo', async () => {
     await renderDockAt('/modules/livraisons')
 
-    expect(await screen.findByRole('textbox', { name: 'Demander à Eclipse' })).toHaveAttribute(
-      'placeholder',
-      'Demandez, adaptez un écran ou créez un module…',
-    )
+    expect(await screen.findByRole('textbox', { name: 'Demander à Eclipse' })).toBeInTheDocument()
   })
 
   it('shouldStayHidden_onRoutesThatOptOut', async () => {

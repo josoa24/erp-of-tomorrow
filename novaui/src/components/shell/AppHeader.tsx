@@ -17,7 +17,7 @@ export const AppHeader = ({ breakpoint }: { breakpoint: Breakpoint }) => {
         breakpoint === 'desktop' ? 'grid-cols-[1fr_auto_1fr]' : 'grid-cols-[auto_minmax(0,1fr)_auto]',
       )}
     >
-      <Link to="/" aria-label="NOVA, accueil" className="justify-self-start rounded-xs outline-none focus-visible:shadow-focus-ring">
+      <Link to="/" aria-label="NOVA, accueil" className="inline-flex min-h-11 items-center justify-self-start rounded-xs outline-none focus-visible:shadow-focus-ring md:mt-[3px] md:self-start">
         <NovaLogo />
       </Link>
       <div className="flex min-w-0 justify-center">

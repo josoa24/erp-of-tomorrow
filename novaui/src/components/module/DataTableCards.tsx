@@ -21,10 +21,10 @@ export const DataTableCards = <Row,>({
             <div className="min-w-0 pt-2.5 text-label text-ink-primary">{lead?.render(row)}</div>
             {rowActions && <RowActionsMenu rowLabel={getRowLabel(row)} actions={rowActions(row)} />}
           </div>
-          <dl className="grid grid-cols-[minmax(0,auto)_minmax(0,1fr)] gap-x-4 gap-y-2">
+          <dl className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] items-center gap-x-4 gap-y-2">
             {details.map((column) => (
               <div key={column.key} className="contents">
-                <dt className="flex items-center gap-2 text-caption text-ink-tertiary uppercase">
+                <dt className="flex flex-wrap items-center gap-x-2 gap-y-1 text-caption text-ink-tertiary uppercase">
                   {column.header}
                   {column.isNew && <NewTag />}
                 </dt>

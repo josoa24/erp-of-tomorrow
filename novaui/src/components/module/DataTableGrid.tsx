@@ -11,7 +11,7 @@ export const DataTableGrid = <Row,>({
   getRowLabel,
   rowActions,
 }: DataTableLayoutProps<Row>) => (
-  <div className="overflow-x-auto overscroll-x-contain rounded-lg bg-surface-solid">
+  <div className="relative overflow-x-auto overscroll-x-contain rounded-lg bg-surface-solid">
     <table className="w-full border-collapse">
       <caption className="sr-only">{caption}</caption>
       <thead>

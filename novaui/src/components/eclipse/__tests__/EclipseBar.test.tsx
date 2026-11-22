@@ -71,7 +71,7 @@ describe('EclipseBar', () => {
 
     expect(input()).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Envoyer à Eclipse' })).toBeDisabled()
-    expect(screen.getByText('Eclipse arrive bientôt')).toBeInTheDocument()
+    expect(input()).toHaveAttribute('placeholder', 'Eclipse arrive bientôt')
   })
 
   it('shouldDrawSignatureLines_onNightVariant', () => {

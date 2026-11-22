@@ -67,7 +67,7 @@ export const EclipseBar = ({
         value={value}
         disabled={unavailable}
         aria-label={label}
-        placeholder={placeholder}
+        placeholder={unavailable ? unavailableLabel : placeholder}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={onKeyDown}
         onBlur={onBlur}
@@ -76,9 +76,7 @@ export const EclipseBar = ({
           variant === 'night' ? 'placeholder:text-ink-inverse/80' : 'placeholder:text-ink-tertiary',
         )}
       />
-      {unavailable ? (
-        <span className="relative shrink-0 text-micro text-ink-tertiary max-sm:hidden">{unavailableLabel}</span>
-      ) : (
+      {!unavailable && (
         <Kbd inverse={variant === 'night'} aria-hidden="true" className="relative max-sm:hidden">
           {modKeyLabel()}
         </Kbd>

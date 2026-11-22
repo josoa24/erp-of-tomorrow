@@ -1,7 +1,8 @@
 import { useLocation, useMatches } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
-import { ECLIPSE_PLACEHOLDERS, ECLIPSE_UNAVAILABLE_LABEL } from '../../constants/eclipsePlaceholders'
+import { ECLIPSE_UNAVAILABLE_LABEL } from '../../constants/eclipsePlaceholders'
 import { EclipseBar } from '../eclipse/EclipseBar'
+import { dockPlaceholderFor, isDockHiddenFor } from './dockPlaceholder'
 import { useEclipseDock } from './eclipse-dock-context'
 
 export const EclipseDock = ({ mobile = false }: { mobile?: boolean }) => {
@@ -19,13 +20,13 @@ export const EclipseDock = ({ mobile = false }: { mobile?: boolean }) => {
     closeDock()
   }, [pathname, closeDock])
 
-  if (hidden || staticData?.hideEclipseDock || (mobile && !mobileOpen)) return null
+  if (hidden || isDockHiddenFor(staticData) || (mobile && !mobileOpen)) return null
 
   return (
     <div className="fixed inset-x-4 bottom-[116px] z-20 mx-auto max-w-[760px] md:bottom-7">
       <EclipseBar
         variant="light"
-        placeholder={staticData?.eclipsePlaceholder ?? ECLIPSE_PLACEHOLDERS.default}
+        placeholder={dockPlaceholderFor(staticData)}
         value={value}
         onChange={setValue}
         onSubmit={() => setValue('')}
