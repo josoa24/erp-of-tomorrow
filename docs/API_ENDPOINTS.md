@@ -297,10 +297,25 @@ L'assistant appelle les autres modules via la gateway **avec le token de l'utili
 | POST | `/api/ai/invoices/extract` | Rôles STOCK, ADMIN. `multipart/form-data`, champ `file` : image JPEG, PNG, WEBP ou PDF (8 Mo par défaut). Extrait la facture fournisseur, retrouve le fournisseur et renvoie le contrôle Invoice Shield `{extracted, supplierMatch, shield}`. Rien n'est enregistré | 200, 400, 403, 413, 429, 503 |
 | GET | `/api/ai/audit` | ADMIN. Journal des interactions avec l'IA (plus récentes d'abord). Filtres `limit` (1 à 500, défaut 50), `userId` | 200, 400, 403 |
 | POST | `/api/ai/eclipse/adaptations/propose` | Barre Eclipse. Corps `moduleKey` (`stock`, `ventes`, `relations`, `equipe`, `accueil` ou slug d'un module créé), `request` (1 à 500 caractères). Réponse `outcome` : `ADAPTATION` (catalogue fermé : `stock.lots-peremption`, `ventes.mobile-money-credit`, `relations.nif-plafond-credit`, `equipe.avances-salaire`, avec `adaptationKey`, `title`, `summary`), `ALREADY_ACTIVE` (déjà actif dans le module-service, avec `message`), `QUESTION` (à envoyer au chat), `CREATE_MODULE` (ouvrir « Créer un module »), `UNSUPPORTED` (`message` honnête). `canApply` = rôle ADMIN ; `targetModuleKey` quand `moduleKey` = `accueil`. Rien n'est appliqué : l'activation passe par `POST /api/modules/adaptations` | 200, 400, 401, 403, 429 |
-| POST | `/api/ai/eclipse/modules/propose` | « Créer un module ». Corps `description` (1 à 500 caractères). Réponse `proposal` (forme `ModuleDefinitionRequest` du module-service), `accessText`, `source` (`TEMPLATE` : Livraisons, Réparations, Rendez-vous ou base générique avec `note` ; `GEMINI` si la clé est configurée et qu'aucun modèle ne correspond), `canCreate` (rôle ADMIN), `uncheckedColumns`. Chaque colonne porte `listed` (`false` : visible seulement dans le détail). La proposition respecte les mêmes règles que le module-service (nom réservé ou sans lettre, choix en double, indicateur incohérent : refusé). Rien n'est créé : la création passe par `POST /api/modules/definitions` | 200, 400, 401, 429 |
+| POST | `/api/ai/eclipse/modules/propose` | « Créer un module ». Corps `description` (1 à 500 caractères). Gemini conçoit le module d'abord (colonnes adaptées au métier, références vers clients, employés, produits, ventes, fournisseurs, statuts, indicateurs, colonnes `listed`), se corrige sur les refus du validateur (3 essais) ; sans Gemini : modèle (Livraisons, Réparations, Rendez-vous) ou base générique avec `note`. Réponse : `proposal` (forme `ModuleDefinitionRequest`), `accessText`, `source` (`GEMINI` ou `TEMPLATE`), `canCreate` (rôle ADMIN), `uncheckedColumns`, `explanation`, `suggestions` (demandes prêtes à envoyer à `refine`), `changes` | 200, 400, 401, 429 |
+| POST | `/api/ai/eclipse/modules/refine` | Ajuste une proposition. Corps `proposal` (définition courante), `instruction` (1 à 500 caractères, ex. « ajoute une colonne Priorité »). Même forme de réponse, avec `changes` (ce qui a été modifié). Sans Gemini, la proposition revient inchangée avec une `note` | 200, 400, 401, 429 |
 | GET | `/api/ai/eclipse/suggestions` | Adaptations du catalogue pas encore actives pour les modules du rôle : `[{adaptationKey, moduleKey, title, reason}]` ; liste vide si le module-service ne répond pas | 200, 401 |
 
 Au-delà de `AI_RATE_LIMIT_PER_MINUTE` requêtes par minute et par utilisateur (chat, flux, extraction, propositions Eclipse) : **429** `RATE_LIMIT`, avec l'en-tête `Retry-After`.
+
+### Événements du flux et interface générée
+
+`POST /api/ai/agent/chat/stream` émet, dans l'ordre : `start`, `tool_call` / `tool_result`, `ui`, `token`, `done` (ou `error`). L'événement `ui` porte des blocs typés dérivés des résultats d'outils déjà renvoyés, jamais inventés : `kpi` (`items` : `label`, `value`, `kind`, `hint`), `table` (`columns`, `rows`, `total`), `card` (`title`, `subtitle`, `fields`), `alerts` (`items` : `title`, `detail`, `tone`) et `chart` (`kind`, `points` : `label`, `value`, diagramme en barres). Le front les affiche dans le panneau d'Eclipse.
+
+Outils de l'assistant par module (`GET /api/ai/tools` donne la liste du rôle ; les écritures demandent toujours une confirmation) :
+
+| Module | Lecture | Écriture (avec confirmation) |
+|--------|---------|------------------------------|
+| Stock | produits, état du stock, autonomie, mouvements, fournisseurs, bons de commande, prévision de réapprovisionnement | mouvement de stock, bon de commande (créer, valider, recevoir), facture fournisseur |
+| Ventes | synthèse, produits les plus vendus, ventes, clients, fiche client, indicateurs du jour et du mois, crédit, ventes à encaisser | créer et valider une vente, enregistrer un encaissement |
+| RH | résumé, employés, demandes de congé, avances sur salaire | demander, valider ou refuser un congé ; demander une avance ; valider ou refuser une avance (`ADMIN`) |
+| CRM | contacts, résumé des relations, chronologie d'un tiers | enregistrer un échange, créer un contact |
+| Modules créés (tous les rôles) | liste, définition, enregistrements, indicateurs, point du jour (`get_daily_briefing`) | ajouter un enregistrement, passer au statut suivant |
 
 Les routes `/api/ai/eclipse/**` répondent sans clé Gemini (reconnaissance par mots-clés et modèles de modules) ; avec la clé, Gemini affine la reconnaissance et sa réponse est revalidée contre le catalogue.
 
