@@ -35,7 +35,7 @@ export const HomeScreen = () => {
   return (
     <div className="mx-auto flex w-full max-w-[960px] flex-col gap-6">
       <header className="flex flex-col gap-2">
-        <h1 className="text-display-l text-ink-primary">{`Bonjour, ${firstName(user.displayName)}.`}</h1>
+        <h1 className="text-display-l break-words text-ink-primary max-sm:text-display-m">{`Bonjour, ${firstName(user.displayName)}.`}</h1>
         <p className="text-body text-ink-secondary">{attentionLine(decisions.length)}</p>
       </header>
       <EclipseBar

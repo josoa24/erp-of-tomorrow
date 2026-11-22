@@ -2,6 +2,8 @@ import { formatPeriod } from '../../team/services/teamFormat'
 import type { Leave } from '../../team/types/leave'
 import type { EclipseSuggestion, Replenishment } from '../types/home'
 
+const SUGGESTS = 'Eclipse suggère'
+
 export type DecisionKind = 'order' | 'leaves' | 'suggestion'
 
 export interface Decision {
@@ -42,5 +44,5 @@ export const leavesDecision = (leaves: Leave[] | undefined): Decision[] => {
 
 export const suggestionDecision = (items: EclipseSuggestion[] | undefined): Decision[] =>
   items?.[0]
-    ? [{ key: `suggestion-${items[0].adaptationKey}`, kind: 'suggestion', title: `Eclipse suggère : ${items[0].title}`, detail: items[0].reason, action: 'Voir' }]
+    ? [{ key: `suggestion-${items[0].adaptationKey}`, kind: 'suggestion', title: items[0].title.startsWith(SUGGESTS) ? items[0].title : `${SUGGESTS} : ${items[0].title}`, detail: items[0].reason, action: 'Voir' }]
     : []
