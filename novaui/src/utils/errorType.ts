@@ -10,7 +10,10 @@ const BY_BACKEND_TYPE: Record<string, ErrorType> = {
   SERVER: 'server',
 }
 
+const UNREACHABLE_STATUSES = [502, 503, 504]
+
 export const toErrorType = (status: number, backendType?: string): ErrorType => {
+  if (UNREACHABLE_STATUSES.includes(status)) return 'network'
   if (backendType && BY_BACKEND_TYPE[backendType]) return BY_BACKEND_TYPE[backendType]
   if (status === 401) return 'unauthorized'
   if (status === 403) return 'forbidden'
