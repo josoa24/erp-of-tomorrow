@@ -9,13 +9,12 @@ import { validateSalesSearch } from '../features/sales/services/salesSearch'
 import { PurchaseOrdersScreen } from '../features/stock/screens/PurchaseOrdersScreen'
 import { StockScreen } from '../features/stock/screens/StockScreen'
 import { validateStockSearch } from '../features/stock/services/stockSearch'
-import { UsersScreen } from '../features/users/screens/UsersScreen'
-import { validateUsersSearch } from '../features/users/services/usersSearch'
 import { TeamScreen } from '../features/team/screens/TeamScreen'
 import { validateTeamSearch } from '../features/team/services/teamSearch'
 import { HomeScreen } from '../features/home/screens/HomeScreen'
+import { usersRoute } from './adminRoutes'
 import { protectedRoute } from './baseRoutes'
-import { requireAdmin, requireModule } from './routeGuards'
+import { requireModule } from './routeGuards'
 import { ROUTES } from './routes'
 
 const parent = () => protectedRoute
@@ -76,15 +75,6 @@ export const profileRoute = createRoute({
   path: ROUTES.profile,
   staticData: { hideEclipseDock: true },
   component: ProfileScreen,
-})
-
-export const usersRoute = createRoute({
-  getParentRoute: parent,
-  path: ROUTES.users,
-  beforeLoad: requireAdmin,
-  validateSearch: validateUsersSearch,
-  staticData: { hideEclipseDock: true },
-  component: UsersScreen,
 })
 
 export const customModuleRoute = createRoute({
