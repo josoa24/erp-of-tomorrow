@@ -48,6 +48,14 @@ class GlobalExceptionHandlerFallbackTest {
         assertEquals("Erreur interne du service", response.getBody().message());
     }
 
+    @Test
+    void shouldReturn403Forbidden_whenActorLacksRequiredRole() {
+        ResponseEntity<ApiError> response = handler.handleForbidden(new ForbiddenException("Réservé au gérant"));
+
+        assertError(response, 403, "FORBIDDEN");
+        assertEquals("Réservé au gérant", response.getBody().message());
+    }
+
     private void assertError(ResponseEntity<ApiError> response, int status, String type) {
         assertEquals(status, response.getStatusCode().value());
         assertEquals(status, response.getBody().status());
