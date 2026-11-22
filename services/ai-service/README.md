@@ -87,7 +87,7 @@ comparés aux résultats des outils du tour et à la question : `verifiedNumbers
 (un nombre calculé ou inventé par l'IA apparaît dans `unverifiedNumbers`). Sont ignorés : 0, 1 et les
 marqueurs de liste (« 1. »). Un arrondi est accepté à une demi-unité près (« 103 333 » pour 103333.33).
 `label` (premier cas qui s'applique) : `RECOMMENDATION` si une écriture est proposée, `ESTIMATION` si un
-outil de prévision a servi (`get_stock_status`, `get_product_autonomy`), `FACT` si un outil a réussi,
+outil de prévision a servi (`get_stock_status`, `get_product_autonomy`, `get_replenishment_forecast`, `list_replenishment_needs`), `FACT` si un outil a réussi,
 `NONE` sinon. `sources` = outils ayant réussi. Code : `app/trust/`.
 
 Flux `/chat/stream` (événements SSE) : `start` {conversation_id} → `token` {text} (×N) →
@@ -157,7 +157,7 @@ Les actions expirent après `CONFIRMATION_TTL_MIN` minutes et ne s'exécutent qu
 
 | Module (rôles) | Lecture | Écriture (confirmée) |
 |---|---|---|
-| Stock (STOCK, ADMIN) | `search_products`, `get_stock_status`, `get_product_autonomy`, `get_stock_summary`, `get_product_movements`, `search_suppliers`, `list_purchase_orders`, `check_supplier_invoice` | `record_stock_movement`, `create_purchase_order`, `validate_purchase_order`, `receive_purchase_order`, `register_supplier_invoice` (une facture `BLOCKED` est signalée, jamais présentée comme sûre) |
+| Stock (STOCK, ADMIN) | `search_products`, `get_stock_status`, `get_product_autonomy`, `get_replenishment_forecast` (quantité à commander, stock de sécurité, hypothèses), `list_replenishment_needs` (produits à commander maintenant), `get_stock_summary`, `get_product_movements`, `search_suppliers`, `list_purchase_orders`, `check_supplier_invoice` | `record_stock_movement`, `create_purchase_order`, `validate_purchase_order`, `receive_purchase_order`, `register_supplier_invoice` (une facture `BLOCKED` est signalée, jamais présentée comme sûre) |
 | Vente (VENTE, ADMIN) | `get_sales_summary`, `get_top_products`, `search_sales`, `search_customers`, `get_customer_profile` | `create_sale`, `validate_sale` |
 | RH (RH, ADMIN) | `get_hr_summary`, `search_employees` | — |
 | CRM (CRM, ADMIN) | `get_party_timeline` | — |
