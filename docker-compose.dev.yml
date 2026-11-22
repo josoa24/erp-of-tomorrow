@@ -5,8 +5,6 @@
 #   Java    : recompilation automatique puis redemarrage par spring-boot-devtools (docker/dev-java.sh)
 #   Python  : uvicorn --reload
 #   NovaUI  : Vite (HMR)
-# Développement uniquement : base (5432), gateway (8080) et front (5173) ne sont publiés que sur 127.0.0.1.
-# La production (docker-compose.yml) ne publie aucun port.
 name: erp-dev
 
 x-java: &java

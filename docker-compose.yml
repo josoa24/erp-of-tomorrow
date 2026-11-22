@@ -1,17 +1,3 @@
-# Production (Dokploy, type « Docker Compose », fichier docker-compose.yml).
-#
-# Aucun port n'est publié sur la machine : les services se parlent sur le réseau interne du projet.
-# Le seul point d'entrée est le service « novaui » (nginx, port interne 8080) : dans Dokploy, onglet
-# Domains, ajouter le domaine avec Service Name = novaui, Port = 8080, HTTPS activé. Il sert le front
-# et relaie /api/ vers la gateway (même origine : pas de CORS, pas de port à ouvrir).
-# La base, les services Java, la gateway, l'assistant IA et la voix ne sont joignables que par ce réseau.
-#
-# Les variables sont à définir dans Dokploy (onglet Environment). Celles marquées « obligatoire » font échouer
-# le déploiement si elles manquent : aucune valeur de développement n'est utilisée en production.
-#
-# Ordre de démarrage : erp-db -> services (Hibernate crée les tables) -> migrate (migrations SQL idempotentes,
-# rejouées à chaque déploiement, avec nouvel essai tant que les tables n'existent pas) ; gateway -> novaui.
-
 x-service: &service
   restart: unless-stopped
   deploy:

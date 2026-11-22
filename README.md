@@ -395,7 +395,7 @@ sequenceDiagram
 
 ### 8.2 Tout dans Docker
 
-Le fichier `docker-compose.yml` est celui de la **production** : il ne publie aucun port et exige ses variables (voir [docs/DEPLOIEMENT.md](docs/DEPLOIEMENT.md)). En local, utiliser le compose de développement, qui publie la base, la gateway et le front sur `127.0.0.1` seulement :
+Le fichier `docker-compose.yml` est celui de la **production** : il ne publie aucun port et exige ses variables (`.env.production.example`). En local, utiliser le compose de développement, qui publie la base, la gateway et le front sur `127.0.0.1` seulement :
 
 ```bash
 docker compose -f docker-compose.dev.yml up -d --build
