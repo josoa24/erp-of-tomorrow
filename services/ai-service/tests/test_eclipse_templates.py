@@ -11,8 +11,9 @@ def test_should_match_figma_04b_columns_when_livraisons_template_is_used():
                       ("Quartier", "TEXT", None), ("Livreur", "REFERENCE", "EMPLOYEE"),
                       ("Heure prévue", "TIME", None), ("Montant à encaisser", "MONEY", None),
                       ("Signature du client", "TEXT", None)]
-    assert (LIVRAISONS.unchecked_columns, LIVRAISONS.hidden_columns) == (("signature_client",),
-                                                                         ("montant_a_encaisser",))
+    assert LIVRAISONS.unchecked_columns == ("signature_client",)
+    assert [c.key for c in LIVRAISONS.definition.columns if not c.listed] == [
+        "vente_origine", "montant_a_encaisser", "signature_client"]
 
 
 def test_should_order_livraisons_statuses_as_a_workflow_ending_on_delivered():
@@ -51,6 +52,8 @@ def test_should_not_choose_template_when_description_matches_none():
     ("Je veux suivre les commandes spéciales de mes clients", "Commandes spéciales"),
     ("Crée un module pour les locations de matériel", "Locations"),
     ("Créer un module", DEFAULT_NAME),
+    ("Je veux suivre mon stock", DEFAULT_NAME),
+    ("Gérer l'équipe", DEFAULT_NAME),
 ])
 def test_should_derive_module_name_when_no_template_matches(description, expected):
     assert module_name(description) == expected
