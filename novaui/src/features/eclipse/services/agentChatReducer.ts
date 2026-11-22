@@ -7,7 +7,7 @@ export type AgentChatAction =
   | { type: 'sent'; userId: string; assistantId: string; text: string }
   | { type: 'event'; event: AgentStreamEvent }
   | { type: 'ended'; status: 'error' | 'stopped'; error?: string }
-  | { type: 'actionChanged'; actionId: string; status: ActionStatus; detail?: string }
+  | { type: 'actionChanged'; actionId: string; status: ActionStatus; detail?: string; code?: string }
   | { type: 'reset' }
 
 const message = (id: string, role: AgentMessage['role'], text: string, status: AgentMessage['status']): AgentMessage => ({
@@ -16,6 +16,7 @@ const message = (id: string, role: AgentMessage['role'], text: string, status: A
   text,
   toolCalls: [],
   actionIds: [],
+  blocks: [],
   status,
 })
 
@@ -24,10 +25,10 @@ const endStream = (state: AgentChatState, status: 'error' | 'stopped', error?: s
     last.status === 'streaming' ? { ...last, status, ...(error ? { error } : {}) } : last,
   )
 
-const changeAction = (state: AgentChatState, actionId: string, status: ActionStatus, detail?: string) => {
+const changeAction = (state: AgentChatState, actionId: string, status: ActionStatus, detail?: string, code?: string) => {
   const entry = state.actions[actionId]
   if (!entry) return state
-  return { ...state, actions: { ...state.actions, [actionId]: { ...entry, status, ...(detail ? { detail } : {}) } } }
+  return { ...state, actions: { ...state.actions, [actionId]: { ...entry, status, ...(detail ? { detail } : {}), ...(code ? { code } : {}) } } }
 }
 
 export const agentChatReducer = (state: AgentChatState, action: AgentChatAction): AgentChatState => {
@@ -47,7 +48,7 @@ export const agentChatReducer = (state: AgentChatState, action: AgentChatAction)
     case 'ended':
       return endStream(state, action.status, action.error)
     case 'actionChanged':
-      return changeAction(state, action.actionId, action.status, action.detail)
+      return changeAction(state, action.actionId, action.status, action.detail, action.code)
     case 'reset':
       return INITIAL_AGENT_CHAT
   }

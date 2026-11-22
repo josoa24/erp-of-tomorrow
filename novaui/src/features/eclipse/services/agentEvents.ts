@@ -1,4 +1,5 @@
 import type { AgentStreamEvent, PendingAction, ToolCallStatus } from '../types/agent'
+import { toUiBlocks } from './uiBlockParser'
 
 type Wire = Record<string, unknown>
 
@@ -48,6 +49,8 @@ export const toAgentEvent = (name: string, data: unknown): AgentStreamEvent | nu
         errorCode: asString(value.error_code) || undefined,
         action: toPendingAction(value.action),
       }
+    case 'ui':
+      return { type: 'ui', tool: asString(value.tool), blocks: toUiBlocks(value.blocks) }
     case 'done':
       return { type: 'done', response: asString(value.response), pendingActions: toPendingActions(value.pending_actions) }
     case 'error':

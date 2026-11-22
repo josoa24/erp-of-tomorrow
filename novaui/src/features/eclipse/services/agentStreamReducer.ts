@@ -66,6 +66,8 @@ export const applyStreamEvent = (state: AgentChatState, event: AgentStreamEvent)
       }))
     case 'toolResult':
       return applyToolResult(state, event)
+    case 'ui':
+      return updateLastAssistant(state, (message) => ({ ...message, blocks: [...message.blocks, ...event.blocks] }))
     case 'done': {
       const finished = updateLastAssistant({ ...state, busy: false }, (message) => ({
         ...message,
