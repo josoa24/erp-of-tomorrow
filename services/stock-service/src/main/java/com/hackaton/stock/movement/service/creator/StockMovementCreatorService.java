@@ -2,6 +2,7 @@ package com.hackaton.stock.movement.service.creator;
 
 import com.hackaton.stock.common.exception.InsufficientStockException;
 import com.hackaton.stock.common.exception.ResourceNotFoundException;
+import com.hackaton.stock.lot.service.tracker.MovementLotTracker;
 import com.hackaton.stock.movement.dto.MovementRequest;
 import com.hackaton.stock.movement.dto.MovementResponse;
 import com.hackaton.stock.movement.entity.MovementType;
@@ -21,16 +22,20 @@ public class StockMovementCreatorService implements StockMovementCreator {
     private final ProductRepository productRepository;
     private final StockMovementRepository movementRepository;
     private final StockMovementMapper movementMapper;
+    private final MovementLotTracker lotTracker;
 
     @Override
     @Transactional
     public MovementResponse record(Long productId, MovementRequest request) {
+        lotTracker.check(request);
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Produit", productId));
         int newQuantity = computeNewQuantity(product, request);
         product.setQuantity(newQuantity);
         productRepository.save(product);
-        return movementMapper.toResponse(movementRepository.save(buildMovement(productId, request, newQuantity)));
+        StockMovement movement = movementRepository.save(buildMovement(productId, request, newQuantity));
+        lotTracker.track(product, movement, request);
+        return movementMapper.toResponse(movement);
     }
 
     private int computeNewQuantity(Product product, MovementRequest request) {

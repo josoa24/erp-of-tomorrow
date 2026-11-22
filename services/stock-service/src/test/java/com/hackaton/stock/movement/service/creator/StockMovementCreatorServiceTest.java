@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.hackaton.stock.common.exception.InsufficientStockException;
 import com.hackaton.stock.common.exception.ResourceNotFoundException;
+import com.hackaton.stock.lot.service.tracker.MovementLotTracker;
 import com.hackaton.stock.movement.dto.MovementRequest;
 import com.hackaton.stock.movement.dto.MovementResponse;
 import com.hackaton.stock.movement.entity.MovementType;
@@ -31,13 +32,16 @@ class StockMovementCreatorServiceTest {
     private ProductRepository productRepository;
     @Mock
     private StockMovementRepository movementRepository;
+    @Mock
+    private MovementLotTracker lotTracker;
 
     private StockMovementCreatorService service;
     private Product product;
 
     @BeforeEach
     void setUp() {
-        service = new StockMovementCreatorService(productRepository, movementRepository, new StockMovementMapper());
+        service = new StockMovementCreatorService(
+                productRepository, movementRepository, new StockMovementMapper(), lotTracker);
         product = new Product();
         product.setName("Riz");
         product.setQuantity(19);
