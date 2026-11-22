@@ -1,0 +1,58 @@
+@theme {
+  --color-bg-canvas: #f3f0fb;
+  --color-bg-canvas-glow: #ded4ff;
+  --color-bg-lilac: #e7e0ff;
+  --color-bg-mint: #ddf3ec;
+  --color-bg-blush: #f7e4f1;
+
+  --color-surface-panel: #ffffffc7;
+  --color-surface-solid: #ffffff;
+  --color-surface-sunken: #f6f3fd;
+  --color-surface-night: #17123a;
+
+  --color-ink-primary: #17123a;
+  --color-ink-secondary: #4a4668;
+  --color-ink-tertiary: #6b6789;
+  --color-ink-disabled: #9a96b5;
+  --color-ink-inverse: #ffffff;
+
+  --color-line-subtle: #e6e1f5;
+  --color-line-strong: #cfc7ec;
+
+  --color-brand-indigo: #2a1b6e;
+  --color-brand-violet: #5b3fe0;
+  --color-brand-lilac: #b9a8ff;
+  --color-brand-pink: #e7a3e0;
+  --color-brand-mint: #7fe3c4;
+
+  --color-status-success-bg: #ddf9e8;
+  --color-status-success-fg: #0e6b43;
+  --color-status-success-vivid: #9df5c0;
+  --color-status-warning-bg: #fff3b8;
+  --color-status-warning-fg: #6b5300;
+  --color-status-warning-vivid: #ffe873;
+  --color-status-critical-bg: #ffe1db;
+  --color-status-critical-fg: #a3271a;
+  --color-status-critical-vivid: #ffb3a6;
+  --color-status-info-bg: #ece6ff;
+  --color-status-info-fg: #3b2a9e;
+  --color-status-info-vivid: #d6c9ff;
+
+  --color-focus-ring: #5b3fe0;
+  --color-state-hover: #efebfa;
+  --color-state-pressed: #e4ddf8;
+  --color-state-selected: #ece6ff;
+
+  --color-action-primary-hover: #2a2357;
+  --color-action-danger: #a3271a;
+  --color-action-danger-hover: #8a1f15;
+  --color-action-danger-pressed: #701810;
+
+  --color-text-link: #5b3fe0;
+  --color-overlay-scrim: #17123a52;
+
+  --color-night-1: #1b1464;
+  --color-night-2: #3b2a9e;
+  --color-night-3: #7b4fd8;
+  --color-night-4: #c98be0;
+}

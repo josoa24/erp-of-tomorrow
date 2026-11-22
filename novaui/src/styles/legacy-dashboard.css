@@ -1,7 +1,4 @@
 @theme {
-  --font-sans: 'Figtree Variable', system-ui, sans-serif;
-
-  --color-nova-bg: #080a2b;
   --color-nova-text: #f4f5ff;
   --color-nova-muted: #b6b9ee;
   --color-nova-soft: #a5a3ff;
@@ -27,10 +24,6 @@
   --shadow-eclipse:
     10px -10px 14px -6px rgba(255, 236, 255, 0.95), 22px -22px 40px -12px rgba(214, 150, 255, 0.9),
     40px -40px 110px -20px rgba(140, 80, 255, 0.75);
-  --shadow-arc:
-    inset -10px 10px 22px -10px rgba(170, 110, 255, 0.95),
-    inset 6px 8px 20px -10px rgba(90, 110, 255, 0.8), 0 -14px 60px -26px rgba(110, 90, 255, 0.8);
-  --shadow-nav-active: 0 0 24px rgba(110, 80, 255, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   --shadow-bubble: 0 0 26px rgba(120, 120, 255, 0.6), inset 0 2px 0 rgba(255, 255, 255, 0.35);
 
   --animate-twinkle: twinkle 4s ease-in-out infinite;
@@ -54,12 +47,6 @@
   background: linear-gradient(135deg, rgba(104, 70, 220, 0.5) 0%, rgba(54, 38, 150, 0.45) 100%);
 }
 
-@utility bg-space-login {
-  background:
-    radial-gradient(ellipse 70% 60% at 50% 45%, #10124a 0%, transparent 70%),
-    linear-gradient(180deg, #0a0b33 0%, #070826 100%);
-}
-
 @utility bg-space-dashboard {
   background:
     radial-gradient(ellipse 50% 45% at 50% 50%, #151a5c 0%, transparent 70%),
@@ -75,42 +62,6 @@
   );
 }
 
-@utility bg-avatar {
-  background: radial-gradient(circle at 35% 30%, #c6c8ff 0%, #7d80e8 55%, #4b4db8 100%);
-}
-
-@utility bg-nav-active {
-  background: linear-gradient(135deg, #3f35c8 0%, #6248f0 100%);
-}
-
 @utility bg-bubble {
   background: linear-gradient(150deg, #a9adff 0%, #5c5fd8 100%);
-}
-
-@layer base {
-  html {
-    color-scheme: dark;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  body {
-    min-height: 100vh;
-    background-color: var(--color-nova-bg);
-    color: var(--color-nova-text);
-    font-family: var(--font-sans);
-    line-height: 1.4;
-  }
-
-  :focus-visible {
-    outline: 2px solid var(--color-nova-accent);
-    outline-offset: 3px;
-  }
-
-  button:not(:disabled) {
-    cursor: pointer;
-  }
-
-  button:disabled {
-    cursor: not-allowed;
-  }
 }
