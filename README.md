@@ -14,14 +14,15 @@ Hackaton/
 │   ├── auth-service/     # Utilisateurs, login, JWT — port 8084 — schéma auth
 │   ├── crm-service/      # Échanges, relances, pipeline — port 8085 — schéma crm
 │   ├── ai-service/       # Assistant IA (Python, Gemini) — port 8086 — sans base
-│   └── voice-service/    # Voix vers texte (Python, Whisper) — port 8087
+│   ├── voice-service/    # Voix vers texte (Python, Whisper) — port 8087
+│   └── module-service/   # Modules créés par l'équipe, adaptations — port 8088 — schéma module
 ├── novaui/               # Application web unique (React + Vite), tous les modules
 ├── docs/
 │   └── REGLES_DEVELOPPEMENT.md
 └── docker-compose.yml    # 1 instance PostgreSQL (base erp), 1 schéma par service
 ```
 
-Une seule instance PostgreSQL (port 5432, base `erp`) héberge **un schéma et un utilisateur par service** (`auth_svc`, `stock_svc`, `vente_svc`, `rh_svc`, `crm_svc`), créés par [docker/postgres/init/01-schemas.sh](docker/postgres/init/01-schemas.sh). Chaque service ne peut lire et écrire que son propre schéma : l'isolation des microservices est garantie par la base, sans le coût de cinq serveurs (voir [ADR-006](docs/adr/ADR-006-instance-postgresql-unique.md)).
+Une seule instance PostgreSQL (port 5432, base `erp`) héberge **un schéma et un utilisateur par service** (`auth_svc`, `stock_svc`, `vente_svc`, `rh_svc`, `crm_svc`, `module_svc`), créés par [docker/postgres/init/01-schemas.sh](docker/postgres/init/01-schemas.sh). Chaque service ne peut lire et écrire que son propre schéma : l'isolation des microservices est garantie par la base, sans le coût de cinq serveurs (voir [ADR-006](docs/adr/ADR-006-instance-postgresql-unique.md)).
 La communication inter-services passe par l'API (via la gateway).
 
 ## Routage de la gateway
@@ -35,6 +36,7 @@ La communication inter-services passe par l'API (via la gateway).
 | `/api/crm/**` | crm-service (8085) |
 | `/api/ai/**` | ai-service (8086) |
 | `/api/voice/**` | voice-service (8087) |
+| `/api/modules/**` | module-service (8088) |
 
 Le préfixe est retiré avant d'atteindre le service (`/api/stock/products` → `/products`).
 
@@ -42,16 +44,19 @@ Le préfixe est retiré avant d'atteindre le service (`/api/stock/products` → 
 
 Tout passe par la gateway, qui vérifie le JWT (`Authorization: Bearer <token>`) puis le rôle :
 
-| Rôle | `/api/stock` | `/api/vente` | `/api/rh` | `/api/ai` | `/api/voice` | `/api/auth/users` |
-|------|:-----------:|:------------:|:---------:|:---------:|:------------:|:-----------------:|
-| `STOCK` | oui | non | non | oui | oui | non |
-| `VENTE` | non | oui | non | oui | oui | non |
-| `RH` | non | non | oui | oui | oui | non |
-| `CRM` | non | non | non | oui | oui | non |
-| `ADMIN` | oui | oui | oui | oui | oui | oui |
+| Rôle | `/api/stock` | `/api/vente` | `/api/rh` | `/api/ai` | `/api/voice` | `/api/modules` | `/api/auth/users` |
+|------|:-----------:|:------------:|:---------:|:---------:|:------------:|:--------------:|:-----------------:|
+| `STOCK` | oui | non | non | oui | oui | oui | non |
+| `VENTE` | non | oui | non | oui | oui | oui | non |
+| `RH` | non | non | oui | oui | oui | oui | non |
+| `CRM` | non | non | non | oui | oui | oui | non |
+| `ADMIN` | oui | oui | oui | oui | oui | oui | oui |
 
 L'assistant (`/api/ai`) est ouvert à tous les rôles : il appelle les autres modules avec le token de
 l'utilisateur, il ne voit donc que ce que ce rôle peut voir.
+
+Les modules créés par l'équipe (`/api/modules`) sont ouverts à tous les rôles pour la lecture et la saisie ;
+créer ou supprimer un module et activer une adaptation restent réservés au rôle `ADMIN`, contrôlé par le module-service.
 
 - Seuls `POST /api/auth/login` et la page de test `GET /api/ai/ui` sont publics.
 - Pas de token ou token invalide : **401** (`UNAUTHORIZED`). Rôle non autorisé : **403** (`FORBIDDEN`).
@@ -102,7 +107,10 @@ Il n'y a pas de fichier `.env` dans le projet. Chaque `application.yml` lit ses 
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | auth-service | Compte admin créé au premier démarrage. |
 | `DB_URL`, `DB_USER`, `DB_PASSWORD` | chaque service | Accès à son schéma PostgreSQL (utilisateur dédié `<service>_svc`). |
 | `STOCK_URL` | vente-service, gateway | Adresse du service Stock. |
-| `AUTH_URL`, `RH_URL`, `VENTE_URL`, `CRM_URL`, `VOICE_URL` | gateway | Adresse des autres services. |
+| `AUTH_URL`, `RH_URL`, `VENTE_URL`, `CRM_URL`, `VOICE_URL`, `MODULE_URL` | gateway | Adresse des autres services. |
+| `VENTE_URL`, `RH_URL`, `STOCK_URL` | module-service | Adresse des services qui portent les références (client, vente, employé, produit, fournisseur). |
+| `MODULE_DB_PASSWORD` | erp-db, module-service | Mot de passe de l'utilisateur `module_svc` (docker compose). |
+| `MODULE_TIME_ZONE` | module-service | Fuseau des indicateurs du jour et de la semaine (`Indian/Antananarivo` par défaut). |
 | `VENTE_URL`, `STOCK_URL` | crm-service | Adresse des services Vente et Stock (fiches clients et fournisseurs). |
 | `AI_URL` | gateway | Adresse de l'ai-service. |
 | `CORS_ALLOWED_ORIGINS` | gateway | Origines web autorisées, séparées par des virgules (`http://localhost:*,http://127.0.0.1:*` par défaut). |
@@ -130,11 +138,25 @@ Le dépôt est public : ne jamais y mettre de vrai secret. Les valeurs par défa
    (`uvicorn` en local, ou `docker compose --profile ai up -d --build`), puis
    `python services/ai-service/scripts/seed_demo.py` et `python services/ai-service/scripts/test_erp_agent.py`.
 6. Le voice-service (facultatif) : voir [services/voice-service/README.md](services/voice-service/README.md).
+7. Le module-service : `cd services/module-service`, puis `mvn spring-boot:run` (port 8088, schéma `module`).
+
+### Mettre à jour une base existante
+
+Le script d'initialisation ne s'exécute qu'à la création du volume. Sur une base déjà remplie, appliquer les
+migrations (scripts idempotents, rejouables sans risque) avant de démarrer les services :
+
+```bash
+./docker/postgres/apply-migrations.sh                              # docker-compose.yml
+./docker/postgres/apply-migrations.sh -f docker-compose.dev.yml    # environnement de développement
+```
+
+Les options passées au script sont transmises à `docker compose` (`-f`, `-p`). Chaque fichier de
+`docker/postgres/migrations/` est appliqué dans l'ordre de son nom par `psql` dans le conteneur `erp-db`.
 
 Sous Windows, si `docker compose up --build` échoue avec « additional privileges requested: pass --allow=fs.read=docker\Dockerfile.java », construire les images une par une puis démarrer sans reconstruire :
 
 ```powershell
-foreach ($m in "services/auth-service","services/stock-service","services/vente-service","services/rh-service","services/crm-service","gateway") {
+foreach ($m in "services/auth-service","services/stock-service","services/vente-service","services/rh-service","services/crm-service","services/module-service","gateway") {
   docker build -f docker/Dockerfile.java --build-arg MODULE_PATH=$m -t "erp-$(Split-Path $m -Leaf)" .
 }
 docker compose up -d --no-build

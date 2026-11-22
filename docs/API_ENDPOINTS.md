@@ -4,10 +4,10 @@ Référence de tous les endpoints de l'ERP, avec le rôle nécessaire pour chacu
 
 ## 1. Swagger interactif
 
-Une seule interface regroupe les 5 services : **http://localhost:8080/swagger-ui.html**
+Une seule interface regroupe les services : **http://localhost:8080/swagger-ui.html**
 
 1. Démarrer les services et la gateway (voir le [README](../README.md#lancer-le-projet)).
-2. Ouvrir l'adresse ci-dessus. La liste « Select a definition » en haut à droite permet de choisir Auth, Stock, Vente, RH ou CRM.
+2. Ouvrir l'adresse ci-dessus. La liste « Select a definition » en haut à droite permet de choisir Auth, Stock, Vente, RH, CRM, AI ou Modules.
 3. Dans la définition **Auth**, exécuter `POST /login` (« Try it out ») avec un email et un mot de passe. Copier le champ `token` de la réponse.
 4. Cliquer sur **Authorize**, coller le token, valider.
 5. Tester les endpoints des autres définitions : les appels passent par la gateway, qui contrôle le rôle.
@@ -21,6 +21,7 @@ Chaque endpoint affiche « Rôles autorisés : ... » dans sa description. Les s
 | Vente | `/api/vente/v3/api-docs` |
 | RH | `/api/rh/v3/api-docs` |
 | CRM | `/api/crm/v3/api-docs` |
+| Modules | `/api/modules/v3/api-docs` |
 
 Les spécifications et l'interface Swagger sont publiques (sans token) pour faciliter le développement. Elles ne donnent accès à aucune donnée : les endpoints métier restent protégés. À restreindre avant une mise en production.
 
@@ -34,13 +35,13 @@ Authorization: Bearer <token>
 
 Seul `POST /api/auth/login` est public. Sans token ou avec un token invalide ou expiré : **401**. Avec un rôle qui n'a pas accès au module : **403**.
 
-| Rôle | `/api/stock` | `/api/vente` | `/api/rh` | `/api/crm` | `/api/auth/users` |
-|------|:-----------:|:------------:|:---------:|:----------:|:-----------------:|
-| `STOCK` | oui | non | non | non | non |
-| `VENTE` | non | oui | non | non | non |
-| `RH` | non | non | oui | non | non |
-| `CRM` | non | non | non | oui | non |
-| `ADMIN` | oui | oui | oui | oui | oui |
+| Rôle | `/api/stock` | `/api/vente` | `/api/rh` | `/api/crm` | `/api/modules` | `/api/auth/users` |
+|------|:-----------:|:------------:|:---------:|:----------:|:--------------:|:-----------------:|
+| `STOCK` | oui | non | non | non | oui | non |
+| `VENTE` | non | oui | non | non | oui | non |
+| `RH` | non | non | oui | non | oui | non |
+| `CRM` | non | non | non | oui | oui | non |
+| `ADMIN` | oui | oui | oui | oui | oui | oui |
 
 Exception : `/api/auth/users/me/...` (son propre compte) est ouvert à tous les rôles connectés.
 
@@ -259,7 +260,42 @@ Au-delà de `AI_RATE_LIMIT_PER_MINUTE` requêtes par minute et par utilisateur (
 
 ---
 
-## 11. Pour aller plus loin
+## 11. Modules : `/api/modules` (tous les rôles connectés)
+
+Modules créés par l'équipe (par exemple Livraisons) et adaptations activées par Eclipse. Lecture et saisie : tous les rôles ; création ou suppression d'un module, activation ou retrait d'une adaptation : `ADMIN` seulement (**403** `FORBIDDEN` sinon, contrôlé par le module-service).
+
+### Définitions
+
+| Méthode | Chemin | Rôles | Description | Statuts |
+|---------|--------|-------|-------------|---------|
+| GET | `/api/modules/definitions` | tous | Modules existants `{id, slug, name, icon, createdAt}`, du plus ancien au plus récent | 200 |
+| GET | `/api/modules/definitions/{slug}` | tous | Définition complète : colonnes, statuts (ordre du parcours, le premier est l'initial), indicateurs | 200, 404 |
+| POST | `/api/modules/definitions` | ADMIN | Crée un module. `name` (2 à 40), `icon` (`truck`, `wrench`, `calendar-days`, `package`, `clipboard-list`, `layout-grid`, `users`, `receipt`), `description` (280 au plus), `columns` (1 à 12 : `key`, `label`, `type` parmi `TEXT`, `NUMBER`, `MONEY`, `DATE`, `TIME`, `DATETIME`, `CHOICE`, `REFERENCE`, `required`, `choices` pour `CHOICE`, `reference` parmi `CUSTOMER`, `SALE`, `EMPLOYEE`, `PRODUCT`, `SUPPLIER`), `statuses` (2 à 6 : `key`, `label`, `tone`, `final`), `indicators` (0 à 4 : `key`, `label`, `icon`, `kind` parmi `COUNT`, `SUM`, `RATIO_TODAY`, `statuses`, `column`, `todayColumn`, `detailColumn`). Le `slug` est tiré du nom ; nom déjà pris ou réservé (`stock`, `ventes`, `relations`, `equipe`) : 409 | 201, 400, 403, 409 |
+| DELETE | `/api/modules/definitions/{slug}` | ADMIN | Supprime un module sans enregistrement ; s'il en contient : 422 | 204, 403, 404, 422 |
+
+### Enregistrements, indicateurs, import des ventes
+
+| Méthode | Chemin | Description | Statuts |
+|---------|--------|-------------|---------|
+| GET | `/api/modules/definitions/{slug}/records` | Liste, la plus récente d'abord. Filtres `search` (texte, choix et libellés des références, sans tenir compte de la casse ni des accents), `status`, `page` (0 par défaut), `size` (20 par défaut, 100 au plus). Nombre total dans l'en-tête `X-Total-Count` | 200, 400, 404 |
+| POST | `/api/modules/definitions/{slug}/records` | Crée un enregistrement au statut initial. Corps `{values: {cle: valeur}}`. Montants et nombres positifs, date `AAAA-MM-JJ`, heure `HH:mm`, choix parmi ceux déclarés. Une référence s'envoie `{id}` : le service propriétaire la vérifie avec l'identité de l'appelant et elle est stockée `{id, label}`. Référence inconnue : 422 ; service indisponible : 503 | 201, 400, 404, 422, 503 |
+| POST | `/api/modules/definitions/{slug}/records/{id}/advance` | Passe au statut suivant. Un enregistrement au statut final ne change plus : 409 `IMMUTABLE` | 200, 404, 409, 422 |
+| GET | `/api/modules/definitions/{slug}/indicators` | Valeur de chaque indicateur `{key, label, icon, kind, value, total, money, detail}`. `RATIO_TODAY` : `value` = enregistrements du jour dans les statuts choisis, `total` = enregistrements du jour (colonne heure : date de création ; fuseau Indian/Antananarivo) | 200, 404 |
+| GET | `/api/modules/definitions/{slug}/status-counts` | `{all, byStatus: {statut: n}}` | 200, 404 |
+| GET | `/api/modules/definitions/{slug}/sales-import` | `{available}` : ventes validées à livrer de la semaine (lundi à dimanche) pas encore reprises. Module sans colonne vente : 422 | 200, 404, 422, 503 |
+| POST | `/api/modules/definitions/{slug}/sales-import` | `{created}` : un enregistrement par vente disponible (vente, client, premier montant = total de la vente) | 200, 404, 422, 503 |
+
+### Adaptations
+
+| Méthode | Chemin | Rôles | Description | Statuts |
+|---------|--------|-------|-------------|---------|
+| GET | `/api/modules/adaptations` | tous | Adaptations actives `{moduleKey, adaptationKey, activatedBy, activatedAt}` | 200 |
+| POST | `/api/modules/adaptations` | ADMIN | Active une adaptation du catalogue `{moduleKey, adaptationKey}` : `stock.lots-peremption` (stock), `ventes.mobile-money-credit` (ventes), `relations.nif-plafond-credit` (relations), `equipe.avances-salaire` (equipe). Clé inconnue ou module différent : 400 ; déjà active : 409 | 201, 400, 403, 409 |
+| DELETE | `/api/modules/adaptations/{adaptationKey}` | ADMIN | Retire une adaptation active | 204, 403, 404 |
+
+---
+
+## 12. Pour aller plus loin
 
 - Plans de développement : [PLAN_API.md](PLAN_API.md), [PLAN_CRM.md](PLAN_CRM.md), [PLAN_ERP.md](PLAN_ERP.md).
 - Règles de code : [REGLES_DEVELOPPEMENT.md](REGLES_DEVELOPPEMENT.md).
