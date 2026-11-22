@@ -19,6 +19,12 @@
     box-shadow: var(--shadow-focus-ring);
   }
 
+  input:not([type='checkbox']):not([type='radio']):focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    box-shadow: none;
+  }
+
   button:not(:disabled) {
     cursor: pointer;
   }
