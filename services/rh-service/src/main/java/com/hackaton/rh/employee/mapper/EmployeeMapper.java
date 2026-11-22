@@ -19,6 +19,7 @@ public class EmployeeMapper {
         employee.setLastName(request.lastName());
         employee.setEmail(request.email().trim().toLowerCase());
         employee.setPosition(request.position());
+        employee.setContractType(request.contractType());
         employee.setDepartmentId(request.departmentId());
         employee.setHireDate(request.hireDate());
         employee.setBaseSalary(request.baseSalary());
@@ -32,6 +33,7 @@ public class EmployeeMapper {
                 employee.getLastName(),
                 employee.getEmail(),
                 employee.getPosition(),
+                employee.getContractType(),
                 employee.getDepartmentId(),
                 employee.getHireDate(),
                 employee.getBaseSalary(),

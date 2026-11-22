@@ -62,6 +62,15 @@ class EmployeeControllerCreateTest {
     }
 
     @Test
+    void shouldReturn400_whenContractTypeIsUnknown() throws Exception {
+        String body = EmployeeFixtures.VALID_BODY.replace("\"position\"", "\"contractType\":\"FREELANCE\",\"position\"");
+
+        mockMvc.perform(postJson("/employees", body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("VALIDATION"));
+    }
+
+    @Test
     void shouldReturn404_whenDepartmentDoesNotExist() throws Exception {
         when(employeeCreator.create(any(EmployeeRequest.class)))
                 .thenThrow(new ResourceNotFoundException("Département", 3L));

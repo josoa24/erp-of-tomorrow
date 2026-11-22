@@ -12,6 +12,7 @@ import com.hackaton.rh.common.exception.ResourceNotFoundException;
 import com.hackaton.rh.department.repository.DepartmentRepository;
 import com.hackaton.rh.employee.dto.EmployeeRequest;
 import com.hackaton.rh.employee.dto.EmployeeResponse;
+import com.hackaton.rh.employee.entity.ContractType;
 import com.hackaton.rh.employee.entity.Employee;
 import com.hackaton.rh.employee.mapper.EmployeeMapper;
 import com.hackaton.rh.employee.repository.EmployeeRepository;
@@ -35,7 +36,7 @@ class EmployeeCreatorServiceTest {
     private EmployeeCreatorService service;
     private final EmployeeRequest request = new EmployeeRequest(
             "Aina", "Rakoto", "Aina.Rakoto@erp.local", "Comptable", 1L, LocalDate.of(2024, 1, 15),
-            new BigDecimal("900000"), null);
+            new BigDecimal("900000"), null, ContractType.CDD);
 
     @BeforeEach
     void setUp() {
@@ -53,6 +54,7 @@ class EmployeeCreatorServiceTest {
 
         assertEquals(Employee.INITIAL_LEAVE_BALANCE, response.leaveBalance());
         assertEquals("aina.rakoto@erp.local", response.email());
+        assertEquals(ContractType.CDD, response.contractType());
     }
 
     @Test
