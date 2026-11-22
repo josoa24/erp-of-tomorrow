@@ -53,7 +53,7 @@ class ProductControllerUpdateTest {
     @Test
     void shouldReturnUpdatedProduct_whenUpdateIsValid() throws Exception {
         when(productUpdater.update(eq(1L), any(ProductUpdateRequest.class))).thenReturn(new ProductResponse(
-                1L, "Riz long", "RIZ-01", "kg", 10, 8, new BigDecimal("3"), false, Instant.now()));
+                1L, "Riz long", "RIZ-01", "kg", 10, 8, new BigDecimal("3"), false, Instant.now(), null, null));
 
         mockMvc.perform(updateRequest(1L, VALID_BODY))
                 .andExpect(status().isOk())

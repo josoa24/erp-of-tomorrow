@@ -28,7 +28,7 @@ class ProductCreatorServiceTest {
 
     private ProductCreatorService service;
     private final ProductCreateRequest request =
-            new ProductCreateRequest("Riz blanc", "RIZ-001", "sac", 19, 5, new BigDecimal("45000"));
+            new ProductCreateRequest("Riz blanc", "RIZ-001", "sac", 19, 5, new BigDecimal("45000"), null, null);
 
     @BeforeEach
     void setUp() {
