@@ -14,11 +14,11 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'ERP of Tomorrow',
-        short_name: 'ERP',
+        name: 'NOVA',
+        short_name: 'NOVA',
         description: 'ERP intelligent et modulaire',
-        theme_color: '#0f172a',
-        background_color: '#ffffff',
+        theme_color: '#17123a',
+        background_color: '#f3f0fb',
         display: 'standalone',
         icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
       },

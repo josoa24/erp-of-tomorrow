@@ -1,67 +1,64 @@
 import { Search } from 'lucide-react';
-import { useEffect, useRef } from 'react';
-import type { ComponentProps } from 'react';
+import { useRef, useState } from 'react';
+import type { ChangeEvent, ComponentProps } from 'react';
+import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
+import { useFocusShortcut } from '@/hooks/useFocusShortcut';
 import { cn } from '@/lib/utils';
-import { Kbd } from './kbd';
 
-export type SearchFieldProps = Omit<ComponentProps<'input'>, 'type' | 'size'> & {
-  /** Active le raccourci global Ctrl K / ⌘K et l’affiche dans le champ. */
-  shortcut?: boolean;
+export const SEARCH_DEBOUNCE_MS = 250;
+
+export type SearchFieldProps = Omit<ComponentProps<'input'>, 'type' | 'size' | 'value' | 'defaultValue' | 'onChange'> & {
+  defaultValue?: string;
+  onSearch: (value: string) => void;
+  delay?: number;
+  slashShortcut?: boolean;
   containerClassName?: string;
 };
 
-const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
-
-/** Recherche globale (Figma « Search Field »). */
 export function SearchField({
-  shortcut = false,
+  defaultValue = '',
+  onSearch,
+  delay = SEARCH_DEBOUNCE_MS,
+  slashShortcut = true,
   placeholder = 'Rechercher…',
-  'aria-label': ariaLabel = 'Rechercher',
+  'aria-label': ariaLabel,
   className,
   containerClassName,
-  ref,
   ...props
 }: SearchFieldProps) {
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [value, setValue] = useState(defaultValue);
+  const debouncedSearch = useDebouncedCallback(onSearch, delay);
+  useFocusShortcut(inputRef, 'slash', slashShortcut);
 
-  useEffect(() => {
-    if (!shortcut) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-        event.preventDefault();
-        inputRef.current?.focus();
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [shortcut]);
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setValue(event.target.value);
+    debouncedSearch(event.target.value.trim());
+  };
 
   return (
     <div
       className={cn(
-        'flex h-(--layout-control-height) w-full items-center gap-2 rounded-md border border-border-control bg-bg-surface pr-2 pl-3',
-        'transition-colors focus-within:border-[1.5px] focus-within:border-border-primary focus-within:shadow-focus-ring',
+        'flex h-11 w-full items-center gap-2.5 rounded-pill border border-line-strong bg-surface-solid pr-3 pl-4',
+        'transition-shadow focus-within:border-focus-ring focus-within:shadow-focus-ring',
         containerClassName,
       )}
     >
-      <Search aria-hidden="true" className="size-5 shrink-0 text-icon-muted" />
+      <Search aria-hidden="true" className="size-[18px] shrink-0 text-ink-secondary" />
       <input
-        ref={(node) => {
-          inputRef.current = node;
-          if (typeof ref === 'function') ref(node);
-          else if (ref) ref.current = node;
-        }}
+        ref={inputRef}
         type="search"
+        value={value}
+        onChange={handleChange}
         placeholder={placeholder}
-        aria-label={ariaLabel}
+        aria-label={ariaLabel ?? placeholder}
         className={cn(
-          'min-w-0 flex-1 bg-transparent text-body-m text-text-primary outline-none placeholder:text-text-tertiary',
+          'min-w-0 flex-1 bg-transparent text-body text-ink-primary outline-none placeholder:text-ink-tertiary',
           '[&::-webkit-search-cancel-button]:hidden',
           className,
         )}
         {...props}
       />
-      {shortcut && <Kbd aria-hidden="true">{isMac ? '⌘ K' : 'Ctrl K'}</Kbd>}
     </div>
   );
 }

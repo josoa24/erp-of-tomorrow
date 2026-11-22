@@ -10,11 +10,13 @@ export type ErrorType =
 export class ApiError extends Error {
   readonly type: ErrorType
   readonly status: number
+  readonly code?: string
 
-  constructor(type: ErrorType, status: number, message: string) {
+  constructor(type: ErrorType, status: number, message: string, code?: string) {
     super(message)
     this.name = 'ApiError'
     this.type = type
     this.status = status
+    this.code = code
   }
 }

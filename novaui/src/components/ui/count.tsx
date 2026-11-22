@@ -1,37 +1,30 @@
-import { cva } from 'class-variance-authority';
-import type { VariantProps } from 'class-variance-authority';
 import type { ComponentProps } from 'react';
 import { cn } from '@/lib/utils';
 
-const countVariants = cva(
-  'inline-flex min-w-5 items-center justify-center rounded-full font-mono text-mono-xs font-medium whitespace-nowrap',
-  {
-    variants: {
-      tone: {
-        /** Pastille, usage ponctuel. */
-        neutral: 'bg-bg-primary-subtle px-2 py-0.5 text-text-link',
-        /** Éléments à traiter. */
-        attention: 'bg-bg-accent px-2 py-0.5 text-text-on-accent',
-        muted: 'bg-bg-muted px-2 py-0.5 text-text-secondary',
-        /** Chiffre seul, pour la navigation et les listes. */
-        plain: 'text-text-tertiary',
-      },
-    },
-    defaultVariants: { tone: 'neutral' },
-  },
-);
+export type CountTone = 'night' | 'sunken' | 'solid';
 
-export type CountProps = Omit<ComponentProps<'span'>, 'children'> &
-  VariantProps<typeof countVariants> & {
-    value: number;
-    /** Au-delà, affiche « max+ » (99+ par défaut). */
-    max?: number;
-  };
+const TONES: Record<CountTone, string> = {
+  night: 'bg-surface-night text-ink-inverse text-caption',
+  sunken: 'bg-surface-sunken text-ink-secondary text-micro',
+  solid: 'bg-surface-solid text-ink-secondary text-micro',
+};
 
-/** Compteur d’éléments (Figma « Count »). */
-export function Count({ className, tone, value, max = 99, ...props }: CountProps) {
+export type CountProps = Omit<ComponentProps<'span'>, 'children'> & {
+  value: number;
+  max?: number;
+  tone?: CountTone;
+};
+
+export function Count({ className, tone = 'sunken', value, max = 99, ...props }: CountProps) {
   return (
-    <span className={cn(countVariants({ tone }), className)} {...props}>
+    <span
+      className={cn(
+        'inline-flex h-5 min-w-5 items-center justify-center rounded-pill px-1.5 whitespace-nowrap',
+        TONES[tone],
+        className,
+      )}
+      {...props}
+    >
       {value > max ? `${max}+` : value}
     </span>
   );

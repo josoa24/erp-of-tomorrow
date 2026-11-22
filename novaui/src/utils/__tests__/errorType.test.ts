@@ -17,3 +17,9 @@ describe('toErrorType', () => {
     expect(toErrorType(status, 'UNKNOWN')).toBe(expected)
   })
 })
+
+describe('toErrorType for unreachable upstreams', () => {
+  it.each([502, 503, 504])('shouldClassifyStatus_%s_asNetwork_evenWithServerType', (status) => {
+    expect(toErrorType(status, 'SERVER')).toBe('network')
+  })
+})

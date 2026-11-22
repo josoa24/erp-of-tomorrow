@@ -2,28 +2,28 @@ import { clsx } from 'clsx';
 import type { ClassValue } from 'clsx';
 import { extendTailwindMerge } from 'tailwind-merge';
 
-// Déclare les tailles de texte du DS (styles.css) pour que tailwind-merge
-// ne les confonde pas avec des couleurs (`text-body-m` vs `text-text-primary`).
+const NOVA_TEXT_STYLES = [
+  'display-xl',
+  'display-l',
+  'display-m',
+  'number-m',
+  'title',
+  'heading',
+  'body',
+  'body-strong',
+  'body-s',
+  'label',
+  'caption',
+  'micro',
+];
+
+const NOVA_SHADOWS = ['elevation-1', 'elevation-2', 'focus-ring', 'eclipse-hover'];
+
 const twMerge = extendTailwindMerge({
   extend: {
     classGroups: {
-      'font-size': [
-        {
-          text: [
-            'mono-xs',
-            'caption',
-            'button-s',
-            'body-s',
-            'body-m',
-            'body-l',
-            'h3',
-            'h2',
-            'h1',
-            'display',
-          ],
-        },
-      ],
-      shadow: [{ shadow: ['card', 'hover', 'overlay', 'focus-ring'] }],
+      'font-size': [{ text: NOVA_TEXT_STYLES }],
+      shadow: [{ shadow: NOVA_SHADOWS }],
     },
   },
 });

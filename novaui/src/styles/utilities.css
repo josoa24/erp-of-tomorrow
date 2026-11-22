@@ -1,0 +1,43 @@
+@utility bg-night {
+  background-image: linear-gradient(
+    128deg,
+    var(--color-night-1) 0%,
+    var(--color-night-2) 55%,
+    var(--color-night-3) 85%,
+    var(--color-night-4) 100%
+  );
+}
+
+@utility bg-night-orb {
+  background-image: linear-gradient(
+    104deg,
+    var(--color-night-1) 0%,
+    var(--color-night-2) 55%,
+    var(--color-night-3) 85%,
+    var(--color-night-4) 100%
+  );
+}
+
+@utility bg-night-bar {
+  background-image: linear-gradient(
+    165deg,
+    var(--color-night-1) 0%,
+    var(--color-night-2) 55%,
+    var(--color-night-3) 85%,
+    var(--color-night-4) 100%
+  );
+}
+
+@utility bg-canvas {
+  background-color: var(--color-bg-canvas);
+  background-image: radial-gradient(
+    ellipse 864px 585px at 100% 0%,
+    var(--color-bg-canvas-glow) 0%,
+    transparent 100%
+  );
+}
+
+@utility highlight-added {
+  background-color: var(--color-status-success-bg);
+  border: 1px dashed var(--color-status-success-fg);
+}
