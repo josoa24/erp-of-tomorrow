@@ -55,5 +55,5 @@ def test_no_key_returns_503():
     from app.config import Settings
     from app.main import create_app
     from tests.fake_erp import FakeErp
-    with TestClient(create_app(Settings(gemini_api_key=""), erp_http_client=FakeErp().http())) as c:
+    with TestClient(create_app(Settings(gemini_api_key="", ai_audit_db=":memory:"), erp_http_client=FakeErp().http())) as c:
         assert c.post("/agent/chat", json={"message": "x"}, headers=gateway_headers()).status_code == 503

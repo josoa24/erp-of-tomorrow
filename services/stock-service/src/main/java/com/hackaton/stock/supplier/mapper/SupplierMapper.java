@@ -1,5 +1,6 @@
 package com.hackaton.stock.supplier.mapper;
 
+import com.hackaton.stock.common.util.BankAccounts;
 import com.hackaton.stock.supplier.dto.SupplierRequest;
 import com.hackaton.stock.supplier.dto.SupplierResponse;
 import com.hackaton.stock.supplier.entity.Supplier;
@@ -21,6 +22,7 @@ public class SupplierMapper {
         supplier.setAddress(request.address());
         supplier.setPaymentTerms(request.paymentTerms());
         supplier.setUsualDeliveryDays(request.usualDeliveryDays());
+        supplier.setBankAccount(BankAccounts.clean(request.bankAccount()));
     }
 
     public SupplierResponse toResponse(Supplier supplier) {
@@ -32,6 +34,7 @@ public class SupplierMapper {
                 supplier.getAddress(),
                 supplier.getPaymentTerms(),
                 supplier.getUsualDeliveryDays(),
-                supplier.getCreatedAt());
+                supplier.getCreatedAt(),
+                BankAccounts.last4(supplier.getBankAccount()));
     }
 }

@@ -7,7 +7,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
-RUN useradd --create-home appuser
+RUN useradd --create-home appuser && mkdir -p /app/data && chown appuser /app/data
 USER appuser
 
 EXPOSE 8086

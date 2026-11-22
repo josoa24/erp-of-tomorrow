@@ -16,3 +16,6 @@ management:
     web:
       exposure:
         include: health,info
+replenishment:
+  default-lead-days: 7
+  coverage-days: 30

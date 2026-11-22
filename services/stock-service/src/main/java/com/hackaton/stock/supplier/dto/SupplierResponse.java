@@ -10,5 +10,6 @@ public record SupplierResponse(
         String address,
         String paymentTerms,
         Integer usualDeliveryDays,
-        Instant createdAt) {
+        Instant createdAt,
+        String bankAccountLast4) {
 }

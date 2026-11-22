@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 class SupplierControllerReadTest {
 
     private static final SupplierResponse AGRI = new SupplierResponse(
-            1L, "Agri Sud", "0341234567", "contact@agrisud.mg", "Tana", "30 jours", 5, Instant.now());
+            1L, "Agri Sud", "0341234567", "contact@agrisud.mg", "Tana", "30 jours", 5, Instant.now(), null);
 
     @Autowired
     private MockMvc mockMvc;

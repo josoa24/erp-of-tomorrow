@@ -104,6 +104,15 @@ Un compte désactivé reçoit 401 à la connexion. Un token déjà émis reste v
 | GET | `/api/stock/status` | État de stock complet : tous les produits avec autonomie et risque, du plus urgent au moins urgent. Filtre `risk` | 200, 400 |
 | GET | `/api/stock/summary` | Nombre de produits, nombre en alerte, valeur totale du stock | 200 |
 
+### Prévision de réapprovisionnement
+
+Calcul fait par le code (pas par l'IA) sur les sorties `OUT` des 28 derniers jours, par jour calendaire UTC (jour sans sortie = 0) : moyenne `averageDailyOut` (μ), écart-type `dailyOutStdDev` (σ), délai `leadTimeDays` (L) = délai habituel du fournisseur du dernier bon contenant le produit (`leadTimeSource` `SUPPLIER`), sinon `replenishment.default-lead-days` (7, `DEFAULT`). Stock de sécurité `safetyStock` = ⌈1,65 × σ × √L⌉ (service 95 %), point de commande `reorderPoint` = μ × L + SS, `recommendedQuantity` = max(0, ⌈μ × (L + 30) + SS − stock⌉) (30 = `replenishment.coverage-days`), `coverageDays` = stock / μ (null si aucune sortie). `needsReorder` = stock ≤ point de commande, avec des sorties et assez d'historique. Moins de 14 jours depuis le premier mouvement : `confidence` = `INSUFFICIENT_DATA` et `recommendedQuantity` = null. `suggestedSupplierId` et la liste `assumptions` expliquent le résultat.
+
+| Méthode | Chemin | Description | Statuts |
+|---------|--------|-------------|---------|
+| GET | `/api/stock/products/{id}/replenishment` | Prévision d'un produit | 200, 400, 404 |
+| GET | `/api/stock/replenishment` | Prévisions de tous les produits, à commander d'abord puis par jours de couverture croissants. `onlyNeeded` (`true` par défaut) : seulement les produits à commander | 200, 400 |
+
 ### Mouvements de stock
 
 | Méthode | Chemin | Description | Statuts |
@@ -117,7 +126,7 @@ Un compte désactivé reçoit 401 à la connexion. Un token déjà émis reste v
 |---------|--------|-------------|---------|
 | GET | `/api/stock/suppliers` | Liste. Filtre `search` (nom, téléphone, email) | 200 |
 | GET | `/api/stock/suppliers/{id}` | Détail | 200, 404 |
-| POST | `/api/stock/suppliers` | Crée un fournisseur (nom unique, email, conditions de paiement, délai de livraison) | 201, 400, 409 |
+| POST | `/api/stock/suppliers` | Crée un fournisseur (nom unique, email, conditions de paiement, délai de livraison, `bankAccount` : coordonnées de paiement de référence, renvoyées seulement sous forme `bankAccountLast4`) | 201, 400, 409 |
 | PUT | `/api/stock/suppliers/{id}` | Remplace les champs du fournisseur (les champs omis sont effacés) | 200, 400, 404, 409 |
 | DELETE | `/api/stock/suppliers/{id}` | Supprime. Refusé s'il a des bons de commande | 204, 404, 422 |
 | GET | `/api/stock/suppliers/{id}/profile` | Fiche 360 : commandes, total commandé, délai moyen de réception, produits fournis, dernières commandes | 200, 404 |
@@ -131,6 +140,20 @@ Un compte désactivé reçoit 401 à la connexion. Un token déjà émis reste v
 | POST | `/api/stock/purchase-orders` | Crée un bon en brouillon (fournisseur, lignes produit, quantité, prix) | 201, 400, 404 |
 | POST | `/api/stock/purchase-orders/{id}/validate` | Valide le bon, qui devient immuable | 200, 404, 409 |
 | POST | `/api/stock/purchase-orders/{id}/receive` | Réceptionne un bon validé : une entrée de stock par ligne | 200, 404, 409, 422 |
+
+### Factures fournisseurs et Invoice Shield
+
+Chaque facture est contrôlée par Invoice Shield avant toute décision. Codes d'alerte : `UNKNOWN_SUPPLIER`, `DUPLICATE_INVOICE`, `BANK_ACCOUNT_MISMATCH`, `BANK_ACCOUNT_UNVERIFIED`, `TOTALS_MISMATCH`, `INVALID_DATE`, `PROMPT_INJECTION`, `PURCHASE_ORDER_MISMATCH`, `OVER_INVOICED`, `AMOUNT_ANOMALY` ; gravité `BLOCKING` ou `WARNING`. Verdict : `CLEAR`, `WARNING` ou `BLOCKED`. Détail dans [NEW_FEATURES_IMPLEMENTATION.md](NEW_FEATURES_IMPLEMENTATION.md).
+
+| Méthode | Chemin | Description | Statuts |
+|---------|--------|-------------|---------|
+| POST | `/api/stock/supplier-invoices/check` | Contrôle une facture sans l'enregistrer. Renvoie `{verdict, alerts[]}` | 200, 400 |
+| POST | `/api/stock/supplier-invoices` | Enregistre une facture (`supplierId`, `invoiceNumber`, `invoiceDate`, `lines[]`, `totalAmount` obligatoires ; `purchaseOrderId`, `bankAccount`, `subtotal`, `taxAmount`, `notes` optionnels) après contrôle : statut `CLEARED`, ou `BLOCKED` si une alerte est bloquante | 201, 400 |
+| GET | `/api/stock/supplier-invoices` | Liste, de la plus récente à la plus ancienne. Filtres `status` (`CLEARED`, `BLOCKED`, `APPROVED`, `REJECTED`), `supplierId` | 200, 400 |
+| GET | `/api/stock/supplier-invoices/{id}` | Détail avec lignes et alertes. Le compte bancaire n'est jamais renvoyé en clair (`bankAccountLast4`) | 200, 404 |
+| POST | `/api/stock/supplier-invoices/{id}/approve` | Approuve. Une facture `BLOCKED` exige le rôle `ADMIN`, un autre utilisateur que son auteur, et `{"justification": "..."}`. Devient immuable | 200, 400, 403, 404, 409 |
+| POST | `/api/stock/supplier-invoices/{id}/reject` | Rejette avec `{"reason": "..."}` obligatoire. Devient immuable | 200, 400, 404, 409 |
+| GET | `/api/stock/supplier-invoices/{id}/history` | Journal d'audit : création, contrôle (verdict et codes), décision (qui, quand, justification) | 200, 404 |
 
 ## 6. Vente : `/api/vente` (rôles VENTE, ADMIN)
 
@@ -217,16 +240,24 @@ Service Python (FastAPI), hors Swagger de la gateway.
 | WS | `/api/voice/stream` | Transcription en temps réel (audio PCM envoyé en continu ; messages `partial`, `processing`, `final`) |
 | GET | `/api/voice/demo` | Page de démonstration |
 
-## 10. Assistant IA : `/api/ai` (rôles STOCK, VENTE, RH, CRM, ADMIN)
+## 10. Assistant IA : `/api/ai` (tous les rôles connectés)
 
-| Méthode | Chemin | Description |
-|---------|--------|-------------|
-| POST | `/api/ai/agent/chat` | Question en langage naturel, réponse complète |
-| POST | `/api/ai/agent/chat/stream` | Idem, en flux SSE |
-| GET, DELETE | `/api/ai/agent/conversations/{conversation_id}` | Lire ou supprimer une conversation |
-| POST | `/api/ai/agent/conversations/{conversation_id}/actions/{action_id}/confirm` | Confirme une écriture proposée |
-| POST | `/api/ai/agent/conversations/{conversation_id}/actions/{action_id}/cancel` | Annule une écriture proposée |
-| GET | `/api/ai/tools`, `/api/ai/health` | Outils disponibles, état du service |
+L'assistant appelle les autres modules via la gateway **avec le token de l'utilisateur** : il n'a jamais plus de droits que lui, et Gemini ne reçoit que les outils du rôle connecté. Détails et exemples : [services/ai-service/README.md](../services/ai-service/README.md).
+
+| Méthode | Chemin | Description | Statuts |
+|---------|--------|-------------|---------|
+| POST | `/api/ai/agent/chat` | Réponse complète. Corps `message`, `conversation_id` optionnel. La réponse contient `trust` : `label` (`FACT`, `ESTIMATION`, `RECOMMENDATION`, `NONE`), `verifiedNumbers`, `unverifiedNumbers`, `sources` | 200, 400, 401, 404, 429, 503, 504 |
+| POST | `/api/ai/agent/chat/stream` | Même chose en Server-Sent Events ; `trust` est dans l'événement `done` | 200, 401, 404, 429, 503 |
+| GET | `/api/ai/tools` | Outils disponibles pour le rôle connecté | 200, 401 |
+| GET, DELETE | `/api/ai/agent/conversations/{id}` | Historique, réinitialisation | 200, 404 |
+| POST | `/api/ai/agent/conversations/{id}/actions/{actionId}/confirm` | Confirme une écriture proposée par l'IA (exécutée avec le token de l'utilisateur) | 200, 404, 4xx de l'ERP |
+| POST | `/api/ai/agent/conversations/{id}/actions/{actionId}/cancel` | Annule une écriture proposée | 200, 404 |
+| POST | `/api/ai/invoices/extract` | Rôles STOCK, ADMIN. `multipart/form-data`, champ `file` : image JPEG, PNG, WEBP ou PDF (8 Mo par défaut). Extrait la facture fournisseur, retrouve le fournisseur et renvoie le contrôle Invoice Shield `{extracted, supplierMatch, shield}`. Rien n'est enregistré | 200, 400, 403, 413, 429, 503 |
+| GET | `/api/ai/audit` | ADMIN. Journal des interactions avec l'IA (plus récentes d'abord). Filtres `limit` (1 à 500, défaut 50), `userId` | 200, 400, 403 |
+
+Au-delà de `AI_RATE_LIMIT_PER_MINUTE` requêtes par minute et par utilisateur (chat, flux, extraction) : **429** `RATE_LIMIT`, avec l'en-tête `Retry-After`.
+
+---
 
 ## 11. Pour aller plus loin
 
