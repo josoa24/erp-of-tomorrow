@@ -16,7 +16,8 @@ public class DefinitionPartsMapper {
 
     public ColumnSpec toSpec(ModuleColumn column) {
         return new ColumnSpec(column.getKey(), column.getLabel(), column.getType(), column.isRequired(),
-                column.getType() == ColumnType.CHOICE ? column.getChoices() : null, column.getReferenceTarget());
+                column.getType() == ColumnType.CHOICE ? column.getChoices() : null, column.getReferenceTarget(),
+                column.isListed());
     }
 
     public StatusSpec toSpec(ModuleStatus status) {
@@ -36,6 +37,7 @@ public class DefinitionPartsMapper {
         column.setLabel(spec.label().trim());
         column.setType(spec.type());
         column.setRequired(spec.required());
+        column.setListed(spec.shownInList());
         column.setChoices(spec.type() == ColumnType.CHOICE ? trimmed(spec.choices()) : List.of());
         ReferenceTarget target = spec.type() == ColumnType.REFERENCE ? spec.reference() : null;
         column.setReferenceTarget(target);

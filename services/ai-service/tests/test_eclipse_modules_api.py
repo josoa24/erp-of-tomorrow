@@ -12,7 +12,9 @@ def test_should_propose_livraisons_template_when_description_mentions_deliveries
     assert body["source"] == "TEMPLATE" and body["canCreate"] is True
     assert body["proposal"]["name"] == "Livraisons" and body["proposal"]["icon"] == "truck"
     assert body["proposal"]["description"] == LIVRAISONS_NEED
-    assert body["uncheckedColumns"] == ["signature_client"] and body["hiddenColumns"] == ["montant_a_encaisser"]
+    assert body["uncheckedColumns"] == ["signature_client"] and "hiddenColumns" not in body
+    assert [c["key"] for c in body["proposal"]["columns"] if not c["listed"]] == [
+        "vente_origine", "montant_a_encaisser", "signature_client"]
     assert body["accessText"] == "Toute l’équipe. Le gérant peut modifier ou supprimer le module."
     assert "note" not in body
 
@@ -46,7 +48,7 @@ def test_should_return_generic_proposal_with_honest_note_when_no_template_and_no
     assert body["source"] == "TEMPLATE" and body["proposal"]["name"] == "Commandes spéciales"
     assert [c["label"] for c in body["proposal"]["columns"]] == ["Nom", "Date", "Montant"]
     assert body["note"].startswith("Eclipse n’a pas de modèle pour ce besoin")
-    assert body["uncheckedColumns"] == [] and body["hiddenColumns"] == []
+    assert body["uncheckedColumns"] == [] and all(c["listed"] for c in body["proposal"]["columns"])
 
 
 def test_should_record_proposed_module_in_audit_when_a_proposal_is_returned():
