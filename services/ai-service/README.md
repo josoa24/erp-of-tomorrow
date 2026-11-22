@@ -60,6 +60,9 @@ Swagger : http://localhost:8080/swagger-ui.html → définition **AI**.
 | POST | `/api/ai/agent/conversations/{id}/actions/{actionId}/confirm` | Confirmer une écriture (bouton) |
 | POST | `/api/ai/agent/conversations/{id}/actions/{actionId}/cancel` | Annuler une écriture (bouton) |
 | POST | `/api/ai/invoices/extract` | Facture fournisseur → extraction + contrôle Invoice Shield (STOCK, ADMIN) |
+| POST | `/api/ai/eclipse/adaptations/propose` | Barre Eclipse : reconnaît une adaptation d'écran du catalogue (rien n'est appliqué) |
+| POST | `/api/ai/eclipse/modules/propose` | « Créer un module » : prépare une définition de module (rien n'est créé) |
+| GET | `/api/ai/eclipse/suggestions` | Adaptations du catalogue pas encore actives, pour les modules du rôle |
 | GET | `/api/ai/audit?limit=&userId=` | Journal des interactions IA (ADMIN uniquement, sinon 403 `FORBIDDEN`) |
 | GET | `/api/ai/ui` | Page de test (publique, sans donnée) |
 
@@ -153,6 +156,64 @@ Outils d'écriture : `record_stock_movement`, `create_purchase_order`, `validate
 
 Les actions expirent après `CONFIRMATION_TTL_MIN` minutes et ne s'exécutent qu'une fois.
 
+### Eclipse : adaptations d'écran et nouveaux modules (`/eclipse`)
+
+Eclipse **propose**, le front **applique** : l'ai-service n'écrit rien. L'activation d'une adaptation
+(`POST /api/modules/adaptations`) et la création d'un module (`POST /api/modules/definitions`) sont faites par le
+front, avec le token de l'utilisateur, sur le module-service (réservées au rôle ADMIN, vérifié par ce service).
+Les trois routes fonctionnent **sans clé Gemini** ; avec la clé, Gemini affine la reconnaissance (sortie structurée,
+température 0, liste fermée) et sa réponse est toujours revalidée contre le catalogue.
+
+Catalogue fermé (une adaptation par module de base) :
+
+| Clé | Module | `summary` (barre « après demande IA ») |
+|---|---|---|
+| `stock.lots-peremption` | stock | Eclipse a ajouté : colonnes N° de lot et Péremption · alerte J-30 · filtre Expire bientôt |
+| `ventes.mobile-money-credit` | ventes | Eclipse a ajouté : colonne Paiement · filtre À crédit · indicateur Crédit en cours |
+| `relations.nif-plafond-credit` | relations | Eclipse a ajouté : colonnes NIF / STAT et Plafond crédit · filtre Professionnels · alerte de dépassement |
+| `equipe.avances-salaire` | equipe | Eclipse a ajouté : colonnes Avance et Plafond · filtre Avance demandée · validation par le gérant |
+
+`POST /eclipse/adaptations/propose` — corps `{"moduleKey": "stock", "request": "Ajoute le n° de lot…"}`
+(`moduleKey` : `stock`, `ventes`, `relations`, `equipe`, `accueil` ou slug d'un module créé ; `request` 1 à 500
+caractères). Module de base hors des droits du rôle : 403 `FORBIDDEN`.
+
+```json
+{"outcome": "ADAPTATION", "adaptationKey": "stock.lots-peremption",
+ "request": "Ajoute le n° de lot et la date de péremption, avec une alerte 30 jours avant",
+ "title": "N° de lot et péremption",
+ "summary": "Eclipse a ajouté : colonnes N° de lot et Péremption · alerte J-30 · filtre Expire bientôt",
+ "canApply": true}
+```
+
+| `outcome` | Quand | Champs en plus |
+|---|---|---|
+| `ADAPTATION` | mots-clés du catalogue (sans accents ni casse : lot, péremption, DLC, MVola, Orange Money, crédit, NIF, STAT, plafond, encours, avance, acompte…) | `adaptationKey`, `title`, `summary`, `targetModuleKey` si `moduleKey` = `accueil` |
+| `ALREADY_ACTIVE` | le module-service indique l'adaptation active (`GET /api/modules/adaptations` ; injoignable = considérée inactive) | idem + `message` |
+| `QUESTION` | question (« combien », « quels », « liste », « ? »…) : le front l'envoie à `/agent/chat/stream` | — |
+| `CREATE_MODULE` | « crée un module… », « je veux suivre mes… » : le front ouvre « Créer un module » prérempli | — |
+| `UNSUPPORTED` | hors catalogue | `message` honnête : « Je ne sais pas encore ajouter cela à « Stock ». Je peux ajouter : … » |
+
+`canApply` = rôle ADMIN. Une reconnaissance par mot-clé l'emporte toujours sur Gemini, qui n'est consulté que sans
+mot-clé ; une clé hors du module ou une erreur Gemini font revenir à la reconnaissance par mots-clés.
+
+`POST /eclipse/modules/propose` — corps `{"description": "Suivre les livraisons de mes clients"}`. Réponse
+`{proposal, accessText, source, canCreate, uncheckedColumns, hiddenColumns, note?}` : `proposal` a la forme de
+`ModuleDefinitionRequest` du module-service (`name`, `icon`, `description`, `columns`, `statuses`, `indicators`).
+Modèles par mots-clés : **Livraisons** (Client · Vente d'origine · Quartier · Livreur · Heure prévue, statuts
+À préparer → En route → Livrée, indicateurs Livrées aujourd'hui, En route, À encaisser ; `uncheckedColumns` =
+`signature_client`, `hiddenColumns` = `montant_a_encaisser` utilisé par À encaisser), **Réparations**,
+**Rendez-vous** (`source` = `TEMPLATE`). Sinon Gemini si la clé est présente (`source` = `GEMINI`, JSON validé,
+icône de la liste autorisée), sinon base générique Nom · Date · Montant, statuts À faire → En cours → Terminé,
+avec `note` qui le dit. `canCreate` = rôle ADMIN.
+
+`GET /eclipse/suggestions` — `[{adaptationKey, moduleKey, title, reason}]` (ex. `title` « Eclipse suggère un champ
+« N° de lot » dans Stock »), adaptations non actives des modules accessibles au rôle ; module-service injoignable :
+liste vide.
+
+Les deux `propose` comptent dans la limite de débit et sont journalisées (`/audit`) : outil
+`eclipse_propose_adaptation` ou `eclipse_propose_module`, action `proposed` (clé d'adaptation ou slug du module),
+label `RECOMMENDATION` (`NONE` quand rien n'est proposé). `suggestions` n'est pas limitée.
+
 ## Outils par module
 
 | Module (rôles) | Lecture | Écriture (confirmée) |
@@ -171,12 +232,15 @@ app/
 ├── main.py                 Application (état, routeurs)
 ├── config.py               Variables d'environnement (même nom que le champ, en majuscules)
 ├── api/                    chat_routes (JSON + SSE), conversation_routes (boutons), invoice_routes, audit_routes,
-│                           system_routes (/ui, /health, /tools), error_handlers, rate_limit, turn_support, identity, schemas
+│                           eclipse_routes, system_routes (/ui, /health, /tools), error_handlers, rate_limit,
+│                           turn_support, identity, schemas
 ├── agent/                  orchestrator (boucle Gemini), streaming, agent_base, gemini_client/config/errors, records,
 │                           prompts, memory (RAM), confirmation (garde-fou)
 ├── trust/                  numbers (extraction des nombres), assessment (label + vérification)
 ├── audit/                  store (SQLite), entry (ligne de journal sans donnée sensible)
 ├── invoices/               upload (multipart, taille, type), models, extractor (Gemini sans outil), shield_check
+├── eclipse/                catalog, matcher (mots-clés), gemini_intent, templates, generic_module, gemini_designer,
+│                           definition (ModuleDefinitionRequest), adaptation_flow, module_flow, suggestions
 ├── erp/                    client (HTTP gateway + token), context (utilisateur courant), periods
 ├── tools/                  spec, catalog (liste blanche + rôles), registry, runner, stock_tools, invoice_tools/args,
 │                           vente_tools, rh_crm_tools

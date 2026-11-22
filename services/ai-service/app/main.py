@@ -15,11 +15,12 @@ from fastapi import FastAPI
 from app.agent.gemini_client import build_client, check_model
 from app.agent.memory import ConversationStore
 from app.agent.orchestrator import GeminiAgent
-from app.api import audit_routes, chat_routes, conversation_routes, invoice_routes, system_routes
+from app.api import audit_routes, chat_routes, conversation_routes, eclipse_routes, invoice_routes, system_routes
 from app.api.error_handlers import register_error_handlers
 from app.api.rate_limit import SlidingWindowLimiter
 from app.audit.store import AuditStore
 from app.config import Settings, get_settings
+from app.eclipse.deps import build_eclipse
 from app.erp.client import ErpClient
 from app.invoices.extractor import InvoiceExtractor
 from app.tools.registry import ToolRegistry
@@ -59,6 +60,7 @@ def create_app(settings: Settings | None = None, client: Any = None,
         gemini = await _gemini(settings, client)
         app.state.agent = GeminiAgent(gemini, app.state.registry, settings) if gemini is not None else None
         app.state.invoice_extractor = InvoiceExtractor(gemini, settings) if gemini is not None else None
+        app.state.eclipse = build_eclipse(gemini, erp_http, settings)
         if gemini is None:
             logger.error("GEMINI_API_KEY absente : l'assistant renverra 503.")
         yield
@@ -70,7 +72,8 @@ def create_app(settings: Settings | None = None, client: Any = None,
                   description="Assistant IA de l'ERP. Toutes les routes métier exigent le token (via la gateway). "
                               "Les écritures sont proposées puis exécutées après confirmation.")
     register_error_handlers(app)
-    for module in (chat_routes, conversation_routes, invoice_routes, audit_routes, system_routes):
+    for module in (chat_routes, conversation_routes, invoice_routes, audit_routes, eclipse_routes,
+                   system_routes):
         app.include_router(module.router)
     return app
 

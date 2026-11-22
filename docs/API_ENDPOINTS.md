@@ -255,8 +255,13 @@ L'assistant appelle les autres modules via la gateway **avec le token de l'utili
 | POST | `/api/ai/agent/conversations/{id}/actions/{actionId}/cancel` | Annule une écriture proposée | 200, 404 |
 | POST | `/api/ai/invoices/extract` | Rôles STOCK, ADMIN. `multipart/form-data`, champ `file` : image JPEG, PNG, WEBP ou PDF (8 Mo par défaut). Extrait la facture fournisseur, retrouve le fournisseur et renvoie le contrôle Invoice Shield `{extracted, supplierMatch, shield}`. Rien n'est enregistré | 200, 400, 403, 413, 429, 503 |
 | GET | `/api/ai/audit` | ADMIN. Journal des interactions avec l'IA (plus récentes d'abord). Filtres `limit` (1 à 500, défaut 50), `userId` | 200, 400, 403 |
+| POST | `/api/ai/eclipse/adaptations/propose` | Barre Eclipse. Corps `moduleKey` (`stock`, `ventes`, `relations`, `equipe`, `accueil` ou slug d'un module créé), `request` (1 à 500 caractères). Réponse `outcome` : `ADAPTATION` (catalogue fermé : `stock.lots-peremption`, `ventes.mobile-money-credit`, `relations.nif-plafond-credit`, `equipe.avances-salaire`, avec `adaptationKey`, `title`, `summary`), `ALREADY_ACTIVE` (déjà actif dans le module-service, avec `message`), `QUESTION` (à envoyer au chat), `CREATE_MODULE` (ouvrir « Créer un module »), `UNSUPPORTED` (`message` honnête). `canApply` = rôle ADMIN ; `targetModuleKey` quand `moduleKey` = `accueil`. Rien n'est appliqué : l'activation passe par `POST /api/modules/adaptations` | 200, 400, 401, 403, 429 |
+| POST | `/api/ai/eclipse/modules/propose` | « Créer un module ». Corps `description` (1 à 500 caractères). Réponse `proposal` (forme `ModuleDefinitionRequest` du module-service), `accessText`, `source` (`TEMPLATE` : Livraisons, Réparations, Rendez-vous ou base générique avec `note` ; `GEMINI` si la clé est configurée et qu'aucun modèle ne correspond), `canCreate` (rôle ADMIN), `uncheckedColumns`, `hiddenColumns`. Rien n'est créé : la création passe par `POST /api/modules/definitions` | 200, 400, 401, 429 |
+| GET | `/api/ai/eclipse/suggestions` | Adaptations du catalogue pas encore actives pour les modules du rôle : `[{adaptationKey, moduleKey, title, reason}]` ; liste vide si le module-service ne répond pas | 200, 401 |
 
-Au-delà de `AI_RATE_LIMIT_PER_MINUTE` requêtes par minute et par utilisateur (chat, flux, extraction) : **429** `RATE_LIMIT`, avec l'en-tête `Retry-After`.
+Au-delà de `AI_RATE_LIMIT_PER_MINUTE` requêtes par minute et par utilisateur (chat, flux, extraction, propositions Eclipse) : **429** `RATE_LIMIT`, avec l'en-tête `Retry-After`.
+
+Les routes `/api/ai/eclipse/**` répondent sans clé Gemini (reconnaissance par mots-clés et modèles de modules) ; avec la clé, Gemini affine la reconnaissance et sa réponse est revalidée contre le catalogue.
 
 ---
 
