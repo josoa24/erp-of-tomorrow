@@ -66,6 +66,18 @@ class UserControllerValidationTest {
     }
 
     @Test
+    void shouldReturn400Validation_whenFullNameIsTooLong() throws Exception {
+        String fullName = "R".repeat(121);
+
+        createUser("{\"email\":\"stock@erp.local\",\"password\":\"secret123\",\"role\":\"STOCK\",\"fullName\":\""
+                + fullName + "\"}")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("VALIDATION"));
+
+        verifyNoInteractions(userCreator);
+    }
+
+    @Test
     void shouldReturn400Validation_whenJsonIsMalformed() throws Exception {
         createUser("{\"email\":")
                 .andExpect(status().isBadRequest())

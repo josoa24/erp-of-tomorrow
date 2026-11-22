@@ -27,7 +27,8 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(UserController.class)
 class UserControllerTest {
 
-    private static final String NEW_USER = "{\"email\":\"stock@erp.local\",\"password\":\"secret123\",\"role\":\"STOCK\"}";
+    private static final String NEW_USER = "{\"email\":\"stock@erp.local\",\"password\":\"secret123\",\"role\":\"STOCK\","
+            + "\"fullName\":\"Toky Rakoto\"}";
 
     @Autowired
     private MockMvc mockMvc;
@@ -52,7 +53,7 @@ class UserControllerTest {
 
     @Test
     void shouldReturn201WithCreatedUser_whenRequestIsValid() throws Exception {
-        UserCreateRequest request = new UserCreateRequest("stock@erp.local", "secret123", Role.STOCK);
+        UserCreateRequest request = new UserCreateRequest("stock@erp.local", "secret123", Role.STOCK, "Toky Rakoto");
         when(userCreator.create(request)).thenReturn(user());
 
         mockMvc.perform(withIdentity(post("/users")).contentType(MediaType.APPLICATION_JSON).content(NEW_USER))

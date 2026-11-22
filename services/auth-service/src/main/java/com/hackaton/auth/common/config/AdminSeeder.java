@@ -25,7 +25,7 @@ public class AdminSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) {
         if (userRepository.count() == 0) {
-            userCreator.create(new UserCreateRequest(adminEmail, adminPassword, Role.ADMIN));
+            userCreator.create(new UserCreateRequest(adminEmail, adminPassword, Role.ADMIN, null));
         }
     }
 }
