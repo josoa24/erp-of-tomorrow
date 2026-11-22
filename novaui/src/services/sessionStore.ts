@@ -32,10 +32,9 @@ export const clearSession = (): void => {
   })
 }
 
-export const saveSession = (session: Session, remember: boolean): void => {
+export const saveSession = (session: Session): void => {
   clearSession()
-  const storage = remember ? localStorage : sessionStorage
-  storage.setItem(SESSION_KEY, JSON.stringify(session))
+  localStorage.setItem(SESSION_KEY, JSON.stringify(session))
 }
 
 export const readSession = (now = Date.now()): Session | null => {
