@@ -72,7 +72,7 @@ def test_real_sdk_wire_format():
 
     first = received[0]["body"]
     assert first["systemInstruction"]["parts"][0]["text"].startswith("Tu es l'assistant de l'ERP")
-    assert len(first["tools"][0]["functionDeclarations"]) == 15  # outils du rôle STOCK
+    assert len(first["tools"][0]["functionDeclarations"]) == 17  # outils du rôle STOCK
     assert "Date du jour" in first["systemInstruction"]["parts"][0]["text"]
     assert first["toolConfig"]["functionCallingConfig"]["mode"] == "AUTO"
 

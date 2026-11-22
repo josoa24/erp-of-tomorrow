@@ -2,7 +2,7 @@
 
 Label (premier cas qui s'applique) :
 - RECOMMENDATION : une écriture a été proposée dans ce tour (en attente de confirmation) ;
-- ESTIMATION     : un outil de prévision a servi (autonomie, jours de stock restants) ;
+- ESTIMATION     : un outil de prévision a servi (autonomie, réapprovisionnement, jours de stock restants) ;
 - FACT           : au moins un outil de lecture a réussi ;
 - NONE           : aucun outil (salutation, réponse générale).
 Un nombre de la réponse est « vérifié » s'il apparaît dans la question ou dans un résultat d'outil
@@ -16,7 +16,8 @@ from typing import Any, Iterable
 from app.agent.records import ToolCallRecord
 from app.trust.numbers import extract_numbers, known_values
 
-ESTIMATION_TOOLS = {"get_product_autonomy", "get_stock_status"}
+ESTIMATION_TOOLS = {"get_product_autonomy", "get_stock_status", "get_replenishment_forecast",
+                    "list_replenishment_needs"}
 
 
 def _label(records: list[ToolCallRecord], sources: list[str]) -> str:
