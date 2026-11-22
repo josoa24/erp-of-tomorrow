@@ -31,7 +31,7 @@ services:
       MODULE_DB_PASSWORD: ${MODULE_DB_PASSWORD:-module_svc}
     command: ["postgres", "-c", "max_connections=60", "-c", "shared_buffers=128MB"]
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - erp-data:/var/lib/postgresql/data
       - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
@@ -173,8 +173,9 @@ services:
     image: python:3.12-slim
     working_dir: /app
     command: sh -c "pip install -r requirements.txt && uvicorn app.main:app --host 0.0.0.0 --port 8086 --reload"
-    ports:
-      - "8086:8086"
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     environment:
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
@@ -189,8 +190,6 @@ services:
     image: python:3.12-slim
     working_dir: /app
     command: sh -c "pip install -r requirements.txt && uvicorn app.main:app --host 0.0.0.0 --port 8087 --reload"
-    ports:
-      - "8087:8087"
     environment:
       VOICE_MODEL_SIZE: ${VOICE_MODEL_SIZE:-small}
       VOICE_DEVICE: ${VOICE_DEVICE:-cpu}
