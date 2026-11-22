@@ -22,6 +22,9 @@ public class DefinitionRulesValidator implements DefinitionRules {
         requireUnique(request.columns(), ColumnSpec::key, "colonne");
         requireUnique(request.statuses(), StatusSpec::key, "statut");
         request.columns().forEach(this::checkColumn);
+        if (request.columns().stream().noneMatch(ColumnSpec::shownInList)) {
+            throw new InvalidInputException("Au moins une colonne doit être affichée dans la liste");
+        }
         if (request.statuses().get(0).finalStatus()) {
             throw new InvalidInputException("Le premier statut ne peut pas être final");
         }

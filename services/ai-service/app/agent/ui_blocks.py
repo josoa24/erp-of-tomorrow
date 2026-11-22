@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Callable
 
-from app.agent import ui_business, ui_stock
+from app.agent import ui_business, ui_relations, ui_stock
 from app.agent.records import ToolCallRecord
 
 logger = logging.getLogger(__name__)
@@ -25,6 +25,14 @@ BUILDERS: dict[str, Builder] = {
     "get_customer_profile": ui_business.customer_profile,
     "get_hr_summary": ui_business.hr_summary,
     "search_employees": ui_business.employees,
+    "list_contacts": ui_relations.contacts,
+    "get_contact_summary": ui_relations.contact_summary,
+    "list_leave_requests": ui_relations.leaves,
+    "list_salary_advances": ui_relations.advances,
+    "get_advance_summary": ui_relations.advance_summary,
+    "get_sales_kpis": ui_relations.sales_kpis,
+    "get_credit_summary": ui_relations.credit_summary,
+    "get_module_indicators": ui_relations.module_indicators,
 }
 
 

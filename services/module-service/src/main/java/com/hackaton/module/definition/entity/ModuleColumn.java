@@ -56,6 +56,9 @@ public class ModuleColumn {
     @Column(nullable = false)
     private boolean required;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean listed = true;
+
     @Convert(converter = StringListJsonConverter.class)
     @Column(columnDefinition = "text")
     private List<String> choices = List.of();

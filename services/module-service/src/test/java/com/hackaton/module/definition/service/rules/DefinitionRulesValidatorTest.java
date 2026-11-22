@@ -70,6 +70,20 @@ class DefinitionRulesValidatorTest {
         assertThrows(InvalidInputException.class, () -> validator.check(request));
     }
 
+    @Test
+    void shouldRefuse_whenNoColumnIsListed() {
+        ColumnSpec hidden = new ColumnSpec("quartier", "Quartier", ColumnType.TEXT, false, null, null, false);
+
+        assertThrows(InvalidInputException.class, () -> validator.check(withColumns(List.of(hidden))));
+    }
+
+    @Test
+    void shouldAccept_whenSomeColumnsAreHiddenFromTheList() {
+        ColumnSpec hidden = new ColumnSpec("signature", "Signature", ColumnType.TEXT, false, null, null, false);
+
+        assertDoesNotThrow(() -> validator.check(withColumns(List.of(text("quartier"), hidden))));
+    }
+
     private ColumnSpec text(String key) {
         return new ColumnSpec(key, "Quartier", ColumnType.TEXT, false, null, null);
     }

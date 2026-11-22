@@ -26,7 +26,7 @@ export function Menu({ label, trigger, align = 'end', className, children }: Men
       onKeyDown={onContentKeyDown}
       style={position}
       className={cn(
-        'fixed z-50 flex w-max min-w-[220px] max-w-[calc(100vw-32px)] flex-col gap-0.5',
+        'scroll-thin fixed z-50 flex max-h-[calc(100dvh-32px)] overflow-y-auto w-max min-w-[220px] max-w-[calc(100vw-32px)] flex-col gap-0.5',
         'rounded-md bg-surface-solid p-1.5 shadow-elevation-2',
         className,
       )}

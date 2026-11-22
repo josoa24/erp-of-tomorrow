@@ -4,4 +4,5 @@
 @import './styles/theme-effects.css';
 @import './styles/utilities.css';
 @import './styles/base.css';
+@import './styles/scrollbar.css';
 @import './styles/legacy-dashboard.css';

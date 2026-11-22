@@ -25,7 +25,10 @@ export const indicatorChecked = (indicator: IndicatorSpec, selection: ProposalSe
 
 const FEMININE_TARGETS = new Set(['SALE'])
 
+const CHOICES_SHOWN = 4
+
 export const columnLabel = (column: ModuleColumn): string => {
+  if (column.choices?.length) return `${column.label} · ${column.choices.slice(0, CHOICES_SHOWN).join(', ')}${column.choices.length > CHOICES_SHOWN ? '…' : ''}`
   if (!column.reference) return column.label
   const linked = FEMININE_TARGETS.has(column.reference) ? 'liée' : 'lié'
   return `${column.label} · ${linked} à ${REFERENCE_LABELS[column.reference]}`

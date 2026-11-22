@@ -12,12 +12,11 @@ class ModuleTemplate:
     pattern: re.Pattern[str]
     definition: ModuleDefinitionRequest
     unchecked_columns: tuple[str, ...] = ()
-    hidden_columns: tuple[str, ...] = ()
 
 
 def column(key: str, label: str, type_: str, reference: str | None = None,
-           required: bool = False) -> dict[str, Any]:
-    spec: dict[str, Any] = {"key": key, "label": label, "type": type_, "required": required}
+           required: bool = False, listed: bool = True) -> dict[str, Any]:
+    spec: dict[str, Any] = {"key": key, "label": label, "type": type_, "required": required, "listed": listed}
     return {**spec, "reference": reference} if reference else spec
 
 

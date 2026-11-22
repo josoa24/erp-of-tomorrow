@@ -173,13 +173,14 @@ services:
           memory: 256m
 
   # Transcription vocale (profil "voice") : docker compose --profile voice up -d --build.
-  # Le premier démarrage télécharge le modèle Whisper (VOICE_MODEL_SIZE), conservé dans le volume hf-cache.
+  # Au démarrage, le service charge en arrière-plan les modèles Whisper (VOICE_MODEL_SIZE, et VOICE_PARTIAL_MODEL_SIZE pour le texte provisoire), conservés dans le volume hf-cache.
   voice-service:
     profiles: ["voice"]
     build: ./services/voice-service
     restart: unless-stopped
     environment:
       VOICE_MODEL_SIZE: ${VOICE_MODEL_SIZE:-small}
+      VOICE_PARTIAL_MODEL_SIZE: ${VOICE_PARTIAL_MODEL_SIZE:-tiny}
       VOICE_DEVICE: ${VOICE_DEVICE:-cpu}
       VOICE_COMPUTE_TYPE: ${VOICE_COMPUTE_TYPE:-int8}
       VOICE_LANGUAGE: ${VOICE_LANGUAGE:-fr}
