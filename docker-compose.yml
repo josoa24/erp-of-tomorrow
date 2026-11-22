@@ -1,70 +1,52 @@
-x-db: &db
-  image: postgres:16
-  environment: &db-env
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: postgres
-  healthcheck:
-    test: ["CMD-SHELL", "pg_isready -U postgres"]
-    interval: 5s
-    timeout: 3s
-    retries: 10
-
+# Une seule instance PostgreSQL pour tout l'ERP : un schéma et un utilisateur par microservice
+# (créés par docker/postgres/init/01-schemas.sh). Chaque service ne voit que son schéma.
 x-service: &service
   restart: unless-stopped
   environment: &service-env
-    DB_USER: postgres
-    DB_PASSWORD: postgres
     JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me-0123456789abcdef}
+  deploy:
+    resources:
+      limits:
+        memory: ${JAVA_SERVICE_MEMORY:-512m}
+
+x-db-service: &db-service
+  <<: *service
+  depends_on:
+    erp-db:
+      condition: service_healthy
 
 services:
-  rh-db:
-    <<: *db
+  erp-db:
+    image: postgres:16
+    restart: unless-stopped
     environment:
-      <<: *db-env
-      POSTGRES_DB: rh_db
-    ports:
-      - "5431:5432"
-    volumes:
-      - rh-data:/var/lib/postgresql/data
-  vente-db:
-    <<: *db
-    environment:
-      <<: *db-env
-      POSTGRES_DB: vente_db
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: erp
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD:-auth_svc}
+      STOCK_DB_PASSWORD: ${STOCK_DB_PASSWORD:-stock_svc}
+      VENTE_DB_PASSWORD: ${VENTE_DB_PASSWORD:-vente_svc}
+      RH_DB_PASSWORD: ${RH_DB_PASSWORD:-rh_svc}
+      CRM_DB_PASSWORD: ${CRM_DB_PASSWORD:-crm_svc}
+    # 5 services x 5 connexions au plus, plus l'administration : 60 suffisent.
+    command: ["postgres", "-c", "max_connections=60", "-c", "shared_buffers=128MB"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d erp"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     ports:
       - "5432:5432"
     volumes:
-      - vente-data:/var/lib/postgresql/data
-  stock-db:
-    <<: *db
-    environment:
-      <<: *db-env
-      POSTGRES_DB: stock_db
-    ports:
-      - "5433:5432"
-    volumes:
-      - stock-data:/var/lib/postgresql/data
-  auth-db:
-    <<: *db
-    environment:
-      <<: *db-env
-      POSTGRES_DB: auth_db
-    ports:
-      - "5434:5432"
-    volumes:
-      - auth-data:/var/lib/postgresql/data
-  crm-db:
-    <<: *db
-    environment:
-      <<: *db-env
-      POSTGRES_DB: crm_db
-    ports:
-      - "5435:5432"
-    volumes:
-      - crm-data:/var/lib/postgresql/data
+      - erp-data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    deploy:
+      resources:
+        limits:
+          memory: 512m
 
   auth-service:
-    <<: *service
+    <<: *db-service
     build:
       context: .
       dockerfile: docker/Dockerfile.java
@@ -72,14 +54,13 @@ services:
         MODULE_PATH: services/auth-service
     environment:
       <<: *service-env
-      DB_URL: jdbc:postgresql://auth-db:5432/auth_db
+      DB_URL: jdbc:postgresql://erp-db:5432/erp?currentSchema=auth
+      DB_USER: auth_svc
+      DB_PASSWORD: ${AUTH_DB_PASSWORD:-auth_svc}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@erp.local}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin1234}
-    depends_on:
-      auth-db:
-        condition: service_healthy
   stock-service:
-    <<: *service
+    <<: *db-service
     build:
       context: .
       dockerfile: docker/Dockerfile.java
@@ -87,12 +68,11 @@ services:
         MODULE_PATH: services/stock-service
     environment:
       <<: *service-env
-      DB_URL: jdbc:postgresql://stock-db:5432/stock_db
-    depends_on:
-      stock-db:
-        condition: service_healthy
+      DB_URL: jdbc:postgresql://erp-db:5432/erp?currentSchema=stock
+      DB_USER: stock_svc
+      DB_PASSWORD: ${STOCK_DB_PASSWORD:-stock_svc}
   vente-service:
-    <<: *service
+    <<: *db-service
     build:
       context: .
       dockerfile: docker/Dockerfile.java
@@ -100,13 +80,12 @@ services:
         MODULE_PATH: services/vente-service
     environment:
       <<: *service-env
-      DB_URL: jdbc:postgresql://vente-db:5432/vente_db
+      DB_URL: jdbc:postgresql://erp-db:5432/erp?currentSchema=vente
+      DB_USER: vente_svc
+      DB_PASSWORD: ${VENTE_DB_PASSWORD:-vente_svc}
       STOCK_URL: http://stock-service:8083
-    depends_on:
-      vente-db:
-        condition: service_healthy
   rh-service:
-    <<: *service
+    <<: *db-service
     build:
       context: .
       dockerfile: docker/Dockerfile.java
@@ -114,12 +93,11 @@ services:
         MODULE_PATH: services/rh-service
     environment:
       <<: *service-env
-      DB_URL: jdbc:postgresql://rh-db:5432/rh_db
-    depends_on:
-      rh-db:
-        condition: service_healthy
+      DB_URL: jdbc:postgresql://erp-db:5432/erp?currentSchema=rh
+      DB_USER: rh_svc
+      DB_PASSWORD: ${RH_DB_PASSWORD:-rh_svc}
   crm-service:
-    <<: *service
+    <<: *db-service
     build:
       context: .
       dockerfile: docker/Dockerfile.java
@@ -127,12 +105,11 @@ services:
         MODULE_PATH: services/crm-service
     environment:
       <<: *service-env
-      DB_URL: jdbc:postgresql://crm-db:5432/crm_db
+      DB_URL: jdbc:postgresql://erp-db:5432/erp?currentSchema=crm
+      DB_USER: crm_svc
+      DB_PASSWORD: ${CRM_DB_PASSWORD:-crm_svc}
       VENTE_URL: http://vente-service:8082
       STOCK_URL: http://stock-service:8083
-    depends_on:
-      crm-db:
-        condition: service_healthy
   gateway:
     <<: *service
     build:
@@ -158,12 +135,12 @@ services:
       - rh-service
       - crm-service
 
-
   # Assistant IA : démarré seulement avec le profil "ai" (docker compose --profile ai up -d --build).
-  # Les services Java tournent sur la machine hôte : l'IA joint la gateway via host.docker.internal.
+  # Il joint la gateway par le port publié sur la machine (host.docker.internal).
   ai-service:
     profiles: ["ai"]
     build: ./services/ai-service
+    restart: unless-stopped
     ports:
       - "8086:8086"
     environment:
@@ -172,9 +149,10 @@ services:
       ERP_GATEWAY_URL: ${ERP_GATEWAY_URL:-http://host.docker.internal:8080}
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+
 volumes:
-  crm-data:
-  auth-data:
-  rh-data:
-  vente-data:
-  stock-data:
+  erp-data:

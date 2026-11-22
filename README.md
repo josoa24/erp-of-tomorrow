@@ -8,11 +8,11 @@ ERP intelligent en architecture **microservices**, un module = un service Spring
 Hackaton/
 ├── gateway/              # API Gateway (Spring Cloud Gateway) — port 8080
 ├── services/
-│   ├── rh-service/       # Ressources Humaines — port 8081 — DB 5431
-│   ├── vente-service/    # Ventes              — port 8082 — DB 5432
-│   ├── stock-service/    # Stock               — port 8083 — DB 5433
-│   ├── auth-service/     # Utilisateurs, login, JWT — port 8084 — DB 5434
-│   ├── crm-service/      # Échanges, relances, pipeline — port 8085 — DB 5435
+│   ├── rh-service/       # Ressources Humaines — port 8081 — schéma rh
+│   ├── vente-service/    # Ventes              — port 8082 — schéma vente
+│   ├── stock-service/    # Stock               — port 8083 — schéma stock
+│   ├── auth-service/     # Utilisateurs, login, JWT — port 8084 — schéma auth
+│   ├── crm-service/      # Échanges, relances, pipeline — port 8085 — schéma crm
 │   └── ai-service/       # Assistant IA (Python, Gemini) — port 8086 — sans base
 ├── apps/
 │   ├── rh-app/           # Front RH (React Native / Expo)
@@ -20,10 +20,10 @@ Hackaton/
 │   └── stock-app/        # Front Stock
 ├── docs/
 │   └── REGLES_DEVELOPPEMENT.md
-└── docker-compose.yml    # 1 base PostgreSQL par service
+└── docker-compose.yml    # 1 instance PostgreSQL (base erp), 1 schéma par service
 ```
 
-Chaque service possède **sa propre base de données** : aucun service ne lit la base d'un autre.
+Une seule instance PostgreSQL (port 5432, base `erp`) héberge **un schéma et un utilisateur par service** (`auth_svc`, `stock_svc`, `vente_svc`, `rh_svc`, `crm_svc`), créés par [docker/postgres/init/01-schemas.sh](docker/postgres/init/01-schemas.sh). Chaque service ne peut lire et écrire que son propre schéma : l'isolation des microservices est garantie par la base, sans le coût de cinq serveurs (voir [ADR-006](docs/adr/ADR-006-instance-postgresql-unique.md)).
 La communication inter-services passe par l'API (via la gateway).
 
 ## Routage de la gateway
@@ -62,10 +62,10 @@ l'utilisateur, il ne voit donc que ce que ce rôle peut voir.
 
 ## Démarrage
 
-Bases de données :
+Base de données (une seule instance pour tous les services) :
 
 ```powershell
-docker compose up -d
+docker compose up -d erp-db
 ```
 
 Un service (exemple : stock) :
@@ -125,13 +125,22 @@ Le dépôt est public : ne jamais y mettre de vrai secret. Les valeurs par défa
 
 ## Lancer le projet
 
-1. Les bases : `docker compose up -d`.
+1. La base : `docker compose up -d erp-db` (ou tout l'ERP conteneurisé : `docker compose up -d --build`).
 2. Chaque service, dans son dossier : `mvn spring-boot:run` (auth 8084, stock 8083, vente 8082, rh 8081).
 3. La gateway : `cd gateway`, puis `mvn spring-boot:run`.
 4. Une app : `cd apps/<module>-app`, puis `npm install` et `npm start`.
 5. L'assistant IA (optionnel) : voir [services/ai-service/README.md](services/ai-service/README.md)
    (`uvicorn` en local, ou `docker compose --profile ai up -d --build`), puis
    `python services/ai-service/scripts/seed_demo.py` et `python services/ai-service/scripts/test_erp_agent.py`.
+
+Sous Windows, si `docker compose up --build` échoue avec « additional privileges requested: pass --allow=fs.read=docker\Dockerfile.java », construire les images une par une puis démarrer sans reconstruire :
+
+```powershell
+foreach ($m in "services/auth-service","services/stock-service","services/vente-service","services/rh-service","services/crm-service","gateway") {
+  docker build -f docker/Dockerfile.java --build-arg MODULE_PATH=$m -t "erp-$(Split-Path $m -Leaf)" .
+}
+docker compose up -d --no-build
+```
 
 Sans PostgreSQL ni Docker, le profil `h2` démarre un service avec une base en mémoire :
 

@@ -4,7 +4,7 @@ Ce document explique comment l'ERP est construit, comment une requête le traver
 
 ## 1. Vue d'ensemble
 
-L'ERP est un ensemble de microservices. Chaque module métier (Stock, Vente, RH, CRM) est un service Spring Boot avec sa propre base PostgreSQL. Un service d'authentification délivre les tokens JWT. Une gateway unique (Spring Cloud Gateway) est la seule porte d'entrée : elle vérifie le token, contrôle le rôle, puis transmet la requête au bon service. Un assistant IA (Python, FastAPI, Google Gemini) se place derrière la même gateway et n'utilise que les API métier, avec le token de l'utilisateur. Les applications React Native (`apps/`) sont encore des squelettes.
+L'ERP est un ensemble de microservices. Chaque module métier (Stock, Vente, RH, CRM) est un service Spring Boot avec son propre schéma dans une instance PostgreSQL unique, accessible seulement par son utilisateur dédié ([ADR-006](adr/ADR-006-instance-postgresql-unique.md)). Un service d'authentification délivre les tokens JWT. Une gateway unique (Spring Cloud Gateway) est la seule porte d'entrée : elle vérifie le token, contrôle le rôle, puis transmet la requête au bon service. Un assistant IA (Python, FastAPI, Google Gemini) se place derrière la même gateway et n'utilise que les API métier, avec le token de l'utilisateur. Les applications React Native (`apps/`) sont encore des squelettes.
 
 ```mermaid
 flowchart LR
@@ -24,12 +24,12 @@ flowchart LR
         AI["ai-service :8086<br/>Python, FastAPI"]
     end
 
-    subgraph Bases["PostgreSQL 16, une base par service"]
-        AUTHDB[("auth_db")]
-        RHDB[("rh_db")]
-        VENTEDB[("vente_db")]
-        STOCKDB[("stock_db")]
-        CRMDB[("crm_db")]
+    subgraph Bases["PostgreSQL 16 : une instance, base erp, un schéma par service"]
+        AUTHDB[("schéma auth")]
+        RHDB[("schéma rh")]
+        VENTEDB[("schéma vente")]
+        STOCKDB[("schéma stock")]
+        CRMDB[("schéma crm")]
     end
 
     GEMINI["Google Gemini"]
@@ -57,14 +57,14 @@ flowchart LR
 | Composant | Rôle | Port | Base |
 |-----------|------|-----:|------|
 | `gateway/` | Routage, vérification du JWT, contrôle des rôles, CORS, Swagger unique | 8080 | aucune |
-| `services/rh-service` | Départements, employés, congés, pointage | 8081 | `rh_db` (5431) |
-| `services/vente-service` | Clients, ventes, chiffre d'affaires | 8082 | `vente_db` (5432) |
-| `services/stock-service` | Produits, mouvements, autonomie, fournisseurs, bons de commande | 8083 | `stock_db` (5433) |
-| `services/auth-service` | Comptes, connexion, émission du JWT | 8084 | `auth_db` (5434) |
-| `services/crm-service` | Échanges avec les tiers, chronologie | 8085 | `crm_db` (5435) |
+| `services/rh-service` | Départements, employés, congés, pointage | 8081 | schéma `rh` (utilisateur `rh_svc`) |
+| `services/vente-service` | Clients, ventes, chiffre d'affaires | 8082 | schéma `vente` (utilisateur `vente_svc`) |
+| `services/stock-service` | Produits, mouvements, autonomie, fournisseurs, bons de commande | 8083 | schéma `stock` (utilisateur `stock_svc`) |
+| `services/auth-service` | Comptes, connexion, émission du JWT | 8084 | schéma `auth` (utilisateur `auth_svc`) |
+| `services/crm-service` | Échanges avec les tiers, chronologie | 8085 | schéma `crm` (utilisateur `crm_svc`) |
 | `services/ai-service` | Assistant en langage naturel | 8086 | aucune (mémoire vive) |
 
-La gateway retire le préfixe avant de transmettre (`/api/stock/products` devient `/products` sur le stock-service). Les ports des bases sont ceux exposés sur la machine par `docker-compose.yml`.
+La gateway retire le préfixe avant de transmettre (`/api/stock/products` devient `/products` sur le stock-service). L'instance PostgreSQL est publiée sur le port 5432 pour le développement.
 
 Les services ne lisent jamais la base d'un autre. Quand un service a besoin d'une donnée d'un autre module, il l'appelle en HTTP :
 
@@ -118,7 +118,7 @@ Sont publics : `POST /api/auth/login`, la page `GET /api/ai/ui` et les définiti
 
 ### 2.2 Valider une vente
 
-La validation d'une vente touche deux bases. Il n'y a pas de transaction distribuée : vente-service débite le stock ligne par ligne et, si une ligne échoue, il remet en stock ce qui a déjà été débité (compensation). Code : `vente-service/.../sale/service/validator/SaleValidatorService.java`.
+La validation d'une vente touche deux schémas, chacun propriété d'un service. Il n'y a pas de transaction distribuée : vente-service débite le stock ligne par ligne et, si une ligne échoue, il remet en stock ce qui a déjà été débité (compensation). Code : `vente-service/.../sale/service/validator/SaleValidatorService.java`.
 
 ```mermaid
 sequenceDiagram
@@ -191,7 +191,7 @@ L'utilisateur peut aussi confirmer en répondant « oui » dans le chat : Gemini
 | Contrôle par rôle et par module | `RoleAccessPolicy` | Un rôle n'atteint que son module : 403 sinon. `ADMIN` atteint tout. |
 | Identité imposée par la gateway | `GatewayAuthFilter` | Les en-têtes `X-User-*` envoyés par le client sont supprimés puis réécrits à partir du token. |
 | Appels directs refusés | `GatewayIdentityFilter` dans chaque service | Sans `X-User-Id` et `X-User-Role` : 401. Swagger, `/actuator` et `/login` restent ouverts. |
-| Ports des services non publiés | `docker-compose.yml` | Seuls la gateway (8080) et, avec le profil `ai`, l'ai-service (8086) sont publiés. Les bases sont publiées pour le développement. |
+| Ports des services non publiés | `docker-compose.yml` | Seuls la gateway (8080) et, avec le profil `ai`, l'ai-service (8086) sont publiés. L'instance PostgreSQL est publiée pour le développement. |
 | CORS | `gateway/src/main/resources/application.yml` | Origines réglées par `CORS_ALLOWED_ORIGINS` (localhost par défaut). Les réponses 401 et 403 gardent l'en-tête CORS. |
 | Erreurs typées | `GlobalExceptionHandler` de chaque service | Format commun `{status, type, message, timestamp}`, `type` parmi `NOT_FOUND`, `VALIDATION`, `IMMUTABLE`, `BUSINESS`, `SERVER`, `UNAUTHORIZED`, `FORBIDDEN`. Le détail d'une erreur inattendue reste dans les logs. |
 | Données validées immuables | Updaters, Validators | Modifier une donnée validée renvoie 409 `IMMUTABLE`. Voir [ADR-004](adr/ADR-004-donnees-validees-immuables.md). |
@@ -256,4 +256,4 @@ Le thème demande s'il faut combattre l'IA ou l'exploiter. Notre réponse : l'ex
 
 ## 7. Déploiement
 
-`docker compose up -d --build` démarre les cinq bases, les cinq services Java et la gateway. L'ai-service démarre avec le profil `ai` (`docker compose --profile ai up -d --build`) ; il joint alors la gateway via `host.docker.internal`, prévu pour des services Java lancés sur la machine. Toutes les images Java utilisent `docker/Dockerfile.java`. Chaque service peut aussi tourner seul avec `mvn spring-boot:run`, ou avec le profil `h2` (base en mémoire) sans PostgreSQL.
+`docker compose up -d --build` démarre l'instance PostgreSQL unique, les cinq services Java et la gateway, chacun avec une limite mémoire. L'ai-service démarre avec le profil `ai` (`docker compose --profile ai up -d --build`) ; il joint alors la gateway via `host.docker.internal`, prévu pour des services Java lancés sur la machine. Toutes les images Java utilisent `docker/Dockerfile.java`. Chaque service peut aussi tourner seul avec `mvn spring-boot:run`, ou avec le profil `h2` (base en mémoire) sans PostgreSQL.

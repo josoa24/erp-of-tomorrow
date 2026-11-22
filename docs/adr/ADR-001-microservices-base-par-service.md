@@ -1,6 +1,6 @@
 # ADR-001 : microservices Spring Boot, une base par service, une gateway unique
 
-Statut : acceptée.
+Statut : acceptée. Le point « une base par service » est remplacé par l'[ADR-006](ADR-006-instance-postgresql-unique.md) : une instance, un schéma et un utilisateur par service.
 
 ## Contexte
 
