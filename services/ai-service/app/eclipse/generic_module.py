@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 
 from app.eclipse.definition import ModuleDefinitionRequest
+from app.eclipse.module_slug import BUILT_IN_MODULES, slug_from_name
 from app.eclipse.template_parts import column, definition, indicator, status
 from app.eclipse.text import normalize
 
@@ -31,7 +32,9 @@ def module_name(description: str) -> str:
         if len(picked) == MAX_NAME_WORDS:
             break
     name = " ".join(picked)[:40].strip()
-    return name[:1].upper() + name[1:] if len(name) >= 2 else DEFAULT_NAME
+    if len(name) < 2 or slug_from_name(name) in BUILT_IN_MODULES:
+        return DEFAULT_NAME
+    return name[:1].upper() + name[1:]
 
 
 def generic_definition(description: str) -> ModuleDefinitionRequest:

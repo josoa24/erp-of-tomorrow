@@ -2,19 +2,21 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.agent.ui_cells import (EMPLOYEE_LABELS, EMPLOYEE_TONES, PAYMENT_LABELS, PAYMENT_TONES, column, kpi, pick,
-                                rows_of, status, table)
+from app.agent.ui_cells import (EMPLOYEE_LABELS, EMPLOYEE_TONES, PAYMENT_LABELS, PAYMENT_TONES, chart, column, kpi,
+                                pick, rows_of, status, table)
 
 
 def sales_summary(result: dict[str, Any]) -> list[dict[str, Any]]:
-    return kpi("Ventes", [("Chiffre d'affaires", result.get("totalRevenue"), None, "money"),
+    daily = [(str(day.get("date", ""))[5:], day.get("revenue")) for day in result.get("daily") or [] if isinstance(day, dict)]
+    return chart("Chiffre d'affaires par jour", daily, "money") + kpi("Ventes", [("Chiffre d'affaires", result.get("totalRevenue"), None, "money"),
                           ("Ventes", result.get("salesCount"), None, "number"),
                           ("Panier moyen", result.get("averageBasket"), None, "money")])
 
 
 def top_products(result: dict[str, Any]) -> list[dict[str, Any]]:
     rows = [pick(r, "productName", "totalQuantity", "totalRevenue") for r in rows_of(result)]
-    return table("Produits les plus vendus", [column("productName", "Produit"),
+    bars = chart("Chiffre d'affaires par produit", [(r.get("productName"), r.get("totalRevenue")) for r in rows_of(result)], "money")
+    return bars + table("Produits les plus vendus", [column("productName", "Produit"),
                                               column("totalQuantity", "Quantité", "number"),
                                               column("totalRevenue", "Chiffre d'affaires", "money")], rows, result)
 

@@ -37,4 +37,7 @@ export interface ModuleProposal {
   canCreate: boolean
   uncheckedColumns: string[]
   note?: string
+  explanation?: string
+  suggestions?: string[]
+  changes?: string[]
 }

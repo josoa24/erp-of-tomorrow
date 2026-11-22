@@ -1,8 +1,8 @@
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useState } from 'react'
 import { useApiError } from '../../../hooks/useApiError'
-import { proposeModule } from '../api/moduleProposeApi'
-import { initialSelection, type ProposalSelection } from '../services/proposalSelection'
+import { proposeModule, refineModule } from '../api/moduleProposeApi'
+import { initialSelection, toDefinitionRequest, type ProposalSelection } from '../services/proposalSelection'
 import type { ModuleProposal } from '../types/moduleRecord'
 
 export const useModuleProposal = (initialDescription: string) => {
@@ -16,6 +16,18 @@ export const useModuleProposal = (initialDescription: string) => {
     onSuccess: (result) => {
       setProposal(result)
       setSelection(initialSelection(result))
+    },
+    onError: handleError,
+  })
+
+  const refinement = useMutation({
+    mutationFn: (instruction: string) => {
+      if (!proposal || !selection) throw new Error('Aucune proposition à ajuster')
+      return refineModule(toDefinitionRequest(proposal, selection), instruction)
+    },
+    onSuccess: (result) => {
+      setProposal(result)
+      setSelection(initialSelection({ ...result, uncheckedColumns: [] }))
     },
     onError: handleError,
   })
@@ -40,6 +52,8 @@ export const useModuleProposal = (initialDescription: string) => {
     selection,
     preparing: mutation.isPending,
     prepare: () => mutation.mutate(),
+    refining: refinement.isPending,
+    refine: (instruction: string) => refinement.mutate(instruction),
     setName,
     toggleColumn,
     toggleIndicator,

@@ -14,5 +14,15 @@ public record ColumnSpec(
         @NotNull ColumnType type,
         boolean required,
         @Size(max = 20) List<@NotBlank @Size(max = 60) String> choices,
-        ReferenceTarget reference) {
+        ReferenceTarget reference,
+        Boolean listed) {
+
+    public ColumnSpec(String key, String label, ColumnType type, boolean required, List<String> choices,
+                      ReferenceTarget reference) {
+        this(key, label, type, required, choices, reference, null);
+    }
+
+    public boolean shownInList() {
+        return listed == null || listed;
+    }
 }

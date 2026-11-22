@@ -7,12 +7,12 @@ LIVRAISONS = ModuleTemplate(
     any_of("livraison", "livreur", r"livr(?:er|ez|ons|ent|ee|ees)\b", "tournee", "colis", "expedi"),
     definition("Livraisons", "truck", [
         column("client", "Client", "REFERENCE", "CUSTOMER"),
-        column("vente_origine", "Vente d’origine", "REFERENCE", "SALE"),
+        column("vente_origine", "Vente d’origine", "REFERENCE", "SALE", listed=False),
         column("quartier", "Quartier", "TEXT"),
         column("livreur", "Livreur", "REFERENCE", "EMPLOYEE"),
         column("heure_prevue", "Heure prévue", "TIME"),
-        column("montant_a_encaisser", "Montant à encaisser", "MONEY"),
-        column("signature_client", "Signature du client", "TEXT"),
+        column("montant_a_encaisser", "Montant à encaisser", "MONEY", listed=False),
+        column("signature_client", "Signature du client", "TEXT", listed=False),
     ], [
         status("a_preparer", "À préparer", "NEUTRAL"),
         status("en_route", "En route", "INFO"),
@@ -25,7 +25,6 @@ LIVRAISONS = ModuleTemplate(
                   column="montant_a_encaisser"),
     ]),
     unchecked_columns=("signature_client",),
-    hidden_columns=("montant_a_encaisser",),
 )
 
 REPARATIONS = ModuleTemplate(
@@ -33,10 +32,10 @@ REPARATIONS = ModuleTemplate(
     definition("Réparations", "wrench", [
         column("client", "Client", "REFERENCE", "CUSTOMER"),
         column("appareil", "Appareil", "TEXT", required=True),
-        column("panne", "Panne constatée", "TEXT"),
+        column("panne", "Panne constatée", "TEXT", listed=False),
         column("technicien", "Technicien", "REFERENCE", "EMPLOYEE"),
         column("date_promise", "Date promise", "DATE"),
-        column("montant", "Montant", "MONEY"),
+        column("montant", "Montant", "MONEY", listed=False),
     ], [
         status("recue", "Reçue", "NEUTRAL"),
         status("en_reparation", "En réparation", "WARNING"),
@@ -57,7 +56,7 @@ RENDEZ_VOUS = ModuleTemplate(
         column("client", "Client", "REFERENCE", "CUSTOMER"),
         column("date", "Date", "DATE", required=True),
         column("heure", "Heure", "TIME"),
-        column("motif", "Motif", "TEXT"),
+        column("motif", "Motif", "TEXT", listed=False),
         column("avec", "Avec", "REFERENCE", "EMPLOYEE"),
     ], [
         status("prevu", "Prévu", "NEUTRAL"),

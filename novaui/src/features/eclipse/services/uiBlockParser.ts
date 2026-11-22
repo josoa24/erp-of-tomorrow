@@ -1,4 +1,4 @@
-import type { UiAlertItem, UiBlock, UiCell, UiCellKind, UiColumn, UiField, UiKpiItem, UiTone } from '../types/uiBlock'
+import type { UiAlertItem, UiBlock, UiCell, UiChartPoint, UiCellKind, UiColumn, UiField, UiKpiItem, UiTone } from '../types/uiBlock'
 
 type Wire = Record<string, unknown>
 
@@ -45,6 +45,11 @@ const toAlert = (wire: unknown): UiAlertItem => {
   return { title: asString(value.title), detail: asString(value.detail), tone: asTone(value.tone) }
 }
 
+const toPoint = (wire: unknown): UiChartPoint => {
+  const value = asObject(wire)
+  return { label: asString(value.label), value: typeof value.value === 'number' ? value.value : 0 }
+}
+
 const toBlock = (wire: unknown): UiBlock | null => {
   const value = asObject(wire)
   const title = asString(value.title)
@@ -63,6 +68,8 @@ const toBlock = (wire: unknown): UiBlock | null => {
       return { type: 'card', title, subtitle: asString(value.subtitle), tone: asTone(value.tone), fields: asArray(value.fields).map(toField) }
     case 'alerts':
       return { type: 'alerts', title, items: asArray(value.items).map(toAlert) }
+    case 'chart':
+      return { type: 'chart', title, kind: asKind(value.kind), points: asArray(value.points).map(toPoint) }
     default:
       return null
   }
