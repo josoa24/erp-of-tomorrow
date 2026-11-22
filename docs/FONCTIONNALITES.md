@@ -2,7 +2,7 @@
 
 Ce que l'ERP sait faire aujourd'hui, côté serveur. Ce qui a été ajouté et corrigé dans la branche `songomby_d2` est détaillé dans [BILAN_SONGOMBY_D2.md](BILAN_SONGOMBY_D2.md). Le détail de chaque endpoint est dans [API_ENDPOINTS.md](API_ENDPOINTS.md) ; ce qui reste à faire est dans [PLAN_API.md](PLAN_API.md), [PLAN_CRM.md](PLAN_CRM.md) et [PLAN_ERP.md](PLAN_ERP.md).
 
-Les applications React Native (`apps/`) sont encore des squelettes vides : aucun écran n'existe.
+Interface : l'application web `novaui/` (React, Vite) propose l'écran de connexion et un premier tableau de bord. Les applications React Native (`apps/`) sont encore des squelettes vides.
 
 ## Accès et sécurité
 
@@ -52,8 +52,15 @@ Les applications React Native (`apps/`) sont encore des squelettes vides : aucun
 - Écriture après confirmation explicite : mouvement de stock, bon de commande (création, validation, réception), vente (création, validation).
 - Historique des conversations, page de test sur `/api/ai/ui`.
 
+## Voix (`voice-service`)
+
+- Transcription d'un message vocal en texte (Whisper, local et hors ligne) : `POST /api/voice/transcribe`.
+- Transcription en temps réel par WebSocket (`/stream`), avec texte provisoire puis texte définitif.
+- Français, malgache et anglais ; page de démonstration sur `http://localhost:8087/demo`.
+
 ## Outillage
 
 - Swagger unique pour tous les services : `http://localhost:8080/swagger-ui.html`.
-- Lancement complet par `docker compose` (bases PostgreSQL, services, gateway ; IA avec le profil `ai`).
+- Lancement complet par `docker compose` : une instance PostgreSQL (un schéma par service), services, gateway, `novaui` ; IA avec le profil `ai`, voix avec le profil `voice`. Environnement de développement avec rechargement à chaud : `docker-compose.dev.yml`.
+- Intégration continue : tests des 6 modules Java, de l'ai-service, du voice-service et de `novaui` à chaque Pull Request.
 - Tests unitaires et tests `@WebMvcTest` de chaque controller, dans chaque service (385 tests).

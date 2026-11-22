@@ -1,0 +1,23 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.mark {
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 10px rgba(140, 100, 255, 0.85));
+}
+
+.wordmark {
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  .wordmark {
+    font-size: 22px;
+  }
+}

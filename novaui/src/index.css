@@ -1,0 +1,63 @@
+:root {
+  --color-bg: #080a2b;
+  --color-bg-deep: #050620;
+  --color-text: #f4f5ff;
+  --color-text-muted: #b6b9ee;
+  --color-text-soft: #a5a3ff;
+  --color-accent: #7b5cff;
+  --color-accent-strong: #5b3fe0;
+  --color-line: rgba(126, 136, 255, 0.38);
+  --color-glass: rgba(30, 33, 92, 0.42);
+  --color-glass-strong: rgba(36, 38, 104, 0.6);
+  --color-success: #5eead4;
+  --color-success-bg: rgba(20, 150, 120, 0.32);
+  --color-danger: #f8566d;
+  --color-warning: #fbbf24;
+  --color-warning-bg: rgba(251, 191, 36, 0.18);
+  --color-danger-bg: rgba(248, 86, 109, 0.2);
+  --radius-card: 18px;
+  --radius-pill: 999px;
+  --font-family: 'Figtree Variable', system-ui, sans-serif;
+
+  font-family: var(--font-family);
+  line-height: 1.4;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  color-scheme: dark;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}

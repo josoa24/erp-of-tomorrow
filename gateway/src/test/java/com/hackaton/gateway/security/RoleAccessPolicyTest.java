@@ -39,6 +39,14 @@ class RoleAccessPolicyTest {
     }
 
     @Test
+    void shouldAllowVoiceOnlyForRhAndAdmin() {
+        assertTrue(policy.isAllowed("/api/voice/transcribe", "RH"));
+        assertTrue(policy.isAllowed("/api/voice/transcribe", "ADMIN"));
+        assertFalse(policy.isAllowed("/api/voice/transcribe", "VENTE"));
+        assertFalse(policy.isAllowed("/api/voice/transcribe", "STOCK"));
+    }
+
+    @Test
     void shouldReserveUserManagementToAdmin() {
         assertFalse(policy.isAllowed("/api/auth/users", "RH"));
         assertFalse(policy.isAllowed("/api/auth/users", "STOCK"));

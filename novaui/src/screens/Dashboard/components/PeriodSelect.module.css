@@ -1,0 +1,55 @@
+.wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 58px;
+  padding: 0 18px 0 22px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(120, 130, 255, 0.3);
+  background: rgba(18, 20, 62, 0.65);
+  cursor: pointer;
+}
+
+.select {
+  appearance: none;
+  border: none;
+  background: transparent;
+  font-size: 19px;
+  padding-right: 26px;
+  margin-right: -26px;
+  cursor: pointer;
+}
+
+.select:focus {
+  outline: none;
+}
+
+.wrapper:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.select option {
+  background: #12144a;
+  color: var(--color-text);
+}
+
+.chevron {
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .wrapper {
+    height: 46px;
+    padding: 0 12px;
+  }
+
+  .wrapper > svg:first-child {
+    display: none;
+  }
+
+  .select {
+    font-size: 15px;
+  }
+}
