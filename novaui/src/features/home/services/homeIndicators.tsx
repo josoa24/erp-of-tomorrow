@@ -1,9 +1,9 @@
-import { Package, ShoppingCart, Users } from 'lucide-react'
+import { Package, ShoppingCart, Truck, Users } from 'lucide-react'
 import type { KpiItem } from '../../../components/module/types'
 import { formatCompactAmount, formatDecimal, formatSignedPercent, pluralize } from '../../../utils/format'
 import type { StockSummary } from '../../stock/types/stock'
 import type { TeamSummary } from '../../team/types/teamSummary'
-import type { SalesKpis } from '../types/home'
+import type { DeliveryIndicator, SalesKpis } from '../types/home'
 
 export const UNAVAILABLE = 'indisponible'
 export const PENDING = '—'
@@ -54,3 +54,12 @@ export const teamIndicator = (block: Block<TeamSummary>): KpiItem => {
     hint: hintOrState(block, data && `${data.onLeaveToday} en congé aujourd’hui`),
   }
 }
+
+export const deliveryIndicator = (delivery: DeliveryIndicator): KpiItem => ({
+  key: 'deliveries',
+  icon: Truck,
+  tone: 'blush',
+  label: delivery.moduleName,
+  value: `${delivery.delivered} / ${delivery.total}`,
+  hint: delivery.inProgress ? `${delivery.inProgress.value} ${delivery.inProgress.label.toLowerCase()}` : undefined,
+})

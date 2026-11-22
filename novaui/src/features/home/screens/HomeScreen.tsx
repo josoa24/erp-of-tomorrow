@@ -1,7 +1,5 @@
-import { useState } from 'react'
-import { EclipseBar } from '../../../components/eclipse/EclipseBar'
+import { EclipseHeroBar } from '../../eclipse/components/EclipseHeroBar'
 import { KpiStrip } from '../../../components/module/KpiStrip'
-import { ECLIPSE_UNAVAILABLE_LABEL } from '../../../constants/eclipsePlaceholders'
 import { useCurrentUser } from '../../../hooks/useCurrentUser'
 import { DecisionList } from '../components/DecisionList'
 import { OrderDialog } from '../components/OrderDialog'
@@ -15,7 +13,6 @@ import { homeIndicators } from '../services/homeIndicatorSet'
 
 export const HomeScreen = () => {
   const user = useCurrentUser()
-  const [question, setQuestion] = useState('')
   const data = useHomeData(user?.role ?? 'CRM')
   const replenishment = data.replenishment.data?.[0]
   const allowed = (data.suggestions.data ?? []).filter((item) => {
@@ -38,15 +35,7 @@ export const HomeScreen = () => {
         <h1 className="text-display-l break-words text-ink-primary max-sm:text-display-m">{`Bonjour, ${firstName(user.displayName)}.`}</h1>
         <p className="text-body text-ink-secondary">{attentionLine(decisions.length)}</p>
       </header>
-      <EclipseBar
-        variant="night"
-        placeholder="Demandez, adaptez un écran ou créez un module…"
-        value={question}
-        onChange={setQuestion}
-        onSubmit={() => setQuestion('')}
-        status="unavailable"
-        unavailableLabel={ECLIPSE_UNAVAILABLE_LABEL}
-      />
+      <EclipseHeroBar />
       {indicators.length > 0 && <KpiStrip items={indicators} label="Indicateurs du jour" />}
       <DecisionList decisions={decisions} onAct={act} />
       {confirming && replenishment && <OrderDialog item={replenishment} onClose={closeConfirm} />}

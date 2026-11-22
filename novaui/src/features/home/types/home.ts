@@ -28,3 +28,19 @@ export interface DraftOrderRequest {
   supplierId: number
   lines: { productId: number; quantity: number; unitPrice: number }[]
 }
+
+export interface ModuleIndicator {
+  key: string
+  label: string
+  kind: 'COUNT' | 'SUM' | 'RATIO_TODAY'
+  value: number
+  total?: number
+  detail: string[]
+}
+
+export interface DeliveryIndicator {
+  moduleName: string
+  delivered: number
+  total: number
+  inProgress: { label: string; value: number } | null
+}

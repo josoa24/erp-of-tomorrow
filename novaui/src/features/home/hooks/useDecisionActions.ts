@@ -1,5 +1,6 @@
 import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { isAdaptationKey } from '../../eclipse/constants/adaptations'
 import { ROUTES } from '../../../navigation/routes'
 import type { Decision } from '../services/homeDecisions'
 import { SUGGESTION_ROUTES } from '../services/suggestionRoutes'
@@ -13,7 +14,7 @@ export const useDecisionActions = (replenishment: Replenishment | undefined, sug
     if (decision.kind === 'leaves') {
       void navigate({ to: ROUTES.team, search: { vue: 'demandes' } })
     } else if (decision.kind === 'suggestion' && suggestion) {
-      void navigate({ to: SUGGESTION_ROUTES[suggestion.moduleKey] ?? ROUTES.home })
+      void navigate({ to: SUGGESTION_ROUTES[suggestion.moduleKey] ?? ROUTES.home, search: isAdaptationKey(suggestion.adaptationKey) ? { eclipse: suggestion.adaptationKey } : {} })
     } else if (replenishment?.suggestedSupplierId && replenishment.recommendedQuantity) {
       setConfirming(true)
     } else {
