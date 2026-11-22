@@ -28,8 +28,8 @@ class AgentConfigs:
     def for_request(self) -> ConfigPair:
         """(AUTO, NONE) pour le rôle courant, mises en cache par rôle ; instruction système recalculée."""
         user = current_user.get()
-        role = user.role if user else None
-        key = role or "-"
+        role = user.roles if user else None
+        key = ",".join(role) if role else "-"
         if key not in self._cache:
             self._cache[key] = (self._build(types.FunctionCallingConfigMode.AUTO, role),
                                 self._build(types.FunctionCallingConfigMode.NONE, role))
@@ -38,7 +38,7 @@ class AgentConfigs:
         return (auto.model_copy(update={"system_instruction": system}),
                 none.model_copy(update={"system_instruction": system}))
 
-    def _build(self, mode: types.FunctionCallingConfigMode, role: str | None) -> types.GenerateContentConfig:
+    def _build(self, mode: types.FunctionCallingConfigMode, role: tuple[str, ...] | None) -> types.GenerateContentConfig:
         return types.GenerateContentConfig(
             tools=[self._registry.gemini_tool(role)],
             tool_config=types.ToolConfig(function_calling_config=types.FunctionCallingConfig(mode=mode)),

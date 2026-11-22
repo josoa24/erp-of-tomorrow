@@ -7,6 +7,7 @@ import com.hackaton.auth.user.entity.Role;
 import com.hackaton.auth.user.entity.UserAccount;
 import com.hackaton.auth.user.mapper.UserMapper;
 import com.hackaton.auth.user.repository.UserAccountRepository;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,9 +21,12 @@ public class UserUpdaterService implements UserUpdater {
 
     @Override
     @Transactional
-    public UserResponse changeRole(Long id, Role role, Long actorId) {
-        UserAccount user = findOther(id, actorId, "modifier le rôle de");
-        user.setRole(role);
+    public UserResponse changeRoles(Long id, Set<Role> roles, Long actorId) {
+        UserAccount user = findOther(id, actorId, "modifier les rôles de");
+        if (!roles.contains(Role.ADMIN)) {
+            guardLastAdmin(user, "retirer le rôle Administrateur du");
+        }
+        user.setRoles(roles);
         return userMapper.toResponse(user);
     }
 
@@ -30,8 +34,18 @@ public class UserUpdaterService implements UserUpdater {
     @Transactional
     public UserResponse setEnabled(Long id, boolean enabled, Long actorId) {
         UserAccount user = findOther(id, actorId, enabled ? "réactiver" : "désactiver");
+        if (!enabled) {
+            guardLastAdmin(user, "désactiver le");
+        }
         user.setEnabled(enabled);
         return userMapper.toResponse(user);
+    }
+
+    private void guardLastAdmin(UserAccount user, String action) {
+        if (user.isEnabled() && user.getRole() == Role.ADMIN
+                && userRepository.lockEnabledByRole(Role.ADMIN).size() <= 1) {
+            throw new BusinessRuleException("Impossible de " + action + " dernier compte administrateur actif");
+        }
     }
 
     private UserAccount findOther(Long id, Long actorId, String action) {

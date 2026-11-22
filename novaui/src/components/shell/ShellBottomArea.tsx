@@ -8,13 +8,13 @@ import { EclipseDock } from './EclipseDock'
 
 interface ShellBottomAreaProps {
   mobile: boolean
-  role?: Role
+  roles?: readonly Role[]
 }
 
-const DockAndNavigation = ({ mobile, role }: ShellBottomAreaProps) => (
+const DockAndNavigation = ({ mobile, roles }: ShellBottomAreaProps) => (
   <>
     <EclipseDock mobile={mobile} />
-    {mobile && role && <BottomBar role={role} />}
+    {mobile && roles && <BottomBar roles={roles} />}
   </>
 )
 

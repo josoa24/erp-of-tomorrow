@@ -1,5 +1,6 @@
 package com.hackaton.auth.common.config;
 
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
@@ -34,7 +35,7 @@ class AdminSeederTest {
 
         seeder("Hery Rabe").run();
 
-        verify(userCreator).create(new UserCreateRequest(EMAIL, "admin1234", Role.ADMIN, "Hery Rabe"));
+        verify(userCreator).create(new UserCreateRequest(EMAIL, "admin1234", List.of(Role.ADMIN), null, "Hery Rabe"));
     }
 
     @Test

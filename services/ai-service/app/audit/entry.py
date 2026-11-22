@@ -29,6 +29,6 @@ def build_entry(user: UserContext, conversation_id: str | None, question: str,
         kind = _ACTION_KIND.get(call.get("status") or "")
         if kind and call.get("action"):
             actions[kind].append(action_ref(call["action"]))
-    return {"user_id": user.user_id, "email": user.email, "role": user.role,
+    return {"user_id": user.user_id, "email": user.email, "role": ",".join(user.roles),
             "conversation_id": conversation_id, "question": question[:QUESTION_MAX],
             "tools": [c["name"] for c in calls], "actions": actions, "trust_label": trust_label}

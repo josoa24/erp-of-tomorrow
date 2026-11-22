@@ -6,14 +6,14 @@ describe('FilterChip', () => {
   it('shouldExposePressedStateAndCount', () => {
     render(<FilterChip label="En alerte" count={5} />)
 
-    const chip = screen.getByRole('button', { name: 'En alerte 5' })
+    const chip = screen.getByRole('button', { name: 'En alerte, 5' })
     expect(chip).toHaveAttribute('aria-pressed', 'false')
   })
 
   it('shouldShowSelectedStyleAndClearIcon_whenActive', () => {
     render(<FilterChip label="Tous" count={64} active />)
 
-    const chip = screen.getByRole('button', { name: 'Tous 64' })
+    const chip = screen.getByRole('button', { name: 'Tous, 64' })
     expect(chip).toHaveAttribute('aria-pressed', 'true')
     expect(chip).toHaveClass('bg-state-selected', 'border-brand-lilac')
     expect(chip.querySelector('svg')).toBeInTheDocument()

@@ -4,6 +4,7 @@ from typing import Sequence
 
 from app.eclipse.catalog import Adaptation
 from app.eclipse.modules import BASE_MODULE_LABELS
+from app.erp.context import roles_label
 
 
 def offers_in_module(adaptations: Sequence[Adaptation]) -> str:
@@ -35,5 +36,5 @@ def already_active(adaptation: Adaptation) -> str:
     return f"« {adaptation.title} » est déjà appliqué pour l’équipe dans « {module_label} »."
 
 
-def forbidden_module(role: str, module_key: str) -> str:
-    return f"Le rôle {role} n’a pas accès au module « {BASE_MODULE_LABELS[module_key]} »."
+def forbidden_module(roles: str | tuple[str, ...], module_key: str) -> str:
+    return f"Le rôle {roles_label(roles)} n’a pas accès au module « {BASE_MODULE_LABELS[module_key]} »."

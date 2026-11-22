@@ -8,14 +8,14 @@
 from __future__ import annotations
 
 import time
-from typing import Any
+from typing import Any, Iterable
 
 from google.genai import types
 from pydantic import ValidationError
 
 from app.agent.confirmation import ActionGuard, PendingAction
 from app.erp.client import ErpClient
-from app.erp.context import current_user
+from app.erp.context import current_user, normalize_roles, roles_label
 from app.tools.catalog import ALL_SPECS, module_allowed
 from app.tools.runner import invalid_args, run_spec, tool_error
 from app.tools.spec import ToolSpec
@@ -29,15 +29,15 @@ class ToolRegistry:
         self._tool_cache: dict[str, types.Tool] = {}
 
     @staticmethod
-    def allowed(spec: ToolSpec, role: str | None) -> bool:
+    def allowed(spec: ToolSpec, role: str | Iterable[str] | None) -> bool:
         return module_allowed(spec.module, role)
 
-    def specs_for(self, role: str | None) -> list[ToolSpec]:
+    def specs_for(self, role: str | Iterable[str] | None) -> list[ToolSpec]:
         return [s for s in self._specs.values() if self.allowed(s, role)]
 
-    def gemini_tool(self, role: str | None) -> types.Tool:
+    def gemini_tool(self, role: str | Iterable[str] | None) -> types.Tool:
         """Déclarations envoyées à Gemini pour ce rôle (construites une fois puis mises en cache)."""
-        key = role or "-"
+        key = ",".join(normalize_roles(role)) or "-"
         if key not in self._tool_cache:
             self._tool_cache[key] = types.Tool(function_declarations=[s.declaration for s in self.specs_for(role)])
         return self._tool_cache[key]
@@ -46,20 +46,20 @@ class ToolRegistry:
     def names(self) -> list[str]:
         return list(self._specs)
 
-    def describe(self, role: str | None = None) -> list[dict[str, Any]]:
+    def describe(self, role: str | Iterable[str] | None = None) -> list[dict[str, Any]]:
         specs = self.specs_for(role) if role else list(self._specs.values())
         return [{"name": s.name, "module": s.module, "requires_confirmation": s.requires_confirmation,
                  "description": s.declaration.description,
                  "parameters": s.declaration.parameters.model_dump(mode="json", exclude_none=True)
                  if s.declaration.parameters else None} for s in specs]
 
-    def _forbidden(self, spec: ToolSpec, role: str | None) -> dict[str, Any]:
-        return tool_error("FORBIDDEN", f"Le rôle {role} n'a pas accès au module {spec.module}.")
+    def _forbidden(self, spec: ToolSpec, role: str | Iterable[str] | None) -> dict[str, Any]:
+        return tool_error("FORBIDDEN", f"Le rôle {roles_label(role)} n'a pas accès au module {spec.module}.")
 
-    async def execute_pending(self, action: PendingAction, role: str | None = None) -> dict[str, Any]:
+    async def execute_pending(self, action: PendingAction, role: str | Iterable[str] | None = None) -> dict[str, Any]:
         """Exécute une écriture confirmée (droits et arguments revérifiés)."""
         spec = self._specs[action.tool]
-        role = role or (current_user.get().role if current_user.get() else None)
+        role = role or (current_user.get().roles if current_user.get() else None)
         if not self.allowed(spec, role):
             return self._forbidden(spec, role)
         try:
@@ -75,7 +75,7 @@ class ToolRegistry:
         if spec is None:
             return tool_error("UNKNOWN_TOOL", f"Outil inconnu : {name}")
         user = current_user.get()
-        role = user.role if user else None
+        role = user.roles if user else None
         if not self.allowed(spec, role):
             return self._forbidden(spec, role)
         try:

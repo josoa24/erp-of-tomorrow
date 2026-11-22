@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from api import Api
-from data import ACCOUNTS, CUSTOMERS, ORDER, PASSWORD, PRODUCTS, SALES, SUPPLIERS
+from data import ACCOUNTS, CUSTOMERS, ORDER, PASSWORD, PRODUCTS, SALES, SUPPLIERS, TEAM_ACCOUNTS
 
 
 def seed_accounts(admin: Api) -> dict[str, int]:
@@ -10,6 +10,24 @@ def seed_accounts(admin: Api) -> dict[str, int]:
         status, _ = admin.request("POST", "/api/auth/users", {"email": email, "password": PASSWORD, "role": role})
         print(f"  compte {email} ({role}) : {'créé' if status == 201 else 'déjà présent' if status == 409 else status}")
     return {user["email"]: user["id"] for user in admin.must("GET", "/api/auth/users")}
+
+
+def seed_team_accounts(admin: Api) -> None:
+    users = {u["email"]: u for u in admin.must("GET", "/api/auth/users")}
+    for email, roles, full_name, enabled, _ in TEAM_ACCOUNTS:
+        label = f"{email} ({'+'.join(roles)}, {full_name})"
+        if email in users:
+            if users[email].get("roles") != roles:
+                admin.must("PUT", f"/api/auth/users/{users[email]['id']}", {"roles": roles})
+                print(f"  compte {label} : rôles mis à jour")
+            else:
+                print(f"  compte {label} : déjà présent")
+            continue
+        user = admin.must("POST", "/api/auth/users",
+                          {"email": email, "password": PASSWORD, "roles": roles, "fullName": full_name})
+        if not enabled:
+            admin.must("POST", f"/api/auth/users/{user['id']}/disable")
+        print(f"  compte {label} : créé")
 
 
 def seed_products(admin: Api) -> dict[str, dict]:

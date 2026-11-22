@@ -12,6 +12,7 @@ import { validateStockSearch } from '../features/stock/services/stockSearch'
 import { TeamScreen } from '../features/team/screens/TeamScreen'
 import { validateTeamSearch } from '../features/team/services/teamSearch'
 import { HomeScreen } from '../features/home/screens/HomeScreen'
+import { usersRoute } from './adminRoutes'
 import { protectedRoute } from './baseRoutes'
 import { requireModule } from './routeGuards'
 import { ROUTES } from './routes'
@@ -90,5 +91,6 @@ export const moduleRoutes = [
   teamRoute,
   relationsRoute,
   profileRoute,
+  usersRoute,
   customModuleRoute,
 ] as const

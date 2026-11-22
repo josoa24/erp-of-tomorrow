@@ -20,6 +20,7 @@ public class GatewayAuthFilter implements GlobalFilter, Ordered {
     public static final String HEADER_USER_ID = "X-User-Id";
     public static final String HEADER_USER_EMAIL = "X-User-Email";
     public static final String HEADER_USER_ROLE = "X-User-Role";
+    public static final String HEADER_USER_ROLES = "X-User-Roles";
     private static final String BEARER = "Bearer ";
 
     private final JwtTokenParser tokenParser;
@@ -37,7 +38,7 @@ public class GatewayAuthFilter implements GlobalFilter, Ordered {
         if (user.isEmpty()) {
             return errorWriter.write(exchange, HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "Authentification requise");
         }
-        if (!accessPolicy.isAllowed(path, user.get().role())) {
+        if (!accessPolicy.isAllowed(path, user.get().roles())) {
             return errorWriter.write(exchange, HttpStatus.FORBIDDEN, "FORBIDDEN",
                     "Le rôle " + user.get().role() + " n'a pas accès à ce module");
         }
@@ -62,9 +63,11 @@ public class GatewayAuthFilter implements GlobalFilter, Ordered {
             headers.remove(HEADER_USER_ID);
             headers.remove(HEADER_USER_EMAIL);
             headers.remove(HEADER_USER_ROLE);
+            headers.remove(HEADER_USER_ROLES);
             headers.add(HEADER_USER_ID, String.valueOf(user.userId()));
             headers.add(HEADER_USER_EMAIL, user.email());
             headers.add(HEADER_USER_ROLE, user.role());
+            headers.add(HEADER_USER_ROLES, String.join(",", user.roles()));
         }).build();
     }
 }

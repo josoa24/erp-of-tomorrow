@@ -15,9 +15,10 @@ import os
 import sys
 
 from api import Api
-from backdate import backdate_history
-from data import PASSWORD
-from seed_core import seed_accounts, seed_customers, seed_products, seed_received_order, seed_sales, seed_suppliers
+from backdate import backdate_history, backdate_last_logins
+from data import PASSWORD, TEAM_ACCOUNTS
+from seed_core import (seed_accounts, seed_customers, seed_products, seed_received_order, seed_sales,
+                       seed_suppliers, seed_team_accounts)
 from seed_more import seed_crm, seed_hr, seed_invoices
 
 
@@ -32,6 +33,7 @@ def main() -> int:
     admin = Api(args.gateway).login(args.email, args.password)
     print("Comptes et stock :")
     user_ids = seed_accounts(admin)
+    seed_team_accounts(admin)
     products = seed_products(admin)
     suppliers = seed_suppliers(admin)
     order = seed_received_order(admin, products, suppliers)
@@ -40,6 +42,7 @@ def main() -> int:
     seed_sales(admin, products, customers)
     if not args.no_backdate:
         backdate_history()
+        backdate_last_logins(TEAM_ACCOUNTS)
     print("RH et CRM :")
     seed_hr(admin, user_ids)
     seed_crm(admin, customers, suppliers)

@@ -35,3 +35,16 @@ def backdate_history(service: str = "erp-db") -> None:
     if result.returncode != 0:
         raise RuntimeError("Antidatage impossible (base lancée avec docker compose ?) : " + result.stderr.strip())
     print(f"  mouvements de stock et ventes répartis sur les {DAYS} derniers jours")
+
+
+def backdate_last_logins(accounts: list[tuple], service: str = "erp-db") -> None:
+    updates = "".join(
+        f"UPDATE auth.user_accounts SET last_login_at = now() - interval '{days} days' - interval '3 hours' "
+        f"WHERE email = '{email}' AND last_login_at IS NULL;"
+        for email, _, _, _, days in accounts if days is not None)
+    command = ["docker", "compose", "exec", "-T", service, "psql", "-v", "ON_ERROR_STOP=1",
+               "-U", "postgres", "-d", "erp", "-q", "-c", "BEGIN;" + updates + "COMMIT;"]
+    result = subprocess.run(command, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError("Dernières connexions impossibles : " + result.stderr.strip())
+    print("  dernières connexions des comptes d'équipe renseignées")

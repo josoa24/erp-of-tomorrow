@@ -113,7 +113,7 @@ flowchart LR
 
 | Bloc | Port | À quoi il sert | Origine |
 |---|---|---|---|
-| **gateway** | 8080 | Porte d'entrée unique : vérifie le JWT et le rôle, retire le préfixe, transmet l'identité (`X-User-*`), CORS | Avant la reprise ; CORS, voix et modules ajoutés depuis |
+| **gateway** | 8080 | Porte d'entrée unique : vérifie le JWT et le rôle, retire le préfixe, transmet l'identité (`X-User-*`, dont tous les rôles du compte : accès accordé si un seul rôle suffit), CORS | Avant la reprise ; CORS, voix et modules ajoutés depuis |
 | **auth-service** | 8084 | Comptes, connexion, JWT | Avant ; gestion des comptes ajoutée depuis |
 | **rh-service** | 8081 | Départements, employés, congés, pointage, avances | Avant ; enrichi depuis |
 | **vente-service** | 8082 | Clients, ventes, chiffre d'affaires, encaissements | Avant ; enrichi depuis |

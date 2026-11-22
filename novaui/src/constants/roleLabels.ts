@@ -4,6 +4,6 @@ export const ROLE_LABELS: Record<Role, string> = {
   ADMIN: 'Administrateur',
   VENTE: 'Ventes',
   STOCK: 'Stock',
-  RH: 'Ressources humaines',
+  RH: 'Équipe',
   CRM: 'Relations',
 }

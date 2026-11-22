@@ -13,6 +13,7 @@ from api import Api
 from checks import Checks
 from verify_business import verify_hr_and_crm, verify_invoice_shield, verify_sales, verify_stock
 from verify_platform import verify_platform
+from verify_users import verify_team_accounts
 
 
 def main() -> int:
@@ -29,6 +30,7 @@ def main() -> int:
     verify_invoice_shield(checks, users["STOCK"], admin)
     verify_sales(checks, users["VENTE"])
     verify_hr_and_crm(checks, users["RH"], users["CRM"])
+    verify_team_accounts(checks, args.gateway, admin)
     return checks.summary()
 
 

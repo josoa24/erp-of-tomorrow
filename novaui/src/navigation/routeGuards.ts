@@ -1,7 +1,7 @@
 import { redirect } from '@tanstack/react-router'
 import { ERROR_CONTENT } from '../constants/errorContent'
 import { readSession } from '../services/sessionStore'
-import { canAccessModule, type ErpModule } from '../utils/roleAccess'
+import { canAccessModule, sessionRoles, type ErpModule } from '../utils/roleAccess'
 import { ROUTES } from './routes'
 
 export const forbiddenRedirect = () =>
@@ -21,5 +21,10 @@ export const forbiddenRedirect = () =>
 
 export const requireModule = (module: ErpModule) => () => {
   const session = readSession()
-  if (session && !canAccessModule(session.role, module)) throw forbiddenRedirect()
+  if (session && !canAccessModule(sessionRoles(session), module)) throw forbiddenRedirect()
+}
+
+export const requireAdmin = () => {
+  const session = readSession()
+  if (session && session.role !== 'ADMIN') throw forbiddenRedirect()
 }

@@ -13,4 +13,4 @@ async def list_suggestions(deps: EclipseDeps, user: UserContext) -> list[Suggest
     if active is None:
         return []
     return [Suggestion(adaptation_key=a.key, module_key=a.module_key, title=a.suggestion, reason=a.reason)
-            for a in adaptations_for(accessible_base_modules(user.role)) if a.key not in active]
+            for a in adaptations_for(accessible_base_modules(user.roles)) if a.key not in active]
