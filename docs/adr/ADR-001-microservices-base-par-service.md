@@ -9,7 +9,7 @@ L'ERP couvre plusieurs métiers (stock, vente, RH, CRM, comptes) développés en
 ## Décision
 
 - Un module métier = un service Spring Boot dans `services/<module>-service`, avec son port (rh 8081, vente 8082, stock 8083, auth 8084, crm 8085).
-- Une seule base PostgreSQL (`erp`, service `db` de `docker-compose.yml`) avec un schéma par service (`rh`, `vente`, `stock`, `auth`, `crm`), créés par `docker/postgres/init-schemas.sql`. Le schéma est fixé dans l'`application.yml` du service (`currentSchema`). Aucun service ne lit le schéma d'un autre.
+- Une seule instance PostgreSQL (base `erp`) avec un schéma et un utilisateur par service (`rh`, `vente`, `stock`, `auth`, `crm`), voir [ADR-006](ADR-006-instance-postgresql-unique.md). Aucun service ne lit le schéma d'un autre.
 - Un service qui a besoin d'une donnée d'un autre module l'appelle en HTTP derrière une interface : `StockClient` (vente vers stock), `CustomerClient` et `SupplierClient` (crm vers vente et stock).
 - Une gateway unique (Spring Cloud Gateway, port 8080) route `/api/<module>/**` vers le bon service en retirant le préfixe. C'est le seul point d'entrée publié par `docker-compose.yml`, et elle agrège le Swagger de tous les services.
 
