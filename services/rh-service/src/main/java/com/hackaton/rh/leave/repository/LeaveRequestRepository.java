@@ -24,6 +24,10 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long
             @Param("start") LocalDate start,
             @Param("end") LocalDate end);
 
+    @Query("select distinct l.employeeId from LeaveRequest l where l.status = :status "
+            + "and l.startDate <= :day and l.endDate >= :day")
+    List<Long> findEmployeeIdsActiveOn(@Param("status") LeaveStatus status, @Param("day") LocalDate day);
+
     @Query("select count(l) from LeaveRequest l where l.status = :status "
             + "and l.startDate <= :day and l.endDate >= :day")
     long countActiveOn(@Param("status") LeaveStatus status, @Param("day") LocalDate day);

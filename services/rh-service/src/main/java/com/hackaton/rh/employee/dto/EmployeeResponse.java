@@ -13,9 +13,15 @@ public record EmployeeResponse(
         String position,
         ContractType contractType,
         Long departmentId,
+        String departmentName,
         LocalDate hireDate,
         BigDecimal baseSalary,
         int leaveBalance,
         Long userId,
-        Instant createdAt) {
+        Instant createdAt,
+        boolean onLeaveToday,
+        EmployeeStatus status,
+        BigDecimal monthAdvance,
+        boolean monthAdvancePending,
+        BigDecimal advanceCap) {
 }

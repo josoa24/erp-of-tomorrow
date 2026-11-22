@@ -5,6 +5,8 @@ import com.hackaton.rh.employee.dto.EmployeeResponse;
 import com.hackaton.rh.employee.entity.Employee;
 import com.hackaton.rh.employee.mapper.EmployeeMapper;
 import com.hackaton.rh.employee.repository.EmployeeRepository;
+import com.hackaton.rh.employee.service.day.EmployeeDayContext;
+import com.hackaton.rh.employee.service.day.EmployeeDayContextLoader;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -19,21 +21,23 @@ public class EmployeeReaderService implements EmployeeReader {
 
     private final EmployeeRepository employeeRepository;
     private final EmployeeMapper employeeMapper;
+    private final EmployeeDayContextLoader dayContextLoader;
 
     @Override
     public EmployeeResponse findById(Long id) {
-        return employeeRepository.findById(id)
-                .map(employeeMapper::toResponse)
+        Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employé", id));
+        return employeeMapper.toResponse(employee, dayContextLoader.load());
     }
 
     @Override
     public List<EmployeeResponse> search(String search, Long departmentId) {
         String term = search == null ? "" : search.trim().toLowerCase(Locale.ROOT);
+        EmployeeDayContext day = dayContextLoader.load();
         return employeeRepository.findAllByOrderByLastNameAscFirstNameAsc().stream()
                 .filter(employee -> departmentId == null || Objects.equals(employee.getDepartmentId(), departmentId))
                 .filter(employee -> matches(employee, term))
-                .map(employeeMapper::toResponse)
+                .map(employee -> employeeMapper.toResponse(employee, day))
                 .toList();
     }
 
