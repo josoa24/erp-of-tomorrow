@@ -31,6 +31,7 @@ jwt:
 admin:
   email: ${ADMIN_EMAIL:admin@erp.local}
   password: ${ADMIN_PASSWORD:admin1234}
+  name: ${ADMIN_NAME:Administrateur}
 management:
   endpoints:
     web:

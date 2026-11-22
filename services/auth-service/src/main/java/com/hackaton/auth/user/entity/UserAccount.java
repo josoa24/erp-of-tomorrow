@@ -28,6 +28,9 @@ public class UserAccount {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(length = 120)
+    private String fullName;
+
     @Column(nullable = false)
     private String passwordHash;
 

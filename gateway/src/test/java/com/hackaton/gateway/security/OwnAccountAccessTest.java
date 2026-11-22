@@ -17,6 +17,13 @@ class OwnAccountAccessTest {
     }
 
     @Test
+    void shouldLetEveryRoleReadItsOwnProfile() {
+        for (String role : new String[] {"STOCK", "VENTE", "RH", "CRM", "ADMIN"}) {
+            assertTrue(policy.isAllowed("/api/auth/users/me", role), role);
+        }
+    }
+
+    @Test
     void shouldKeepAccountManagementForAdmin() {
         assertFalse(policy.isAllowed("/api/auth/users", "STOCK"));
         assertFalse(policy.isAllowed("/api/auth/users/2/disable", "VENTE"));
@@ -26,5 +33,6 @@ class OwnAccountAccessTest {
     @Test
     void shouldNotBePublic() {
         assertFalse(policy.isPublic("/api/auth/users/me/password"));
+        assertFalse(policy.isPublic("/api/auth/users/me"));
     }
 }

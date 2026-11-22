@@ -30,6 +30,6 @@ public class AuthenticatorService implements Authenticator {
         if (!user.isEnabled()) {
             throw new AccountDisabledException();
         }
-        return new LoginResponse(tokenIssuer.issue(user), user.getEmail(), user.getRole());
+        return new LoginResponse(tokenIssuer.issue(user), user.getEmail(), user.getFullName(), user.getRole());
     }
 }

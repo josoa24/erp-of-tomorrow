@@ -43,7 +43,7 @@ Seul `POST /api/auth/login` est public. Sans token ou avec un token invalide ou 
 | `CRM` | non | non | non | oui | oui | non |
 | `ADMIN` | oui | oui | oui | oui | oui | oui |
 
-Exception : `/api/auth/users/me/...` (son propre compte) est ouvert à tous les rôles connectés.
+Exception : `/api/auth/users/me` et `/api/auth/users/me/...` (son propre compte) sont ouverts à tous les rôles connectés.
 
 La gateway transmet l'identité aux services dans les en-têtes `X-User-Id`, `X-User-Email` et `X-User-Role` (utilisés par le CRM pour enregistrer l'auteur d'un échange).
 
@@ -79,12 +79,13 @@ Une donnée validée (vente, bon de commande, congé) ne peut plus être modifi�
 
 | Méthode | Chemin | Rôles | Description | Statuts |
 |---------|--------|-------|-------------|---------|
-| POST | `/api/auth/login` | public | Connexion. Corps : `email`, `password`. Renvoie `token`, `email`, `role` | 200, 400, 401 |
+| POST | `/api/auth/login` | public | Connexion. Corps : `email`, `password`. Renvoie `token`, `email`, `fullName` (nom complet, `null` s'il n'est pas renseigné), `role` | 200, 400, 401 |
 | GET | `/api/auth/users` | ADMIN | Liste des comptes | 200 |
-| POST | `/api/auth/users` | ADMIN | Crée un compte. `email` unique, `password` de 8 caractères minimum, `role` parmi ADMIN, STOCK, VENTE, RH, CRM | 201, 400, 409 |
+| POST | `/api/auth/users` | ADMIN | Crée un compte. `email` unique, `password` de 8 caractères minimum, `role` parmi ADMIN, STOCK, VENTE, RH, CRM, `fullName` facultatif (120 caractères maximum) | 201, 400, 409 |
 | PUT | `/api/auth/users/{id}` | ADMIN | Change le rôle d'un compte. Corps : `role`. Refusé sur son propre compte | 200, 400, 404, 422 |
 | POST | `/api/auth/users/{id}/disable` | ADMIN | Désactive un compte : il ne peut plus se connecter. Refusé sur son propre compte | 200, 404, 422 |
 | POST | `/api/auth/users/{id}/enable` | ADMIN | Réactive un compte | 200, 404, 422 |
+| GET | `/api/auth/users/me` | tous les rôles | Son propre compte : `id`, `email`, `fullName`, `role`, `enabled`, `createdAt` (identité lue dans `X-User-Id`) | 200, 401, 404 |
 | POST | `/api/auth/users/me/password` | tous les rôles | Change son propre mot de passe. Corps : `currentPassword`, `newPassword` (8 caractères minimum, différent de l'actuel) | 204, 400, 422 |
 
 Un compte désactivé reçoit 401 à la connexion. Un token déjà émis reste valable jusqu'à son expiration (`JWT_TTL_MINUTES`).
