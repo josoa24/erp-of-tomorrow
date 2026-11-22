@@ -1,33 +1,27 @@
 import { cva } from 'class-variance-authority';
 
-/**
- * Bouton icône (Figma « Icon Button »). Actions compactes : notifications, fermer,
- * plus d’options… Ghost neutre par défaut, icône renforcée au survol.
- * À accompagner d’une infobulle (`<Tooltip>`).
- */
 export const iconButtonVariants = cva(
   [
-    'inline-flex shrink-0 items-center justify-center rounded-md outline-none transition-colors',
-    'focus-visible:shadow-focus-ring disabled:pointer-events-none',
-    '[&_svg]:size-4 [&_svg]:shrink-0 disabled:[&_svg]:text-text-disabled',
+    'inline-flex shrink-0 items-center justify-center rounded-pill outline-none transition-colors',
+    'focus-visible:shadow-focus-ring disabled:opacity-40 aria-disabled:opacity-40',
+    '[&_svg]:shrink-0',
   ],
   {
     variants: {
       variant: {
-        ghost: [
-          '[&_svg]:text-icon-muted hover:bg-bg-hover hover:[&_svg]:text-icon-default',
-          'focus-visible:bg-bg-hover active:bg-bg-pressed active:[&_svg]:text-icon-default',
+        ghost: 'bg-transparent text-ink-secondary enabled:hover:bg-state-hover enabled:active:bg-state-pressed',
+        surface: [
+          'bg-surface-solid text-ink-primary',
+          'enabled:hover:bg-state-hover enabled:active:bg-state-pressed',
         ],
-        secondary: [
-          'border border-border-strong bg-bg-surface [&_svg]:text-icon-default',
-          'hover:bg-bg-hover active:bg-bg-pressed disabled:border-border-default',
-        ],
+        night: 'bg-surface-night text-ink-inverse enabled:hover:bg-action-primary-hover',
       },
       size: {
-        m: 'size-(--layout-control-height)',
-        s: 'size-8',
+        l: 'size-11 [&_svg]:size-5',
+        m: 'size-9 [&_svg]:size-[18px]',
+        s: 'size-8 [&_svg]:size-4',
       },
     },
-    defaultVariants: { variant: 'ghost', size: 'm' },
+    defaultVariants: { variant: 'ghost', size: 'l' },
   },
 );

@@ -15,16 +15,11 @@ export type TabsProps<T extends string> = {
   items: TabItem<T>[];
   value: T;
   onValueChange: (value: T) => void;
-  /** underline : navigation de page ; segmented : bascule de vue compacte. */
   variant?: 'underline' | 'segmented';
   'aria-label': string;
   className?: string;
 };
 
-/**
- * Groupe d’onglets (Figma « Tabs » / « Tab »). Un seul onglet sélectionné par groupe.
- * Navigation clavier : flèches gauche/droite, Début, Fin (onglets désactivés ignorés).
- */
 export function Tabs<T extends string>({
   items,
   value,
@@ -45,8 +40,8 @@ export function Tabs<T extends string>({
       className={cn(
         'flex items-center',
         segmented
-          ? 'inline-flex w-fit gap-1 rounded-lg bg-bg-muted p-1'
-          : 'gap-6 border-b border-border-default',
+          ? 'inline-flex w-fit gap-1 rounded-pill bg-surface-panel p-1'
+          : 'gap-6 border-b border-line-subtle',
         className,
       )}
     >
@@ -63,26 +58,20 @@ export function Tabs<T extends string>({
             disabled={item.disabled}
             onClick={() => onValueChange(item.value)}
             className={cn(
-              'inline-flex shrink-0 items-center justify-center gap-2 text-body-s font-medium whitespace-nowrap',
-              'text-text-secondary outline-none transition-colors focus-visible:shadow-focus-ring',
-              'hover:text-text-primary focus-visible:bg-bg-hover disabled:pointer-events-none disabled:text-text-disabled',
-              '[&_svg]:size-4 [&_svg]:shrink-0',
+              'inline-flex shrink-0 items-center justify-center gap-2 text-label whitespace-nowrap',
+              'text-ink-secondary outline-none transition-colors focus-visible:shadow-focus-ring',
+              'hover:text-ink-primary disabled:opacity-40 [&_svg]:size-4 [&_svg]:shrink-0',
               segmented
-                ? cn(
-                    'h-8 rounded-md px-3',
-                    selected && 'bg-bg-surface text-text-primary shadow-card',
-                  )
+                ? cn('h-9 rounded-pill px-4', selected && 'bg-surface-night text-ink-inverse hover:text-ink-inverse')
                 : cn(
-                    // -mb-px : la soulignure recouvre la bordure du groupe.
-                    '-mb-px h-10 border-b-2 border-transparent px-1 focus-visible:rounded-md',
-                    'hover:border-border-strong',
-                    selected && 'border-border-primary text-text-link hover:border-border-primary',
+                    '-mb-px h-11 border-b-2 border-transparent px-1 focus-visible:rounded-xs',
+                    selected && 'border-ink-primary text-ink-primary',
                   ),
             )}
           >
             {item.icon}
             {item.label}
-            {item.count !== undefined && <Count tone="muted" value={item.count} />}
+            {item.count !== undefined && <Count value={item.count} />}
           </button>
         );
       })}

@@ -1,46 +1,39 @@
 import { cva } from 'class-variance-authority';
 
-/**
- * Bouton d’action (Figma « Button »).
- * - primary : une seule action principale par zone
- * - secondary : actions courantes
- * - ghost : actions tertiaires, neutre
- * - danger : action destructive confirmée
- * Tailles : m = layout/control-height (40 Desktop, 44 Mobile), s = 32 (barres d’outils, tableaux).
- */
 export const buttonVariants = cva(
   [
-    'inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-md font-medium',
-    'outline-none transition-colors focus-visible:shadow-focus-ring',
-    'disabled:pointer-events-none disabled:bg-bg-disabled disabled:text-text-disabled disabled:[&_svg]:text-text-disabled',
-    'aria-busy:pointer-events-none',
-    '[&_svg]:size-4 [&_svg]:shrink-0',
+    'relative inline-flex shrink-0 items-center justify-center rounded-pill whitespace-nowrap',
+    'outline-none transition-[background-color,box-shadow,opacity] focus-visible:shadow-focus-ring',
+    'disabled:opacity-40 aria-disabled:opacity-40 aria-busy:cursor-progress',
+    '[&_svg]:shrink-0',
   ],
   {
     variants: {
       variant: {
         primary: [
-          'bg-bg-primary text-text-on-primary [&_svg]:text-icon-on-primary',
-          'hover:bg-bg-primary-hover active:bg-bg-primary-pressed',
+          'bg-surface-night text-ink-inverse',
+          'enabled:hover:bg-action-primary-hover enabled:active:bg-brand-indigo',
         ],
         secondary: [
-          'border border-border-strong bg-bg-surface text-text-primary [&_svg]:text-icon-default',
-          'hover:bg-bg-hover active:bg-bg-pressed disabled:border-border-default',
+          'border border-line-strong bg-surface-solid text-ink-primary',
+          'enabled:hover:bg-state-hover enabled:active:bg-state-pressed',
         ],
         ghost: [
-          'text-text-secondary [&_svg]:text-icon-muted',
-          'hover:bg-bg-hover hover:text-text-primary hover:[&_svg]:text-icon-default',
-          'focus-visible:bg-bg-hover active:bg-bg-pressed active:text-text-primary',
-          'disabled:bg-transparent',
+          'bg-transparent text-ink-primary',
+          'enabled:hover:bg-state-hover enabled:active:bg-state-pressed',
+        ],
+        eclipse: [
+          'bg-night text-ink-inverse',
+          'enabled:hover:shadow-eclipse-hover enabled:active:opacity-90',
         ],
         danger: [
-          'bg-bg-danger text-text-on-primary [&_svg]:text-icon-on-primary',
-          'hover:bg-bg-danger-hover active:bg-bg-danger-pressed',
+          'bg-action-danger text-ink-inverse',
+          'enabled:hover:bg-action-danger-hover enabled:active:bg-action-danger-pressed',
         ],
       },
       size: {
-        m: 'h-(--layout-control-height) gap-2 px-4 text-body-m',
-        s: 'h-8 gap-1 px-3 text-button-s',
+        m: 'h-12 gap-2 px-6 text-body-strong [&_svg]:size-5',
+        s: 'h-9 gap-1.5 px-4 text-label [&_svg]:size-4',
       },
     },
     defaultVariants: { variant: 'primary', size: 'm' },
