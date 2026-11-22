@@ -35,16 +35,17 @@ class LeaveControllerValidateTest {
 
     @Test
     void shouldReturn200WithValidatedLeave_whenLeaveIsDraft() throws Exception {
-        when(leaveValidator.validate(1L)).thenReturn(LeaveFixtures.leave(LeaveStatus.VALIDATED));
+        when(leaveValidator.validate(1L, 1L)).thenReturn(LeaveFixtures.leave(LeaveStatus.VALIDATED));
 
         mockMvc.perform(post("/leaves/{id}/validate", 1L))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("VALIDATED"));
+                .andExpect(jsonPath("$.status").value("VALIDATED"))
+                .andExpect(jsonPath("$.decidedBy").value(1));
     }
 
     @Test
     void shouldReturn404_whenValidatingUnknownLeave() throws Exception {
-        when(leaveValidator.validate(9L)).thenThrow(new ResourceNotFoundException("Congé", 9L));
+        when(leaveValidator.validate(9L, 1L)).thenThrow(new ResourceNotFoundException("Congé", 9L));
 
         mockMvc.perform(post("/leaves/{id}/validate", 9L))
                 .andExpect(status().isNotFound())
@@ -53,7 +54,7 @@ class LeaveControllerValidateTest {
 
     @Test
     void shouldReturn409_whenValidatingAlreadyDecidedLeave() throws Exception {
-        when(leaveValidator.validate(1L)).thenThrow(new ImmutableResourceException("déjà traité"));
+        when(leaveValidator.validate(1L, 1L)).thenThrow(new ImmutableResourceException("déjà traité"));
 
         mockMvc.perform(post("/leaves/{id}/validate", 1L))
                 .andExpect(status().isConflict())
@@ -62,7 +63,7 @@ class LeaveControllerValidateTest {
 
     @Test
     void shouldReturn422_whenBalanceIsInsufficientAtValidation() throws Exception {
-        when(leaveValidator.validate(1L)).thenThrow(new BusinessException("Solde insuffisant"));
+        when(leaveValidator.validate(1L, 1L)).thenThrow(new BusinessException("Solde insuffisant"));
 
         mockMvc.perform(post("/leaves/{id}/validate", 1L))
                 .andExpect(status().isUnprocessableEntity())

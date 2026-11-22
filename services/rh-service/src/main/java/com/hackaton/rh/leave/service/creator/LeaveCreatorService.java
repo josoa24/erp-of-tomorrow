@@ -48,6 +48,6 @@ public class LeaveCreatorService implements LeaveCreator {
         leave.setEndDate(request.endDate());
         leave.setDays(days);
         leave.setReason(request.reason());
-        return leaveMapper.toResponse(leaveRepository.save(leave));
+        return leaveMapper.toResponse(leaveRepository.save(leave), employee.fullName());
     }
 }

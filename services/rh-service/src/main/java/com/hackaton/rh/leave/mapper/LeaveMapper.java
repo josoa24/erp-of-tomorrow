@@ -7,16 +7,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class LeaveMapper {
 
-    public LeaveResponse toResponse(LeaveRequest leave) {
+    public LeaveResponse toResponse(LeaveRequest leave, String employeeName) {
         return new LeaveResponse(
                 leave.getId(),
                 leave.getEmployeeId(),
+                employeeName,
                 leave.getStartDate(),
                 leave.getEndDate(),
                 leave.getDays(),
                 leave.getReason(),
                 leave.getStatus(),
                 leave.getCreatedAt(),
-                leave.getDecidedAt());
+                leave.getDecidedAt(),
+                leave.getDecidedBy());
     }
 }

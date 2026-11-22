@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.hackaton.rh.common.exception.ImmutableResourceException;
 import com.hackaton.rh.employee.repository.EmployeeRepository;
+import com.hackaton.rh.employee.service.name.EmployeeNameDirectory;
 import com.hackaton.rh.leave.dto.LeaveResponse;
 import com.hackaton.rh.leave.entity.LeaveRequest;
 import com.hackaton.rh.leave.entity.LeaveStatus;
@@ -27,6 +28,8 @@ class LeaveRejecterServiceTest {
     private LeaveRequestRepository leaveRepository;
     @Mock
     private EmployeeRepository employeeRepository;
+    @Mock
+    private EmployeeNameDirectory nameDirectory;
 
     @Test
     void shouldRejectWithoutTouchingBalance_andLockTheRequest() {
@@ -38,12 +41,15 @@ class LeaveRejecterServiceTest {
         leave.setDays(4);
         when(leaveRepository.findById(1L)).thenReturn(Optional.of(leave));
         when(leaveRepository.save(any(LeaveRequest.class))).thenAnswer(call -> call.getArgument(0));
-        LeaveRejecterService rejecter = new LeaveRejecterService(leaveRepository, new LeaveMapper());
+        when(nameDirectory.nameOf(7L)).thenReturn("Nirina Rabe");
+        LeaveRejecterService rejecter = new LeaveRejecterService(leaveRepository, new LeaveMapper(), nameDirectory);
 
-        LeaveResponse response = rejecter.reject(1L);
+        LeaveResponse response = rejecter.reject(1L, 42L);
 
         assertEquals(LeaveStatus.REJECTED, response.status());
-        assertThrows(ImmutableResourceException.class, () -> rejecter.reject(1L));
+        assertEquals(42L, response.decidedBy());
+        assertEquals("Nirina Rabe", response.employeeName());
+        assertThrows(ImmutableResourceException.class, () -> rejecter.reject(1L, 42L));
         verifyNoInteractions(employeeRepository);
     }
 }

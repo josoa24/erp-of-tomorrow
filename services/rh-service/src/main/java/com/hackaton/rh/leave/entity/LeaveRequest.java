@@ -49,6 +49,8 @@ public class LeaveRequest {
 
     private Instant decidedAt;
 
+    private Long decidedBy;
+
     @PrePersist
     void onCreate() {
         createdAt = Instant.now();

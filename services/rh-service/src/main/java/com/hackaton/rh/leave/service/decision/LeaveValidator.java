@@ -4,5 +4,5 @@ import com.hackaton.rh.leave.dto.LeaveResponse;
 
 public interface LeaveValidator {
 
-    LeaveResponse validate(Long id);
+    LeaveResponse validate(Long id, Long actorId);
 }

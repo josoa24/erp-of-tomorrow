@@ -18,7 +18,8 @@ final class LeaveFixtures {
     }
 
     static LeaveResponse leave(LeaveStatus status) {
-        return new LeaveResponse(1L, 7L, LocalDate.of(2026, 12, 1), LocalDate.of(2026, 12, 5), 5, "Vacances",
-                status, Instant.EPOCH, status == LeaveStatus.DRAFT ? null : Instant.EPOCH);
+        boolean decided = status != LeaveStatus.DRAFT;
+        return new LeaveResponse(1L, 7L, "Nirina Rabe", LocalDate.of(2026, 12, 1), LocalDate.of(2026, 12, 5), 5,
+                "Vacances", status, Instant.EPOCH, decided ? Instant.EPOCH : null, decided ? 1L : null);
     }
 }

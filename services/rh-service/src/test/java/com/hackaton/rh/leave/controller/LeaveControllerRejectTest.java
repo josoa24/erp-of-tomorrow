@@ -34,7 +34,7 @@ class LeaveControllerRejectTest {
 
     @Test
     void shouldReturn200WithRejectedLeave_whenLeaveIsDraft() throws Exception {
-        when(leaveRejecter.reject(1L)).thenReturn(LeaveFixtures.leave(LeaveStatus.REJECTED));
+        when(leaveRejecter.reject(1L, 1L)).thenReturn(LeaveFixtures.leave(LeaveStatus.REJECTED));
 
         mockMvc.perform(post("/leaves/{id}/reject", 1L))
                 .andExpect(status().isOk())
@@ -43,7 +43,7 @@ class LeaveControllerRejectTest {
 
     @Test
     void shouldReturn404_whenRejectingUnknownLeave() throws Exception {
-        when(leaveRejecter.reject(9L)).thenThrow(new ResourceNotFoundException("Congé", 9L));
+        when(leaveRejecter.reject(9L, 1L)).thenThrow(new ResourceNotFoundException("Congé", 9L));
 
         mockMvc.perform(post("/leaves/{id}/reject", 9L))
                 .andExpect(status().isNotFound())
@@ -52,7 +52,7 @@ class LeaveControllerRejectTest {
 
     @Test
     void shouldReturn409_whenRejectingAlreadyDecidedLeave() throws Exception {
-        when(leaveRejecter.reject(1L)).thenThrow(new ImmutableResourceException("déjà traité"));
+        when(leaveRejecter.reject(1L, 1L)).thenThrow(new ImmutableResourceException("déjà traité"));
 
         mockMvc.perform(post("/leaves/{id}/reject", 1L))
                 .andExpect(status().isConflict())

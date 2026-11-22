@@ -54,17 +54,18 @@ class LeaveValidatorServiceTest {
         when(employeeRepository.findById(7L)).thenReturn(Optional.of(employee));
         when(leaveRepository.save(any(LeaveRequest.class))).thenAnswer(call -> call.getArgument(0));
 
-        LeaveResponse response = validator.validate(1L);
+        LeaveResponse response = validator.validate(1L, 42L);
 
         assertEquals(LeaveStatus.VALIDATED, response.status());
         assertEquals(6, employee.getLeaveBalance());
+        assertEquals(42L, response.decidedBy());
     }
 
     @Test
     void shouldRefuseValidation_whenLeaveIsAlreadyProcessed() {
         leave.setStatus(LeaveStatus.VALIDATED);
 
-        assertThrows(ImmutableResourceException.class, () -> validator.validate(1L));
+        assertThrows(ImmutableResourceException.class, () -> validator.validate(1L, 42L));
         assertEquals(10, employee.getLeaveBalance());
     }
 
@@ -73,7 +74,7 @@ class LeaveValidatorServiceTest {
         employee.setLeaveBalance(2);
         when(employeeRepository.findById(7L)).thenReturn(Optional.of(employee));
 
-        assertThrows(BusinessException.class, () -> validator.validate(1L));
+        assertThrows(BusinessException.class, () -> validator.validate(1L, 42L));
         assertEquals(LeaveStatus.DRAFT, leave.getStatus());
     }
 }

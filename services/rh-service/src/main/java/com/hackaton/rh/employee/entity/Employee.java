@@ -62,6 +62,10 @@ public class Employee {
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
+    public String fullName() {
+        return firstName + " " + lastName;
+    }
+
     @PrePersist
     void onCreate() {
         createdAt = Instant.now();
