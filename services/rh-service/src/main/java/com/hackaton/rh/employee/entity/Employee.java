@@ -2,6 +2,8 @@ package com.hackaton.rh.employee.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -38,6 +40,10 @@ public class Employee {
 
     private String position;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 16)
+    private ContractType contractType;
+
     @Column(nullable = false)
     private Long departmentId;
 
@@ -55,6 +61,10 @@ public class Employee {
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
+
+    public String fullName() {
+        return firstName + " " + lastName;
+    }
 
     @PrePersist
     void onCreate() {

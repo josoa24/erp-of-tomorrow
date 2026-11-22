@@ -10,11 +10,13 @@ import static org.mockito.Mockito.when;
 import com.hackaton.rh.common.exception.DuplicateResourceException;
 import com.hackaton.rh.common.exception.ResourceNotFoundException;
 import com.hackaton.rh.department.repository.DepartmentRepository;
+import com.hackaton.rh.employee.EmployeeTestData;
 import com.hackaton.rh.employee.dto.EmployeeRequest;
 import com.hackaton.rh.employee.dto.EmployeeResponse;
+import com.hackaton.rh.employee.entity.ContractType;
 import com.hackaton.rh.employee.entity.Employee;
-import com.hackaton.rh.employee.mapper.EmployeeMapper;
 import com.hackaton.rh.employee.repository.EmployeeRepository;
+import com.hackaton.rh.employee.service.day.EmployeeDayContextLoader;
 import com.hackaton.rh.employee.service.link.EmployeeAccountLinkChecker;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -31,28 +33,32 @@ class EmployeeCreatorServiceTest {
     private EmployeeRepository employeeRepository;
     @Mock
     private DepartmentRepository departmentRepository;
+    @Mock
+    private EmployeeDayContextLoader dayContextLoader;
 
     private EmployeeCreatorService service;
     private final EmployeeRequest request = new EmployeeRequest(
             "Aina", "Rakoto", "Aina.Rakoto@erp.local", "Comptable", 1L, LocalDate.of(2024, 1, 15),
-            new BigDecimal("900000"), null);
+            new BigDecimal("900000"), null, ContractType.CDD);
 
     @BeforeEach
     void setUp() {
-        service = new EmployeeCreatorService(employeeRepository, departmentRepository, new EmployeeMapper(),
-                new EmployeeAccountLinkChecker(employeeRepository));
+        service = new EmployeeCreatorService(employeeRepository, departmentRepository, EmployeeTestData.mapper(),
+                new EmployeeAccountLinkChecker(employeeRepository), dayContextLoader);
     }
 
     @Test
     void shouldCreateEmployeeWithInitialLeaveBalanceAndLowercaseEmail() {
         when(departmentRepository.existsById(1L)).thenReturn(true);
         when(employeeRepository.existsByEmail("aina.rakoto@erp.local")).thenReturn(false);
-        when(employeeRepository.save(any(Employee.class))).thenAnswer(call -> call.getArgument(0));
+        when(employeeRepository.save(any(Employee.class))).thenAnswer(call -> saved(call.getArgument(0)));
+        when(dayContextLoader.load()).thenReturn(EmployeeTestData.EMPTY_DAY);
 
         EmployeeResponse response = service.create(request);
 
         assertEquals(Employee.INITIAL_LEAVE_BALANCE, response.leaveBalance());
         assertEquals("aina.rakoto@erp.local", response.email());
+        assertEquals(ContractType.CDD, response.contractType());
     }
 
     @Test
@@ -69,5 +75,10 @@ class EmployeeCreatorServiceTest {
 
         assertThrows(DuplicateResourceException.class, () -> service.create(request));
         verify(employeeRepository, never()).save(any());
+    }
+
+    private Employee saved(Employee employee) {
+        employee.setId(5L);
+        return employee;
     }
 }

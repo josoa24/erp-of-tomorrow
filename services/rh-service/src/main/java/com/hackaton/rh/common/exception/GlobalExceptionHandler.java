@@ -23,6 +23,11 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.NOT_FOUND, "NOT_FOUND", ex.getMessage());
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ApiError> handleForbidden(ForbiddenException ex) {
+        return build(HttpStatus.FORBIDDEN, "FORBIDDEN", ex.getMessage());
+    }
+
     @ExceptionHandler(ImmutableResourceException.class)
     public ResponseEntity<ApiError> handleImmutable(ImmutableResourceException ex) {
         return build(HttpStatus.CONFLICT, "IMMUTABLE", ex.getMessage());

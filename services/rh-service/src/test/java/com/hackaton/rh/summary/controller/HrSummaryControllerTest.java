@@ -25,7 +25,8 @@ class HrSummaryControllerTest {
 
     @Test
     void shouldReturn200WithHeadcounts_whenSummarizing() throws Exception {
-        HrSummaryResponse summary = new HrSummaryResponse(12, 2, List.of(new DepartmentHeadcount(3L, "Finance", 5L)));
+        HrSummaryResponse summary =
+                new HrSummaryResponse(12, 2, List.of(new DepartmentHeadcount(3L, "Finance", 5L)), 3, 1);
         when(summaryReader.summarize()).thenReturn(summary);
 
         mockMvc.perform(get("/summary"))
@@ -33,6 +34,8 @@ class HrSummaryControllerTest {
                 .andExpect(jsonPath("$.totalEmployees").value(12))
                 .andExpect(jsonPath("$.onLeaveToday").value(2))
                 .andExpect(jsonPath("$.headcountByDepartment[0].departmentName").value("Finance"))
-                .andExpect(jsonPath("$.headcountByDepartment[0].employeeCount").value(5));
+                .andExpect(jsonPath("$.headcountByDepartment[0].employeeCount").value(5))
+                .andExpect(jsonPath("$.pendingLeaves").value(3))
+                .andExpect(jsonPath("$.departmentsWithEmployees").value(1));
     }
 }

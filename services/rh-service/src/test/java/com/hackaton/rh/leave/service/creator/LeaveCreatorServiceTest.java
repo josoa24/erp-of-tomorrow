@@ -39,6 +39,8 @@ class LeaveCreatorServiceTest {
     void setUp() {
         Employee employee = new Employee();
         employee.setId(7L);
+        employee.setFirstName("Nirina");
+        employee.setLastName("Rabe");
         employee.setLeaveBalance(10);
         when(employeeRepository.findById(7L)).thenReturn(Optional.of(employee));
         creator = new LeaveCreatorService(leaveRepository, employeeRepository, new LeaveMapper());
@@ -53,6 +55,7 @@ class LeaveCreatorServiceTest {
 
         assertEquals(5, response.days());
         assertEquals(LeaveStatus.DRAFT, response.status());
+        assertEquals("Nirina Rabe", response.employeeName());
     }
 
     @Test

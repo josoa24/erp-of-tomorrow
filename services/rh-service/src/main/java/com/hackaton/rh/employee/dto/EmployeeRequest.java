@@ -1,5 +1,6 @@
 package com.hackaton.rh.employee.dto;
 
+import com.hackaton.rh.employee.entity.ContractType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -17,5 +18,6 @@ public record EmployeeRequest(
         @NotNull Long departmentId,
         @NotNull @PastOrPresent LocalDate hireDate,
         @NotNull @DecimalMin("0.0") BigDecimal baseSalary,
-        @Positive Long userId) {
+        @Positive Long userId,
+        ContractType contractType) {
 }

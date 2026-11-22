@@ -12,6 +12,7 @@ import com.hackaton.rh.leave.service.creator.LeaveCreator;
 import com.hackaton.rh.leave.service.decision.LeaveRejecter;
 import com.hackaton.rh.leave.service.decision.LeaveValidator;
 import com.hackaton.rh.leave.service.reader.LeaveReader;
+import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +36,25 @@ class LeaveControllerReadTest {
 
     @Test
     void shouldReturn200WithFilteredLeaves_whenSearchingByEmployeeAndStatus() throws Exception {
-        when(leaveReader.search(7L, LeaveStatus.DRAFT)).thenReturn(List.of(LeaveFixtures.leave(LeaveStatus.DRAFT)));
+        when(leaveReader.search(7L, LeaveStatus.DRAFT, null))
+                .thenReturn(List.of(LeaveFixtures.leave(LeaveStatus.DRAFT)));
 
         mockMvc.perform(get("/leaves").param("employeeId", "7").param("status", "DRAFT"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].status").value("DRAFT"));
+                .andExpect(jsonPath("$[0].status").value("DRAFT"))
+                .andExpect(jsonPath("$[0].employeeName").value("Nirina Rabe"));
+    }
+
+    @Test
+    void shouldPassActiveDay_whenSearchingLeavesActiveOnADate() throws Exception {
+        LocalDate day = LocalDate.of(2026, 12, 3);
+        when(leaveReader.search(null, LeaveStatus.VALIDATED, day))
+                .thenReturn(List.of(LeaveFixtures.leave(LeaveStatus.VALIDATED)));
+
+        mockMvc.perform(get("/leaves").param("status", "VALIDATED").param("activeOn", "2026-12-03"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].decidedBy").value(1));
     }
 
     @Test
