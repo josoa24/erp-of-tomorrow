@@ -125,6 +125,7 @@ services:
       RH_URL: http://rh-service:8081
       CRM_URL: http://crm-service:8085
       AI_URL: ${AI_URL:-http://ai-service:8086}
+      VOICE_URL: ${VOICE_URL:-http://voice-service:8087}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:*,http://127.0.0.1:*}
     ports:
       - "8080:8080"
@@ -154,5 +155,26 @@ services:
         limits:
           memory: 256m
 
+  # Transcription vocale (profil "voice") : docker compose --profile voice up -d --build.
+  # Le premier démarrage télécharge le modèle Whisper (VOICE_MODEL_SIZE), conservé dans le volume hf-cache.
+  voice-service:
+    profiles: ["voice"]
+    build: ./services/voice-service
+    restart: unless-stopped
+    ports:
+      - "8087:8087"
+    environment:
+      VOICE_MODEL_SIZE: ${VOICE_MODEL_SIZE:-small}
+      VOICE_DEVICE: ${VOICE_DEVICE:-cpu}
+      VOICE_COMPUTE_TYPE: ${VOICE_COMPUTE_TYPE:-int8}
+      VOICE_LANGUAGE: ${VOICE_LANGUAGE:-fr}
+    volumes:
+      - hf-cache:/home/appuser/.cache/huggingface
+    deploy:
+      resources:
+        limits:
+          memory: ${VOICE_SERVICE_MEMORY:-1536m}
+
 volumes:
   erp-data:
+  hf-cache:
