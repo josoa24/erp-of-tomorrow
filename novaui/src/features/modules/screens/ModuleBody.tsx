@@ -48,7 +48,7 @@ export const ModuleBody = ({ definition }: { definition: ModuleDefinition }) => 
     >
       <ListCard
         label={definition.name}
-        toolbar={<ModuleFilters statuses={definition.statuses} counts={counts.data} active={status} onChange={setStatus} />}
+        toolbar={<ModuleFilters name={definition.name} statuses={definition.statuses} counts={counts.data} active={status} onChange={setStatus} />}
       >
         <DataTable
           caption={`${definition.name}, triés par date de création`}
