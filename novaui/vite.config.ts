@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { pwaOptions } from './pwa.config'
 
 const apiProxyTarget = process.env.API_PROXY_TARGET ?? 'http://localhost:8080'
 
@@ -11,19 +12,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      manifest: {
-        name: 'NOVA',
-        short_name: 'NOVA',
-        description: 'ERP intelligent et modulaire',
-        theme_color: '#17123a',
-        background_color: '#f3f0fb',
-        display: 'standalone',
-        icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
-      },
-      workbox: { navigateFallbackDenylist: [/^\/api\//] },
-    }),
+    VitePWA(pwaOptions),
   ],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
