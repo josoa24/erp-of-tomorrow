@@ -1,5 +1,6 @@
 import { useCallback, useRef, type Dispatch, type RefObject } from 'react'
 import { cancelAgentAction, confirmAgentAction } from '../api/agentApi'
+import { actionFailureOf } from '../services/actionFailure'
 import type { AgentChatAction } from '../services/agentChatReducer'
 import type { AgentChatState } from '../types/agent'
 
@@ -26,8 +27,13 @@ export const useAgentActions = (
         const result = await call(conversationId, actionId)
         dispatch({ type: 'actionChanged', actionId, status: OUTCOME[verb], detail: result?.message })
       } catch (error) {
-        dispatch({ type: 'actionChanged', actionId, status: 'failed' })
-        handleError(error)
+        const failure = actionFailureOf(error)
+        if (failure) {
+          dispatch({ type: 'actionChanged', actionId, ...failure })
+        } else {
+          dispatch({ type: 'actionChanged', actionId, status: 'failed' })
+          handleError(error)
+        }
       } finally {
         deciding.current.delete(actionId)
       }

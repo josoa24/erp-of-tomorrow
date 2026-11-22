@@ -1,4 +1,6 @@
-export type ToolCallStatus = 'pending_confirmation' | 'executed' | 'failed' | 'cancelled'
+import type { UiBlock } from './uiBlock'
+
+export type ToolCallStatus ='pending_confirmation' | 'executed' | 'failed' | 'cancelled'
 
 export interface AgentToolCall {
   name: string
@@ -27,6 +29,7 @@ export type AgentStreamEvent =
       errorCode?: string
       action?: PendingAction
     }
+  | { type: 'ui'; tool: string; blocks: UiBlock[] }
   | { type: 'done'; response: string; pendingActions: PendingAction[] }
   | { type: 'error'; code: string; message: string }
 
@@ -38,16 +41,18 @@ export interface AgentMessage {
   text: string
   toolCalls: AgentToolCall[]
   actionIds: string[]
+  blocks: UiBlock[]
   status: AgentMessageStatus
   error?: string
 }
 
-export type ActionStatus = 'pending' | 'confirming' | 'cancelling' | 'done' | 'cancelled' | 'failed'
+export type ActionStatus = 'pending' | 'confirming' | 'cancelling' | 'done' | 'cancelled' | 'failed' | 'refused' | 'expired'
 
 export interface ActionEntry {
   action: PendingAction
   status: ActionStatus
   detail?: string
+  code?: string
 }
 
 export interface AgentChatState {
