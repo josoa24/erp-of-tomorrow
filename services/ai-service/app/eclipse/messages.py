@@ -14,18 +14,20 @@ def offers_across_modules(adaptations: Sequence[Adaptation]) -> str:
     return " ; ".join(f"{a.offer} dans {BASE_MODULE_LABELS[a.module_key]}" for a in adaptations)
 
 
-def unsupported_in_module(module_label: str, scope: Sequence[Adaptation]) -> str:
-    opening = f"Je ne sais pas encore ajouter cela à « {module_label} »."
-    if not scope:
-        return f"{opening} Vous pouvez me poser une question sur ses données."
-    return f"{opening} Je peux ajouter : {offers_in_module(scope)}."
+def with_offers(opening: str, offers: str, fallback: str) -> str:
+    return f"{opening} Je peux ajouter : {offers}." if offers else f"{opening} {fallback}"
 
 
-def unsupported_from_home(scope: Sequence[Adaptation]) -> str:
-    opening = "Je ne sais pas encore faire cela depuis l’accueil."
-    if not scope:
-        return f"{opening} Vous pouvez me poser une question sur vos données."
-    return f"{opening} Je peux ajouter : {offers_across_modules(scope)}."
+def unsupported_in_module(module_label: str, scope: Sequence[Adaptation], removal: bool = False) -> str:
+    action = "retirer des éléments de" if removal else "ajouter cela à"
+    return with_offers(f"Je ne sais pas encore {action} « {module_label} ».", offers_in_module(scope),
+                       "Vous pouvez me poser une question sur ses données.")
+
+
+def unsupported_from_home(scope: Sequence[Adaptation], removal: bool = False) -> str:
+    action = "retirer des éléments" if removal else "faire cela"
+    return with_offers(f"Je ne sais pas encore {action} depuis l’accueil.", offers_across_modules(scope),
+                       "Vous pouvez me poser une question sur vos données.")
 
 
 def already_active(adaptation: Adaptation) -> str:

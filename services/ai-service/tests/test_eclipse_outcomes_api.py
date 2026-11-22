@@ -41,3 +41,25 @@ def test_should_ask_for_module_creation_when_user_wants_a_new_module():
     assert body == {"outcome": "CREATE_MODULE", "request": "Crée un module pour suivre mes livraisons",
                     "canApply": False}
     assert erp.requests == []
+
+
+def test_should_say_it_cannot_remove_elements_when_user_asks_for_a_removal():
+    client, _, erp = eclipse_client()
+
+    with client:
+        body = propose(client, "stock", "Supprime la colonne N° de lot").json()
+
+    assert body["outcome"] == "UNSUPPORTED" and "adaptationKey" not in body
+    assert body["message"] == ("Je ne sais pas encore retirer des éléments de « Stock ». Je peux ajouter : "
+                               "le n° de lot et la date de péremption.")
+    assert erp.requests == []
+
+
+def test_should_say_it_cannot_remove_elements_from_home_when_typed_on_home():
+    client, _, _ = eclipse_client()
+
+    with client:
+        body = propose(client, "accueil", "Enlève les avances sur salaire", role="RH").json()
+
+    assert body["message"] == ("Je ne sais pas encore retirer des éléments depuis l’accueil. Je peux ajouter : "
+                               "les avances sur salaire dans Équipe.")

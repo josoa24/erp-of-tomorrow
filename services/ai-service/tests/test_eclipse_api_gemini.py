@@ -74,3 +74,21 @@ def test_should_not_call_gemini_when_a_template_matches():
         body = propose_module(client, "Prendre les rendez-vous des clients").json()
 
     assert body["proposal"]["name"] == "Rendez-vous" and fake.requests == []
+
+
+def test_should_ask_gemini_when_request_names_a_catalog_field_without_a_verb():
+    client, fake, _ = eclipse_client(script=[text_response(json.dumps({"intent": "QUESTION"}))])
+
+    with client:
+        body = propose(client, "stock", "PÉREMPTION").json()
+
+    assert body["outcome"] == "QUESTION" and len(fake.requests) == 1
+
+
+def test_should_keep_catalog_adaptation_when_gemini_answers_module_creation():
+    client, _, _ = eclipse_client(script=[text_response(json.dumps({"intent": "CREATE_MODULE"}))])
+
+    with client:
+        body = propose(client, "ventes", "Mes clients paient aussi en mvola et à crédit").json()
+
+    assert (body["outcome"], body["adaptationKey"]) == ("ADAPTATION", "ventes.mobile-money-credit")

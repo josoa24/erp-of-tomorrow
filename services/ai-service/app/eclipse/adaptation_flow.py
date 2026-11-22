@@ -24,13 +24,16 @@ async def recognize(deps: EclipseDeps, request: str, screen: str, scope: Sequenc
     found = match(request, scope)
     if found.keyword_hit or deps.classifier is None:
         return found
-    return await deps.classifier.classify(request, screen, scope) or found
+    verdict = await deps.classifier.classify(request, screen, scope)
+    if verdict is None or (found.adaptation_key and verdict.intent == "CREATE_MODULE"):
+        return found
+    return verdict
 
 
-def unsupported_message(module_key: str, screen: str, scope: Sequence[Adaptation]) -> str:
+def unsupported_message(module_key: str, screen: str, scope: Sequence[Adaptation], removal: bool) -> str:
     if module_key == HOME_MODULE:
-        return unsupported_from_home(scope)
-    return unsupported_in_module(screen, scope)
+        return unsupported_from_home(scope, removal)
+    return unsupported_in_module(screen, scope, removal)
 
 
 async def adaptation_outcome(deps: EclipseDeps, adaptation: Adaptation, body: AdaptationRequest,
@@ -50,6 +53,7 @@ async def propose_adaptation(deps: EclipseDeps, body: AdaptationRequest, user: U
     found = await recognize(deps, body.request, screen, scope)
     if found.intent == "ADAPTATION" and found.adaptation_key:
         return await adaptation_outcome(deps, ADAPTATIONS_BY_KEY[found.adaptation_key], body, user)
-    message = unsupported_message(body.module_key, screen, scope) if found.intent == "UNSUPPORTED" else None
+    unsupported = found.intent == "UNSUPPORTED"
+    message = unsupported_message(body.module_key, screen, scope, found.removal) if unsupported else None
     return AdaptationProposal(outcome=found.intent, request=body.request, message=message,
                               can_apply=user.role == "ADMIN")
