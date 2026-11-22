@@ -13,13 +13,21 @@ def seed_accounts(admin: Api) -> dict[str, int]:
 
 
 def seed_team_accounts(admin: Api) -> None:
-    for email, role, full_name, enabled, _ in TEAM_ACCOUNTS:
-        status, user = admin.request("POST", "/api/auth/users",
-                                     {"email": email, "password": PASSWORD, "role": role, "fullName": full_name})
-        if status == 201 and not enabled:
+    users = {u["email"]: u for u in admin.must("GET", "/api/auth/users")}
+    for email, roles, full_name, enabled, _ in TEAM_ACCOUNTS:
+        label = f"{email} ({'+'.join(roles)}, {full_name})"
+        if email in users:
+            if users[email].get("roles") != roles:
+                admin.must("PUT", f"/api/auth/users/{users[email]['id']}", {"roles": roles})
+                print(f"  compte {label} : rôles mis à jour")
+            else:
+                print(f"  compte {label} : déjà présent")
+            continue
+        user = admin.must("POST", "/api/auth/users",
+                          {"email": email, "password": PASSWORD, "roles": roles, "fullName": full_name})
+        if not enabled:
             admin.must("POST", f"/api/auth/users/{user['id']}/disable")
-        label = "créé" if status == 201 else "déjà présent" if status == 409 else status
-        print(f"  compte {email} ({role}, {full_name}) : {label}")
+        print(f"  compte {label} : créé")
 
 
 def seed_products(admin: Api) -> dict[str, dict]:
