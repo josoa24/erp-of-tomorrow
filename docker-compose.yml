@@ -1,152 +1,185 @@
-# Une seule instance PostgreSQL pour tout l'ERP : un schéma et un utilisateur par microservice
-# (créés par docker/postgres/init/01-schemas.sh). Chaque service ne voit que son schéma.
 x-service: &service
   restart: unless-stopped
-  environment: &service-env
-    JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me-0123456789abcdef}
   deploy:
     resources:
       limits:
         memory: ${JAVA_SERVICE_MEMORY:-512m}
 
-x-db-service: &db-service
-  <<: *service
+x-java-build: &java-build
+  context: .
+  dockerfile: docker/Dockerfile.java
+
+x-after-db: &after-db
   depends_on:
     erp-db:
       condition: service_healthy
 
+x-secrets: &secrets
+  JWT_SECRET: ${JWT_SECRET:?JWT_SECRET obligatoire (32 caractères minimum, identique pour la gateway et l'auth)}
+
 services:
   erp-db:
-    image: postgres:16
+    build:
+      context: .
+      dockerfile: docker/postgres/Dockerfile
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD obligatoire}
       POSTGRES_DB: erp
-      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD:-auth_svc}
-      STOCK_DB_PASSWORD: ${STOCK_DB_PASSWORD:-stock_svc}
-      VENTE_DB_PASSWORD: ${VENTE_DB_PASSWORD:-vente_svc}
-      RH_DB_PASSWORD: ${RH_DB_PASSWORD:-rh_svc}
-      CRM_DB_PASSWORD: ${CRM_DB_PASSWORD:-crm_svc}
-      MODULE_DB_PASSWORD: ${MODULE_DB_PASSWORD:-module_svc}
-    # 5 services x 5 connexions au plus, plus l'administration : 60 suffisent.
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD:?AUTH_DB_PASSWORD obligatoire}
+      STOCK_DB_PASSWORD: ${STOCK_DB_PASSWORD:?STOCK_DB_PASSWORD obligatoire}
+      VENTE_DB_PASSWORD: ${VENTE_DB_PASSWORD:?VENTE_DB_PASSWORD obligatoire}
+      RH_DB_PASSWORD: ${RH_DB_PASSWORD:?RH_DB_PASSWORD obligatoire}
+      CRM_DB_PASSWORD: ${CRM_DB_PASSWORD:?CRM_DB_PASSWORD obligatoire}
+      MODULE_DB_PASSWORD: ${MODULE_DB_PASSWORD:?MODULE_DB_PASSWORD obligatoire}
     command: ["postgres", "-c", "max_connections=60", "-c", "shared_buffers=128MB"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d erp"]
       interval: 5s
       timeout: 3s
-      retries: 10
-    ports:
-      - "127.0.0.1:5432:5432"
+      retries: 20
     volumes:
       - erp-data:/var/lib/postgresql/data
-      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
     deploy:
       resources:
         limits:
           memory: 512m
 
-  auth-service:
-    <<: *db-service
+  migrate:
     build:
       context: .
-      dockerfile: docker/Dockerfile.java
+      dockerfile: docker/postgres/Dockerfile.migrate
+    restart: "no"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD obligatoire}
+      POSTGRES_DB: erp
+      MODULE_DB_PASSWORD: ${MODULE_DB_PASSWORD:?MODULE_DB_PASSWORD obligatoire}
+    depends_on:
+      erp-db:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+      stock-service:
+        condition: service_started
+      vente-service:
+        condition: service_started
+      rh-service:
+        condition: service_started
+      crm-service:
+        condition: service_started
+      module-service:
+        condition: service_started
+
+  auth-service:
+    <<: [*service, *after-db]
+    build:
+      <<: *java-build
       args:
         MODULE_PATH: services/auth-service
     environment:
-      <<: *service-env
+      <<: *secrets
       DB_URL: jdbc:postgresql://erp-db:5432/erp?currentSchema=auth
       DB_USER: auth_svc
-      DB_PASSWORD: ${AUTH_DB_PASSWORD:-auth_svc}
-      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@erp.local}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin1234}
+      DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      JWT_TTL_MINUTES: ${JWT_TTL_MINUTES:-480}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?ADMIN_EMAIL obligatoire}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD obligatoire}
       ADMIN_NAME: ${ADMIN_NAME:-Administrateur}
+    expose:
+      - "8084"
+
   stock-service:
-    <<: *db-service
+    <<: [*service, *after-db]
     build:
-      context: .
-      dockerfile: docker/Dockerfile.java
+      <<: *java-build
       args:
         MODULE_PATH: services/stock-service
     environment:
-      <<: *service-env
       DB_URL: jdbc:postgresql://erp-db:5432/erp?currentSchema=stock
       DB_USER: stock_svc
-      DB_PASSWORD: ${STOCK_DB_PASSWORD:-stock_svc}
+      DB_PASSWORD: ${STOCK_DB_PASSWORD}
+    expose:
+      - "8083"
+
   vente-service:
-    <<: *db-service
+    <<: [*service, *after-db]
     build:
-      context: .
-      dockerfile: docker/Dockerfile.java
+      <<: *java-build
       args:
         MODULE_PATH: services/vente-service
     environment:
-      <<: *service-env
       DB_URL: jdbc:postgresql://erp-db:5432/erp?currentSchema=vente
       DB_USER: vente_svc
-      DB_PASSWORD: ${VENTE_DB_PASSWORD:-vente_svc}
+      DB_PASSWORD: ${VENTE_DB_PASSWORD}
       STOCK_URL: http://stock-service:8083
+    expose:
+      - "8082"
+
   rh-service:
-    <<: *db-service
+    <<: [*service, *after-db]
     build:
-      context: .
-      dockerfile: docker/Dockerfile.java
+      <<: *java-build
       args:
         MODULE_PATH: services/rh-service
     environment:
-      <<: *service-env
       DB_URL: jdbc:postgresql://erp-db:5432/erp?currentSchema=rh
       DB_USER: rh_svc
-      DB_PASSWORD: ${RH_DB_PASSWORD:-rh_svc}
+      DB_PASSWORD: ${RH_DB_PASSWORD}
+    expose:
+      - "8081"
+
   crm-service:
-    <<: *db-service
+    <<: [*service, *after-db]
     build:
-      context: .
-      dockerfile: docker/Dockerfile.java
+      <<: *java-build
       args:
         MODULE_PATH: services/crm-service
     environment:
-      <<: *service-env
       DB_URL: jdbc:postgresql://erp-db:5432/erp?currentSchema=crm
       DB_USER: crm_svc
-      DB_PASSWORD: ${CRM_DB_PASSWORD:-crm_svc}
+      DB_PASSWORD: ${CRM_DB_PASSWORD}
       VENTE_URL: http://vente-service:8082
       STOCK_URL: http://stock-service:8083
+    expose:
+      - "8085"
+
   module-service:
-    <<: *db-service
+    <<: [*service, *after-db]
     build:
-      context: .
-      dockerfile: docker/Dockerfile.java
+      <<: *java-build
       args:
         MODULE_PATH: services/module-service
     environment:
-      <<: *service-env
       DB_URL: jdbc:postgresql://erp-db:5432/erp?currentSchema=module
       DB_USER: module_svc
-      DB_PASSWORD: ${MODULE_DB_PASSWORD:-module_svc}
+      DB_PASSWORD: ${MODULE_DB_PASSWORD}
       VENTE_URL: http://vente-service:8082
       RH_URL: http://rh-service:8081
       STOCK_URL: http://stock-service:8083
+    expose:
+      - "8088"
+
   gateway:
     <<: *service
     build:
-      context: .
-      dockerfile: docker/Dockerfile.java
+      <<: *java-build
       args:
         MODULE_PATH: gateway
     environment:
-      <<: *service-env
+      <<: *secrets
       AUTH_URL: http://auth-service:8084
       STOCK_URL: http://stock-service:8083
       VENTE_URL: http://vente-service:8082
       RH_URL: http://rh-service:8081
       CRM_URL: http://crm-service:8085
-      AI_URL: ${AI_URL:-http://ai-service:8086}
-      VOICE_URL: ${VOICE_URL:-http://voice-service:8087}
       MODULE_URL: http://module-service:8088
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:*,http://127.0.0.1:*}
-    ports:
-      - "8080:8080"
+      AI_URL: http://ai-service:8086
+      VOICE_URL: http://voice-service:8087
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://localhost}
+    expose:
+      - "8080"
     depends_on:
       - auth-service
       - stock-service
@@ -154,26 +187,24 @@ services:
       - rh-service
       - crm-service
       - module-service
+      - ai-service
 
-  # Assistant IA : démarré seulement avec le profil "ai" (docker compose --profile ai up -d --build).
-  # Il joint la gateway par le port publié sur la machine (host.docker.internal).
   ai-service:
-    profiles: ["ai"]
     build: ./services/ai-service
     restart: unless-stopped
     environment:
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
-      ERP_GATEWAY_URL: ${ERP_GATEWAY_URL:-http://host.docker.internal:8080}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      ERP_GATEWAY_URL: http://gateway:8080
+    volumes:
+      - ai-data:/app/data
+    expose:
+      - "8086"
     deploy:
       resources:
         limits:
-          memory: 256m
+          memory: 512m
 
-  # Transcription vocale (profil "voice") : docker compose --profile voice up -d --build.
-  # Au démarrage, le service charge en arrière-plan les modèles Whisper (VOICE_MODEL_SIZE, et VOICE_PARTIAL_MODEL_SIZE pour le texte provisoire), conservés dans le volume hf-cache.
   voice-service:
     profiles: ["voice"]
     build: ./services/voice-service
@@ -186,11 +217,27 @@ services:
       VOICE_LANGUAGE: ${VOICE_LANGUAGE:-fr}
     volumes:
       - hf-cache:/home/appuser/.cache/huggingface
+    expose:
+      - "8087"
     deploy:
       resources:
         limits:
           memory: ${VOICE_SERVICE_MEMORY:-1536m}
 
+  novaui:
+    build:
+      context: ./novaui
+    restart: unless-stopped
+    expose:
+      - "8080"
+    depends_on:
+      - gateway
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+
 volumes:
   erp-data:
+  ai-data:
   hf-cache:

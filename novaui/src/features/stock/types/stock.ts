@@ -47,6 +47,8 @@ export interface StockProduct {
   quantity: number
   minThreshold: number
   category: string | null
+  unitPrice?: number
+  purchasePrice?: number | null
 }
 
 export interface MovementRequest {

@@ -4,6 +4,7 @@ export const ROUTES = {
   error: '/erreur',
   sales: '/ventes',
   stock: '/stock',
+  stockOrders: '/stock/commandes',
   team: '/equipe',
   relations: '/relations',
   profile: '/profil',

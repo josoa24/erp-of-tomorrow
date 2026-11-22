@@ -1,6 +1,8 @@
+import { useNavigate } from '@tanstack/react-router'
 import { ListCard } from '../../../components/module/ListCard'
 import { ModulePage } from '../../../components/module/ModulePage'
 import { Button } from '../../../components/ui/button'
+import { ROUTES } from '../../../navigation/routes'
 import { Skeleton } from '../../../components/ui/skeleton'
 import { StockDialogs } from '../components/StockDialogs'
 import { StockEmptyState } from '../components/StockEmptyState'
@@ -19,6 +21,7 @@ export const STOCK_SEARCH_PLACEHOLDER = 'Rechercher un produit…'
 const KPI_PLACEHOLDER = <Skeleton className="h-8 w-24" />
 
 export const StockScreen = () => {
+  const navigate = useNavigate()
   const { active, preview } = useModuleAdaptation('stock')
   const adaptation = toStockAdaptationView(active, preview !== null)
   const { filter, search, setFilter, setSearch } = useStockSearchParams()
@@ -31,7 +34,12 @@ export const StockScreen = () => {
       title="Stock"
       subtitle={summary && stockSubtitle(summary)}
       search={{ placeholder: STOCK_SEARCH_PLACEHOLDER, defaultValue: search, onSearch: setSearch }}
-      primaryAction={<Button onClick={() => openEntry()}>Entrée de stock</Button>}
+      primaryAction={
+        <div className="flex flex-wrap gap-2">
+          <Button variant="secondary" onClick={() => void navigate({ to: ROUTES.stockOrders })}>Commandes</Button>
+          <Button onClick={() => openEntry()}>Entrée de stock</Button>
+        </div>
+      }
       kpis={buildStockKpis(summary, adaptation, KPI_PLACEHOLDER)}
       kpiLabel="Indicateurs du stock"
     >
