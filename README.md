@@ -159,7 +159,7 @@ Le préfixe est retiré avant d'atteindre le service (`/api/stock/products` → 
 | Voix | **faster-whisper** en local | Fonctionne hors ligne, aucune donnée audio envoyée à l'extérieur |
 | Front | **React + Vite + TanStack Router + Tailwind** | Routage typé, contrôle du rôle par route, design system NOVA en jetons |
 | Application installable | **PWA** | Installation sur ordinateur et mobile |
-| Déploiement | **Docker Compose** (+ `docker-compose.dev.yml` à chaud) | Toute la pile démarre avec une commande |
+| Déploiement | **Docker Compose** pour Dokploy (production, aucun port publié) + `docker-compose.dev.yml` à chaud | Toute la pile démarre avec une commande |
 | Qualité | **GitHub Actions** | Tests Java, Python et front, lint et build à chaque Pull Request |
 
 Les décisions et leurs raisons sont dans [docs/adr/](docs/adr/README.md).
@@ -395,13 +395,12 @@ sequenceDiagram
 
 ### 8.2 Tout dans Docker
 
+Le fichier `docker-compose.yml` est celui de la **production** : il ne publie aucun port et exige ses variables (`.env.production.example`). En local, utiliser le compose de développement, qui publie la base, la gateway et le front sur `127.0.0.1` seulement :
+
 ```bash
-docker compose build
-docker compose up -d erp-db
-./docker/postgres/apply-migrations.sh                 # base déjà existante uniquement
-docker compose up -d                                  # services et gateway
-docker compose --profile ai --profile voice up -d     # assistant et voix (facultatif)
-cd novaui && npm ci && npm run dev
+docker compose -f docker-compose.dev.yml up -d --build
+docker compose -f docker-compose.dev.yml --profile ai up -d     # assistant IA (facultatif)
+./docker/postgres/apply-migrations.sh -f docker-compose.dev.yml  # base déjà existante uniquement
 ```
 
 | Service | Adresse |
@@ -425,7 +424,7 @@ Le code source est monté dans les conteneurs. Le premier démarrage est long (d
 ### 8.4 Un service à la main
 
 ```powershell
-docker compose up -d erp-db
+docker compose -f docker-compose.dev.yml up -d erp-db
 cd services/stock-service
 mvn spring-boot:run
 ```
@@ -452,7 +451,6 @@ Le déroulé du pitch est dans [docs/SCENARIO_DEMO.md](docs/SCENARIO_DEMO.md).
 Le script d'initialisation ne s'exécute qu'à la création du volume. Sur une base déjà remplie, appliquer les migrations (idempotentes, rejouables) avant de démarrer les services :
 
 ```bash
-./docker/postgres/apply-migrations.sh                              # docker-compose.yml
 ./docker/postgres/apply-migrations.sh -f docker-compose.dev.yml    # environnement de développement
 ```
 
