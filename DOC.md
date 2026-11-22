@@ -201,16 +201,16 @@ flowchart TB
     GW --> VENTE["🛒 Ventes"]
     GW --> CRM["🤝 CRM"]
     AI -. "appelle les modules<br/>avec le token de l'utilisateur" .-> GW
-    AUTH --- DB1[("Base")]
-    STOCK --- DB2[("Base")]
-    RH --- DB3[("Base")]
-    VENTE --- DB4[("Base")]
-    CRM --- DB5[("Base")]
+    AUTH --- DB[("Base unique<br/>un schéma par module")]
+    STOCK --- DB
+    RH --- DB
+    VENTE --- DB
+    CRM --- DB
 ```
 
 | Principe | Pourquoi |
 |----------|----------|
-| **Un module = un service = une base** | Chaque métier évolue indépendamment. |
+| **Un module = un service = un schéma** (une seule base PostgreSQL) | Chaque métier évolue indépendamment. |
 | **Une seule porte d'entrée (la gateway)** | Sécurité centralisée, une seule adresse pour l'interface. |
 | **L'IA passe par la même porte que l'utilisateur** | Elle ne voit que ce que l'utilisateur a le droit de voir. |
 | **Le métier calcule, l'IA explique** | Des chiffres fiables, une présentation compréhensible. |

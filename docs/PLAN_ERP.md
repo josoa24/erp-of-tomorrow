@@ -63,7 +63,7 @@ Les calculs restent dans les services métier. L'IA comprend la demande, appelle
 
 **Règle de sécurité de la voix.** Les droits viennent toujours du JWT de la connexion. La voix ne donne aucun droit : elle confirme seulement que la personne qui parle est bien le titulaire du compte connecté. Un RH qui imite la voix du DG n'obtient donc jamais les données du DG.
 
-## Phase B. Applications React Native
+## Phase B. Application web (NovaUI, une seule pour tous les modules)
 
 | # | Tâche | Détail | Taille | Dépend de | Statut |
 |---|-------|--------|--------|-----------|--------|

@@ -14,7 +14,8 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["vitest/globals", "@testing-library/jest-dom"],
+    "types": ["vitest/globals", "@testing-library/jest-dom", "vite-plugin-pwa/client"],
+    "paths": { "@/*": ["./src/*"] },
 
     /* Linting */
     "strict": true,

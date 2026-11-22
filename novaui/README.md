@@ -37,19 +37,29 @@ la gateway n'a pas besoin d'autoriser le CORS.
 | `npm test` | Tests unitaires (Vitest + Testing Library) |
 | `npm run lint` | ESLint |
 
+## Stack
+
+React 19, TypeScript, Vite, Tailwind CSS 4 (jetons du design system dans `src/styles.css`), composants de base type shadcn/ui (`src/components/ui`, `cva` + `clsx` + `tailwind-merge`), TanStack Query (`src/lib/queryClient.ts`), TanStack Router (installé, pas encore branché : le routage actuel est react-router), PWA (`vite-plugin-pwa`). Alias `@` = `src/`.
+
+Tailwind est chargé sans le reset (`preflight`) pour ne pas modifier les écrans existants.
+
 ## Structure
 
 ```
 src/
-├── components/common/  # Composants réutilisables
-├── screens/            # Écrans (assemblage composants + hooks)
-├── hooks/              # Hooks personnalisés
-├── services/api/       # Appels HTTP
-├── types/              # Types TypeScript
-├── utils/              # Fonctions pures
-├── constants/          # Constantes
+├── components/ui/      # Composants de base du design system (Button, Input, Badge...)
+├── components/common/  # Composants réutilisables existants
+├── features/<module>/  # Code propre à un module : stock, vente, rh, crm
+│   └── components/ hooks/ services/ types/
+├── screens/            # Écrans transverses (connexion, tableau de bord, erreur)
+├── hooks/              # Hooks partagés
+├── lib/                # utilitaires techniques (cn, queryClient)
+├── services/api/       # Appels HTTP partagés
+├── types/ utils/ constants/
 ├── navigation/         # Routage
 └── test/               # Configuration des tests
 ```
+
+Une seule application web pour tous les modules : chaque équipe travaille dans `src/features/<son module>/`.
 
 Règles : voir [docs/REGLES_DEVELOPPEMENT.md](../docs/REGLES_DEVELOPPEMENT.md).

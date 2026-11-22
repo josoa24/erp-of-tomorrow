@@ -1,67 +1,27 @@
-x-db: &db
-  image: postgres:16
-  environment: &db-env
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: postgres
-  healthcheck:
-    test: ["CMD-SHELL", "pg_isready -U postgres"]
-    interval: 5s
-    timeout: 3s
-    retries: 10
-
 x-service: &service
   restart: unless-stopped
   environment: &service-env
     DB_USER: postgres
-    DB_PASSWORD: postgres
+    DB_PASSWORD: ${DB_PASSWORD:-postgres}
     JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me-0123456789abcdef}
 
 services:
-  rh-db:
-    <<: *db
+  db:
+    image: postgres:16
     environment:
-      <<: *db-env
-      POSTGRES_DB: rh_db
-    ports:
-      - "5431:5432"
-    volumes:
-      - rh-data:/var/lib/postgresql/data
-  vente-db:
-    <<: *db
-    environment:
-      <<: *db-env
-      POSTGRES_DB: vente_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: erp
     ports:
       - "5432:5432"
     volumes:
-      - vente-data:/var/lib/postgresql/data
-  stock-db:
-    <<: *db
-    environment:
-      <<: *db-env
-      POSTGRES_DB: stock_db
-    ports:
-      - "5433:5432"
-    volumes:
-      - stock-data:/var/lib/postgresql/data
-  auth-db:
-    <<: *db
-    environment:
-      <<: *db-env
-      POSTGRES_DB: auth_db
-    ports:
-      - "5434:5432"
-    volumes:
-      - auth-data:/var/lib/postgresql/data
-  crm-db:
-    <<: *db
-    environment:
-      <<: *db-env
-      POSTGRES_DB: crm_db
-    ports:
-      - "5435:5432"
-    volumes:
-      - crm-data:/var/lib/postgresql/data
+      - erp-data:/var/lib/postgresql/data
+      - ./docker/postgres/init-schemas.sql:/docker-entrypoint-initdb.d/init-schemas.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d erp"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   auth-service:
     <<: *service
@@ -72,11 +32,11 @@ services:
         MODULE_PATH: services/auth-service
     environment:
       <<: *service-env
-      DB_URL: jdbc:postgresql://auth-db:5432/auth_db
+      DB_HOST: db
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@erp.local}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin1234}
     depends_on:
-      auth-db:
+      db:
         condition: service_healthy
   stock-service:
     <<: *service
@@ -87,9 +47,9 @@ services:
         MODULE_PATH: services/stock-service
     environment:
       <<: *service-env
-      DB_URL: jdbc:postgresql://stock-db:5432/stock_db
+      DB_HOST: db
     depends_on:
-      stock-db:
+      db:
         condition: service_healthy
   vente-service:
     <<: *service
@@ -100,10 +60,10 @@ services:
         MODULE_PATH: services/vente-service
     environment:
       <<: *service-env
-      DB_URL: jdbc:postgresql://vente-db:5432/vente_db
+      DB_HOST: db
       STOCK_URL: http://stock-service:8083
     depends_on:
-      vente-db:
+      db:
         condition: service_healthy
   rh-service:
     <<: *service
@@ -114,9 +74,9 @@ services:
         MODULE_PATH: services/rh-service
     environment:
       <<: *service-env
-      DB_URL: jdbc:postgresql://rh-db:5432/rh_db
+      DB_HOST: db
     depends_on:
-      rh-db:
+      db:
         condition: service_healthy
   crm-service:
     <<: *service
@@ -127,11 +87,11 @@ services:
         MODULE_PATH: services/crm-service
     environment:
       <<: *service-env
-      DB_URL: jdbc:postgresql://crm-db:5432/crm_db
+      DB_HOST: db
       VENTE_URL: http://vente-service:8082
       STOCK_URL: http://stock-service:8083
     depends_on:
-      crm-db:
+      db:
         condition: service_healthy
   gateway:
     <<: *service
@@ -186,9 +146,5 @@ services:
       - ./novaui:/app
       - novaui-node-modules:/app/node_modules
 volumes:
+  erp-data:
   novaui-node-modules:
-  crm-data:
-  auth-data:
-  rh-data:
-  vente-data:
-  stock-data:

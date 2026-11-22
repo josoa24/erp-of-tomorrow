@@ -2,7 +2,7 @@
 
 Ce que l'ERP sait faire aujourd'hui, côté serveur. Le détail de chaque endpoint est dans [API_ENDPOINTS.md](API_ENDPOINTS.md) ; ce qui reste à faire est dans [PLAN_API.md](PLAN_API.md), [PLAN_CRM.md](PLAN_CRM.md) et [PLAN_ERP.md](PLAN_ERP.md).
 
-Les applications React Native (`apps/`) sont encore des squelettes vides : aucun écran n'existe. Seul le front web NovaUI (`novaui/`) a trois écrans (voir plus bas).
+Il n'y a qu'une seule application web, NovaUI (`novaui/`), pour tous les modules ; elle a trois écrans pour l'instant (voir plus bas). Les écrans de chaque module iront dans `novaui/src/features/<module>/`.
 
 ## Accès et sécurité
 
@@ -65,6 +65,6 @@ Les applications React Native (`apps/`) sont encore des squelettes vides : aucun
 ## Outillage
 
 - Swagger unique pour tous les services : `http://localhost:8080/swagger-ui.html`.
-- Lancement complet par `docker compose` (bases PostgreSQL, services, gateway ; IA avec le profil `ai`).
+- Lancement complet par `docker compose` (base PostgreSQL unique avec un schéma par service, services, gateway ; IA avec le profil `ai`).
 - `docker-compose.dev.yml` : environnement de développement avec rechargement à chaud (Java, Python, NovaUI).
 - Tests unitaires dans chaque service.
