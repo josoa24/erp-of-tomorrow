@@ -1,0 +1,5 @@
+FROM postgres:16-alpine
+COPY docker/postgres/migrations/ /migrations/
+COPY docker/postgres/run-migrations.sh /run-migrations.sh
+USER postgres
+ENTRYPOINT ["sh", "/run-migrations.sh"]

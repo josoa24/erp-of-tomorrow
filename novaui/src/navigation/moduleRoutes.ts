@@ -6,6 +6,7 @@ import { RelationsScreen } from '../features/relations/screens/RelationsScreen'
 import { validateRelationsSearch } from '../features/relations/services/relationsSearch'
 import { SalesScreen } from '../features/sales/screens/SalesScreen'
 import { validateSalesSearch } from '../features/sales/services/salesSearch'
+import { PurchaseOrdersScreen } from '../features/stock/screens/PurchaseOrdersScreen'
 import { StockScreen } from '../features/stock/screens/StockScreen'
 import { validateStockSearch } from '../features/stock/services/stockSearch'
 import { TeamScreen } from '../features/team/screens/TeamScreen'
@@ -40,6 +41,14 @@ export const stockRoute = createRoute({
   beforeLoad: requireModule('stock'),
   staticData: { eclipsePlaceholder: ECLIPSE_PLACEHOLDERS.stock, adaptationModule: 'stock' },
   component: StockScreen,
+})
+
+export const stockOrdersRoute = createRoute({
+  getParentRoute: parent,
+  path: ROUTES.stockOrders,
+  beforeLoad: requireModule('stock'),
+  staticData: { eclipsePlaceholder: ECLIPSE_PLACEHOLDERS.stock },
+  component: PurchaseOrdersScreen,
 })
 
 export const teamRoute = createRoute({
@@ -77,6 +86,7 @@ export const moduleRoutes = [
   homeRoute,
   salesRoute,
   stockRoute,
+  stockOrdersRoute,
   teamRoute,
   relationsRoute,
   profileRoute,

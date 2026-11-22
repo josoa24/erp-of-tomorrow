@@ -153,7 +153,7 @@ services:
       VOICE_URL: http://voice-service:8087
       MODULE_URL: http://module-service:8088
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     volumes:
       - ./gateway:/app
       - /app/target
@@ -206,7 +206,7 @@ services:
     working_dir: /app
     command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
     ports:
-      - "5173:5173"
+      - "127.0.0.1:5173:5173"
     environment:
       CHOKIDAR_USEPOLLING: "true"
       API_PROXY_TARGET: ${API_PROXY_TARGET:-http://gateway:8080}
