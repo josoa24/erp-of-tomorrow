@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pydantic import Field
 
-from app.tools import invoice_tools, rh_crm_tools, stock_tools, vente_tools
+from app.tools import invoice_tools, replenishment_tools, rh_crm_tools, stock_tools, vente_tools
 from app.tools.spec import Args, ToolSpec, decl, string
 
 # Même règle que la gateway (RoleAccessPolicy) : un rôle = un module, ADMIN = tout.
@@ -21,8 +21,8 @@ SYSTEM_SPECS = [
     ToolSpec(decl("cancel_action", "Annule une écriture en attente (refus ou modification demandée).",
                   _ACTION, ["action_id"]), ActionIdArgs, None, "system"),
 ]
-ALL_SPECS: list[ToolSpec] = (stock_tools.SPECS + invoice_tools.SPECS + vente_tools.SPECS + rh_crm_tools.SPECS
-                             + SYSTEM_SPECS)
+ALL_SPECS: list[ToolSpec] = (stock_tools.SPECS + replenishment_tools.SPECS + invoice_tools.SPECS
+                             + vente_tools.SPECS + rh_crm_tools.SPECS + SYSTEM_SPECS)
 
 
 def module_allowed(module: str, role: str | None) -> bool:
