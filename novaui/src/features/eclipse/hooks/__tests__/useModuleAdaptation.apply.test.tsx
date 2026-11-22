@@ -3,7 +3,8 @@ import { readSession } from '../../../../services/sessionStore'
 import { ApiError } from '../../../../types/apiError'
 import { activateAdaptation, fetchAdaptations } from '../../api/adaptationsApi'
 import { ADAPTATION_APPLIED_MESSAGE } from '../useApplyAdaptation'
-import { ADMIN_SESSION, LOTS_ACTIVATION, renderModuleAdaptation } from './moduleAdaptationHarness'
+import { ADMIN_SESSION, LOTS_ACTIVATION } from './adaptationFixtures'
+import { renderModuleAdaptation } from './moduleAdaptationHarness'
 
 vi.mock('../../api/adaptationsApi', () => ({ fetchAdaptations: vi.fn(), activateAdaptation: vi.fn() }))
 vi.mock('../../../../services/sessionStore', () => ({ readSession: vi.fn(), clearSession: vi.fn() }))

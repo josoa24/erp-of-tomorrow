@@ -2,7 +2,8 @@ import { act, screen } from '@testing-library/react'
 import { readSession } from '../../../../services/sessionStore'
 import { fetchAdaptations } from '../../api/adaptationsApi'
 import { ADAPTATION_CATALOG } from '../../constants/adaptations'
-import { ADMIN_SESSION, LOTS_ACTIVATION, renderModuleAdaptation } from './moduleAdaptationHarness'
+import { ADMIN_SESSION, LOTS_ACTIVATION } from './adaptationFixtures'
+import { renderModuleAdaptation } from './moduleAdaptationHarness'
 
 vi.mock('../../api/adaptationsApi', () => ({ fetchAdaptations: vi.fn(), activateAdaptation: vi.fn() }))
 vi.mock('../../../../services/sessionStore', () => ({ readSession: vi.fn(), clearSession: vi.fn() }))
