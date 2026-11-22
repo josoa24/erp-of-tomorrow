@@ -1,5 +1,5 @@
+import { useNavigate } from '@tanstack/react-router'
 import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../navigation/routes'
 import { clearSession } from '../services/sessionStore'
 
@@ -8,6 +8,6 @@ export const useLogout = () => {
 
   return useCallback(() => {
     clearSession()
-    navigate(ROUTES.login, { replace: true })
+    void navigate({ to: ROUTES.login, replace: true })
   }, [navigate])
 }

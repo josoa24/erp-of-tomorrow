@@ -5,3 +5,9 @@ export interface ErrorRouteState {
   message: string
   from: string
 }
+
+declare module '@tanstack/history' {
+  interface HistoryState {
+    error?: ErrorRouteState
+  }
+}

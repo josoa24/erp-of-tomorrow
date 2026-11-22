@@ -1,16 +1,11 @@
 import { Lock } from 'lucide-react'
-import { Navigate } from 'react-router-dom'
 import { CenteredLayout } from '../../components/common/CenteredLayout'
 import { GlassCard } from '../../components/common/GlassCard'
 import { useLogin } from '../../hooks/useLogin'
-import { ROUTES } from '../../navigation/routes'
-import { readSession } from '../../services/sessionStore'
 import { LoginForm } from './components/LoginForm'
 
 export const LoginScreen = () => {
   const { submit, submitting } = useLogin()
-
-  if (readSession()) return <Navigate to={ROUTES.home} replace />
 
   return (
     <CenteredLayout>

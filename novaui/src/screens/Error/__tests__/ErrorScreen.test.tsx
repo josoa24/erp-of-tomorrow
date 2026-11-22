@@ -1,47 +1,52 @@
+import { RouterProvider, createMemoryHistory, createRootRoute, createRoute, createRouter } from '@tanstack/react-router'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import type { ErrorRouteState } from '../../../types/errorRoute'
 import { ErrorScreen } from '../ErrorScreen'
 
-const renderAt = (state?: ErrorRouteState) =>
-  render(
-    <MemoryRouter initialEntries={[{ pathname: '/erreur', state }]}>
-      <Routes>
-        <Route path="/erreur" element={<ErrorScreen />} />
-        <Route path="/connexion" element={<p>Page de connexion</p>} />
-        <Route path="/" element={<p>Accueil</p>} />
-      </Routes>
-    </MemoryRouter>,
-  )
+const renderAt = async (error?: ErrorRouteState) => {
+  const rootRoute = createRootRoute()
+  const page = (path: string, component: () => React.JSX.Element) =>
+    createRoute({ getParentRoute: () => rootRoute, path, component })
+  const router = createRouter({
+    routeTree: rootRoute.addChildren([
+      page('/erreur', ErrorScreen),
+      page('/connexion', () => <p>Page de connexion</p>),
+      page('/', () => <p>Accueil</p>),
+    ]),
+    history: createMemoryHistory({ initialEntries: ['/'] }),
+  })
+  await router.navigate({ to: '/erreur', state: { error } })
+  render(<RouterProvider router={router} />)
+}
 
 describe('ErrorScreen', () => {
-  it('shouldShowTitleForTypeAndApiMessage', () => {
-    renderAt({ type: 'forbidden', message: 'Module interdit', from: '/' })
+  it('shouldShowTitleForTypeAndApiMessage', async () => {
+    await renderAt({ type: 'forbidden', message: 'Module interdit', from: '/' })
 
-    expect(screen.getByRole('heading', { name: 'Accès refusé' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Accès refusé' })).toBeInTheDocument()
     expect(screen.getByText('Module interdit')).toBeInTheDocument()
   })
 
-  it('shouldShowNotFound_whenNoStateIsGiven', () => {
-    renderAt()
+  it('shouldShowNotFound_whenNoStateIsGiven', async () => {
+    await renderAt()
 
-    expect(screen.getByRole('heading', { name: 'Page introuvable' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Page introuvable' })).toBeInTheDocument()
   })
 
   it('shouldGoBackToOrigin_whenRetrying', async () => {
-    renderAt({ type: 'unauthorized', message: 'Refusé', from: '/connexion' })
+    await renderAt({ type: 'unauthorized', message: 'Refusé', from: '/connexion' })
 
-    await userEvent.click(screen.getByRole('button', { name: 'Réessayer' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Réessayer' }))
 
-    expect(screen.getByText('Page de connexion')).toBeInTheDocument()
+    expect(await screen.findByText('Page de connexion')).toBeInTheDocument()
   })
 
   it('shouldGoHome_whenClickingBack', async () => {
-    renderAt({ type: 'server', message: 'Panne', from: '/connexion' })
+    await renderAt({ type: 'server', message: 'Panne', from: '/connexion' })
 
-    await userEvent.click(screen.getByRole('button', { name: 'Retour' }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Retour' }))
 
-    expect(screen.getByText('Accueil')).toBeInTheDocument()
+    expect(await screen.findByText('Accueil')).toBeInTheDocument()
   })
 })

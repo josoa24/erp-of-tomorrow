@@ -1,5 +1,5 @@
+import { useNavigate } from '@tanstack/react-router'
 import { useCallback, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../navigation/routes'
 import { login } from '../services/api/authApi'
 import { saveSession } from '../services/sessionStore'
@@ -17,7 +17,7 @@ export const useLogin = () => {
       try {
         const session = await login(credentials)
         saveSession(session, remember)
-        navigate(ROUTES.home, { replace: true })
+        await navigate({ to: ROUTES.home, replace: true })
       } catch (error) {
         setSubmitting(false)
         handleError(error)

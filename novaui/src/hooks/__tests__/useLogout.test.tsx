@@ -1,21 +1,18 @@
 import { renderHook } from '@testing-library/react'
 import { clearSession } from '../../services/sessionStore'
-import { navigateMock, routerWrapper } from '../../test/routerMock'
+import { mockRouter, navigateMock } from '../../test/routerMock'
 import { useLogout } from '../useLogout'
 
-vi.mock('react-router-dom', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('react-router-dom')>()),
-  useNavigate: () => navigateMock,
-}))
+vi.mock('@tanstack/react-router', () => mockRouter())
 vi.mock('../../services/sessionStore', () => ({ clearSession: vi.fn() }))
 
 describe('useLogout', () => {
   it('shouldClearSessionAndGoToLogin', () => {
-    const { result } = renderHook(() => useLogout(), { wrapper: routerWrapper() })
+    const { result } = renderHook(() => useLogout())
 
     result.current()
 
     expect(clearSession).toHaveBeenCalled()
-    expect(navigateMock).toHaveBeenCalledWith('/connexion', { replace: true })
+    expect(navigateMock).toHaveBeenCalledWith({ to: '/connexion', replace: true })
   })
 })
