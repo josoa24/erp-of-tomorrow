@@ -73,7 +73,7 @@ Le détail des ajouts, avec leur auteur, est à la [section 6.2](#62-nouvelles-f
 | **En cours** | Commencé ; du travail reste à relire ou à finir ([docs/integration-nova/SUITE.md](docs/integration-nova/SUITE.md)) |
 | **Prévu** | Conçu et planifié pour une version suivante |
 
-**Aujourd'hui** : le backend est complet pour la démonstration (8 services + gateway, plus de 1 000 tests Java, 228 tests Python, 628 tests front). Le front NOVA a son socle complet (design system, shell, navigation par rôle, gabarit d'écran de module, page d'erreur) ; les écrans Accueil, Stock, Ventes, Équipe et Relations sont faits, et Eclipse répond dans le dock ; Mon profil, la création de module et l'écran de module générique côté front sont **en cours**.
+**Aujourd'hui** : le backend est complet pour la démonstration (8 services + gateway, plus de 1 000 tests Java, 228 tests Python, 628 tests front). Le front NOVA a son socle complet (design system, shell, navigation par rôle, gabarit d'écran de module, page d'erreur) ; les écrans Accueil, Mon profil, Stock, Ventes, Équipe et Relations sont faits ; Eclipse répond dans le dock (texte ou voix) et crée des modules affichés dans un écran de module générique. Restent **en cours** : les données de démonstration complètes et la vérification de bout en bout.
 
 ---
 
@@ -250,7 +250,10 @@ Détail : [docs/NEW_FEATURES_IMPLEMENTATION.md](docs/NEW_FEATURES_IMPLEMENTATION
 | Écran Ventes | Nouvelle vente, encaissement, annulation, crédit interdit sans client, adaptation Mobile Money et crédit | herifanantenana |
 | Écran Stock | Adaptation lots et péremption branchée | herifanantenana |
 | Écrans Accueil, Équipe, Relations | Accueil avec EclipseHeroBar et liste « À décider », Équipe, Relations | Nekena Rabeharivonjy |
-| Eclipse dans le dock | Demandes envoyées à Eclipse, réponse diffusée en direct, aperçu d'adaptation | Nekena Rabeharivonjy |
+| Eclipse dans le dock | Demandes envoyées à Eclipse, réponse diffusée en direct (markdown, cartes d'action), aperçu d'adaptation | Nekena Rabeharivonjy |
+| Saisie vocale d'Eclipse | Micro, niveau sonore, états, envoi automatique | Nekena Rabeharivonjy |
+| Création de module | Création depuis Eclipse et écran de module générique (Livraisons, Réparations, Rendez-vous) | Nekena Rabeharivonjy |
+| Mon profil | Deux colonnes, accès, sécurité | Nekena Rabeharivonjy |
 
 #### Eclipse et moteur de modules — *saotra*, *Arthinez*
 
@@ -278,7 +281,7 @@ Détail : [docs/NEW_FEATURES_IMPLEMENTATION.md](docs/NEW_FEATURES_IMPLEMENTATION
 |---|---|
 | Écrans Accueil, Ventes, Équipe, Relations ; adaptation lots et péremption sur l'écran Stock | En place |
 | Eclipse dans le dock : réponses en flux, aperçu d'adaptation | En place |
-| Mon profil ; création de module et écran de module générique côté front | En cours |
+| Mon profil ; création de module et écran de module générique ; saisie vocale dans la barre Eclipse | En place |
 | Contacts CRM agrégés (P3) | En cours |
 | Compléter les données de démonstration avec les nouveaux champs | En cours |
 | CRM : tâches, relances, pipeline, segments | Prévu ([docs/PLAN_CRM.md](docs/PLAN_CRM.md)) |
@@ -580,7 +583,7 @@ cd novaui && npm run lint && npx tsc -b && npx vitest run      # front
 |---|---|
 | **Socle d'origine** (en place) | Microservices, gateway JWT, Stock, Ventes, RH, CRM, assistant IA, voix |
 | **Reprise songomby_d2** (en place) | Comptes, sécurité gateway, tests, Invoice Shield, prévision, Trust Layer, base unique, CI, design system et shell NOVA, moteur de modules, Eclipse backend, lots et avances |
-| **Hackathon** (en cours) | Mon profil ; création de module côté front ; données de démonstration complètes ; vérification de bout en bout |
+| **Hackathon** (en cours) | Données de démonstration complètes ; vérification de bout en bout |
 | **Version suivante** (prévu) | CRM complet (tâches, relances, pipeline), Finance, paie, entrepôts, renouvellement de token |
 
 ---
