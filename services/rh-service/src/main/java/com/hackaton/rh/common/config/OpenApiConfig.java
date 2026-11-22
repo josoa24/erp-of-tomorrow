@@ -23,7 +23,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("RH")
                         .version("1.0")
-                        .description("Départements, employés, congés, pointage et résumé. "
+                        .description("Départements, employés, congés, avances sur salaire, pointage et résumé. "
                                 + "Rôles autorisés : " + String.join(", ", ROLES) + "."))
                 .servers(List.of(new Server().url("/api/rh").description("Via la gateway")))
                 .components(new Components().addSecuritySchemes(SCHEME, new SecurityScheme()

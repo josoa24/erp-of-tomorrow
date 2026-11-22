@@ -27,6 +27,9 @@ spring:
           create_namespaces: true
 app:
   zone: ${APP_ZONE:Indian/Antananarivo}
+rh:
+  advance:
+    cap-percent: ${RH_ADVANCE_CAP_PERCENT:30}
 management:
   endpoints:
     web:
