@@ -12,3 +12,7 @@ dist/
 .env.*
 !.env.example
 !.env.production.example
+
+# Python
+__pycache__/
+*.pyc

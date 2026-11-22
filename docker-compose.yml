@@ -225,6 +225,7 @@ services:
     restart: unless-stopped
     environment:
       VOICE_MODEL_SIZE: ${VOICE_MODEL_SIZE:-small}
+      VOICE_PARTIAL_MODEL_SIZE: ${VOICE_PARTIAL_MODEL_SIZE:-tiny}
       VOICE_DEVICE: ${VOICE_DEVICE:-cpu}
       VOICE_COMPUTE_TYPE: ${VOICE_COMPUTE_TYPE:-int8}
       VOICE_LANGUAGE: ${VOICE_LANGUAGE:-fr}

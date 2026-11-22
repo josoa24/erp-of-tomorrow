@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 from fastapi.concurrency import run_in_threadpool
 
@@ -9,6 +11,8 @@ from app.transcription.transcriber import AudioDecodingError, Transcriber
 from app.transcription.transcription_response import TranscriptionResponse
 
 router = APIRouter()
+logger = logging.getLogger("voice.transcription")
+UNREADABLE = "Audio illisible : le fichier est corrompu ou son format n'est pas pris en charge"
 
 
 @router.post("/transcribe", response_model=TranscriptionResponse)
@@ -23,5 +27,6 @@ async def transcribe(
     try:
         transcription = await run_in_threadpool(transcriber.transcribe, content, language or settings.language)
     except AudioDecodingError as error:
-        raise ApiException(422, "VALIDATION", "Audio illisible : " + str(error)) from error
+        logger.warning("audio illisible (%s, %d octets) : %s", audio.content_type, len(content), error)
+        raise ApiException(422, "VALIDATION", UNREADABLE) from error
     return TranscriptionResponse.of(transcription)
