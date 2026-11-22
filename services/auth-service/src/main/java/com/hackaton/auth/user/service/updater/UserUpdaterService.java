@@ -43,7 +43,7 @@ public class UserUpdaterService implements UserUpdater {
 
     private void guardLastAdmin(UserAccount user, String action) {
         if (user.isEnabled() && user.getRole() == Role.ADMIN
-                && userRepository.countByRoleAndEnabled(Role.ADMIN, true) <= 1) {
+                && userRepository.lockEnabledByRole(Role.ADMIN).size() <= 1) {
             throw new BusinessRuleException("Impossible de " + action + " dernier compte administrateur actif");
         }
     }

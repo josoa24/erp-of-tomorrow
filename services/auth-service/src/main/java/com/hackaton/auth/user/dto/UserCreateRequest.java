@@ -12,7 +12,7 @@ import java.util.Set;
 
 public record UserCreateRequest(
         @NotBlank @Email String email,
-        @NotBlank @Size(min = 8) String password,
+        @NotBlank @Size(min = 8, max = 72) String password,
         List<Role> roles,
         Role role,
         @Size(max = 120) String fullName) {

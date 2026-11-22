@@ -24,7 +24,7 @@ public class AuthenticatorService implements Authenticator {
 
     @Override
     public LoginResponse login(LoginRequest request) {
-        UserAccount user = userRepository.findByEmailIgnoreCase(request.email().strip().toLowerCase(Locale.ROOT))
+        UserAccount user = userRepository.findFirstByEmailIgnoreCaseOrderByIdAsc(request.email().strip().toLowerCase(Locale.ROOT))
                 .orElseThrow(InvalidCredentialsException::new);
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new InvalidCredentialsException();

@@ -46,7 +46,7 @@ class AuthenticatorServiceTest {
 
     @Test
     void shouldReturnToken_whenCredentialsAreValid() {
-        when(userRepository.findByEmailIgnoreCase("rh@erp.local")).thenReturn(Optional.of(user));
+        when(userRepository.findFirstByEmailIgnoreCaseOrderByIdAsc("rh@erp.local")).thenReturn(Optional.of(user));
 
         LoginResponse response = service.login(new LoginRequest("rh@erp.local", "motdepasse1"));
 
@@ -57,7 +57,7 @@ class AuthenticatorServiceTest {
     @Test
     void shouldReturnFullName_whenAccountHasOne() {
         user.setFullName("Rasoa Andria");
-        when(userRepository.findByEmailIgnoreCase("rh@erp.local")).thenReturn(Optional.of(user));
+        when(userRepository.findFirstByEmailIgnoreCaseOrderByIdAsc("rh@erp.local")).thenReturn(Optional.of(user));
 
         LoginResponse response = service.login(new LoginRequest("rh@erp.local", "motdepasse1"));
 
@@ -66,7 +66,7 @@ class AuthenticatorServiceTest {
 
     @Test
     void shouldThrowInvalidCredentials_whenPasswordIsWrong() {
-        when(userRepository.findByEmailIgnoreCase("rh@erp.local")).thenReturn(Optional.of(user));
+        when(userRepository.findFirstByEmailIgnoreCaseOrderByIdAsc("rh@erp.local")).thenReturn(Optional.of(user));
 
         assertThrows(InvalidCredentialsException.class,
                 () -> service.login(new LoginRequest("rh@erp.local", "mauvais")));
@@ -75,7 +75,7 @@ class AuthenticatorServiceTest {
     @Test
     void shouldRefuseLogin_whenAccountIsDisabled() {
         user.setEnabled(false);
-        when(userRepository.findByEmailIgnoreCase("rh@erp.local")).thenReturn(Optional.of(user));
+        when(userRepository.findFirstByEmailIgnoreCaseOrderByIdAsc("rh@erp.local")).thenReturn(Optional.of(user));
 
         assertThrows(AccountDisabledException.class,
                 () -> service.login(new LoginRequest("rh@erp.local", "motdepasse1")));
@@ -83,7 +83,7 @@ class AuthenticatorServiceTest {
 
     @Test
     void shouldThrowInvalidCredentials_whenEmailIsUnknown() {
-        when(userRepository.findByEmailIgnoreCase("inconnu@erp.local")).thenReturn(Optional.empty());
+        when(userRepository.findFirstByEmailIgnoreCaseOrderByIdAsc("inconnu@erp.local")).thenReturn(Optional.empty());
 
         assertThrows(InvalidCredentialsException.class,
                 () -> service.login(new LoginRequest("inconnu@erp.local", "motdepasse1")));
