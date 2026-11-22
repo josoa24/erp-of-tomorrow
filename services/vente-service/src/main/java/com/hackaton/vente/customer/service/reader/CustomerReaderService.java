@@ -4,6 +4,7 @@ import com.hackaton.vente.common.exception.ResourceNotFoundException;
 import com.hackaton.vente.common.page.PageResult;
 import com.hackaton.vente.customer.dto.CustomerResponse;
 import com.hackaton.vente.customer.entity.Customer;
+import com.hackaton.vente.customer.entity.CustomerType;
 import com.hackaton.vente.customer.mapper.CustomerMapper;
 import com.hackaton.vente.customer.repository.CustomerRepository;
 import java.util.List;
@@ -29,9 +30,10 @@ public class CustomerReaderService implements CustomerReader {
     }
 
     @Override
-    public PageResult<CustomerResponse> search(String search, Integer page, Integer size) {
+    public PageResult<CustomerResponse> search(String search, CustomerType type, Integer page, Integer size) {
         String term = search == null ? "" : search.trim().toLowerCase(Locale.ROOT);
         List<CustomerResponse> matches = customerRepository.findAllByOrderByNameAsc().stream()
+                .filter(customer -> type == null || customerMapper.typeOf(customer) == type)
                 .filter(customer -> matches(customer, term))
                 .map(customerMapper::toResponse)
                 .toList();

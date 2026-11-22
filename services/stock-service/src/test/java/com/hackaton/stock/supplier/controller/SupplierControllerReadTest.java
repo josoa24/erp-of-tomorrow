@@ -24,7 +24,8 @@ import org.springframework.test.web.servlet.MockMvc;
 class SupplierControllerReadTest {
 
     private static final SupplierResponse AGRI = new SupplierResponse(
-            1L, "Agri Sud", "0341234567", "contact@agrisud.mg", "Tana", "30 jours", 5, Instant.now(), null);
+            1L, "Agri Sud", "0341234567", "contact@agrisud.mg", "Tana", "30 jours", 5, Instant.now(), null,
+            "Antsirabe", "3000456789", "46101 11 2019 0 00456");
 
     @Autowired
     private MockMvc mockMvc;
@@ -54,7 +55,9 @@ class SupplierControllerReadTest {
         mockMvc.perform(get("/suppliers/1").headers(admin()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.usualDeliveryDays").value(5));
+                .andExpect(jsonPath("$.usualDeliveryDays").value(5))
+                .andExpect(jsonPath("$.city").value("Antsirabe"))
+                .andExpect(jsonPath("$.nif").value("3000456789"));
     }
 
     @Test

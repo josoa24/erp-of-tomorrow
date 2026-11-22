@@ -127,7 +127,7 @@ Calcul fait par le code (pas par l'IA) sur les sorties `OUT` des 28 derniers jou
 |---------|--------|-------------|---------|
 | GET | `/api/stock/suppliers` | Liste. Filtre `search` (nom, téléphone, email) | 200 |
 | GET | `/api/stock/suppliers/{id}` | Détail | 200, 404 |
-| POST | `/api/stock/suppliers` | Crée un fournisseur (nom unique, email, conditions de paiement, délai de livraison, `bankAccount` : coordonnées de paiement de référence, renvoyées seulement sous forme `bankAccountLast4`) | 201, 400, 409 |
+| POST | `/api/stock/suppliers` | Crée un fournisseur (nom unique, email, conditions de paiement, délai de livraison, `bankAccount` : coordonnées de paiement de référence, renvoyées seulement sous forme `bankAccountLast4`, `city` 80 caractères, `nif` 20 caractères, `stat` 30 caractères, tous trois optionnels) | 201, 400, 409 |
 | PUT | `/api/stock/suppliers/{id}` | Remplace les champs du fournisseur (les champs omis sont effacés) | 200, 400, 404, 409 |
 | DELETE | `/api/stock/suppliers/{id}` | Supprime. Refusé s'il a des bons de commande | 204, 404, 422 |
 | GET | `/api/stock/suppliers/{id}/profile` | Fiche 360 : commandes, total commandé, délai moyen de réception, produits fournis, dernières commandes | 200, 404 |
@@ -162,9 +162,9 @@ Chaque facture est contrôlée par Invoice Shield avant toute décision. Codes d
 
 | Méthode | Chemin | Description | Statuts |
 |---------|--------|-------------|---------|
-| GET | `/api/vente/customers` | Liste. Filtre `search` (nom, téléphone, email, ville). Pagination optionnelle `page` et `size` ; le total est dans l'en-tête `X-Total-Count` | 200, 400 |
+| GET | `/api/vente/customers` | Liste. Filtres `search` (nom, téléphone, email, ville) et `type` (`PARTICULIER`, qui inclut les clients sans type, ou `ENTREPRISE`). Pagination optionnelle `page` et `size` ; le total est dans l'en-tête `X-Total-Count` | 200, 400 |
 | GET | `/api/vente/customers/{id}` | Détail | 200, 404 |
-| POST | `/api/vente/customers` | Crée un client (`name`, téléphone, email, adresse, ville, `type` PARTICULIER ou ENTREPRISE, notes) | 201, 400 |
+| POST | `/api/vente/customers` | Crée un client (`name`, téléphone, email, adresse, ville, `type` PARTICULIER ou ENTREPRISE, notes, `nif` 20 caractères, `stat` 30 caractères, `creditLimit` plafond de crédit en Ariary, positif ou nul, 2 décimales ; absent = pas de plafond) | 201, 400 |
 | PUT | `/api/vente/customers/{id}` | Remplace les champs du client (les champs omis sont effacés) | 200, 400, 404 |
 | DELETE | `/api/vente/customers/{id}` | Supprime. Refusé si le client a des ventes | 204, 404, 422 |
 | GET | `/api/vente/customers/{id}/profile` | Fiche 360 : ventes validées, total acheté, panier moyen, dernier achat, produits les plus achetés, 5 dernières ventes | 200, 404 |
@@ -227,6 +227,21 @@ Chaque facture est contrôlée par Invoice Shield avant toute décision. Codes d
 | GET | `/api/crm/parties/{partyType}/{partyId}/interactions` | Échanges enregistrés avec ce tiers, du plus récent au plus ancien | 200, 400, 404, 503 |
 | POST | `/api/crm/parties/{partyType}/{partyId}/interactions` | Enregistre un échange : `type` (`APPEL`, `EMAIL`, `REUNION`, `VISITE`, `NOTE`), `summary` (2000 caractères maximum), `occurredAt` optionnel (pas dans le futur). L'auteur est l'email de l'utilisateur connecté. Un échange ne se modifie pas | 201, 400, 404, 503 |
 | GET | `/api/crm/parties/{partyType}/{partyId}/timeline` | Chronologie : échanges, ventes validées (client) ou bons de commande validés ou reçus (fournisseur) | 200, 400, 404, 503 |
+
+### Contacts (écran Relations)
+
+Un contact réunit un client de Vente ou un fournisseur de Stock et son dernier échange enregistré au CRM. Le CRM appelle Vente puis Stock l'un après l'autre avec l'identité de l'utilisateur : si l'un des deux est arrêté, la réponse est 503 `SERVER`.
+
+Un contact est « à relancer » (`FOLLOW_UP`) quand la date la plus récente entre son dernier échange et sa création est plus vieille que `crm.follow-up-days` jours (30 par défaut), jours comptés dans le fuseau `app.zone` (Indian/Antananarivo) : 30 jours reste « actif », 31 jours passe « à relancer ».
+
+| Méthode | Chemin | Description | Statuts |
+|---------|--------|-------------|---------|
+| GET | `/api/crm/contacts` | Liste triée par dernier échange (les contacts sans échange en dernier, puis par nom). Filtres `kind` (`ALL` par défaut, `CUSTOMER`, `SUPPLIER`), `search` (nom, téléphone, email, ville, NIF, STAT), `followUp=true` (à relancer seulement), `professional=true` (clients `ENTREPRISE` seulement). Chaque contact : `kind`, `partyId`, `name`, `initials`, `typeLabel` (« Client · professionnel », « Client · particulier » ou « Fournisseur »), `city`, `phone`, `email`, `lastInteractionAt`, `status` (`ACTIVE` ou `FOLLOW_UP`), `nif`, `stat`, `creditLimit`, `outstanding` (encours crédit du client, 0 sans crédit, absent pour un fournisseur), `overLimit` (encours supérieur au plafond), `professional` | 200, 400, 503 |
+| GET | `/api/crm/contacts/counts` | Nombre de contacts par onglet : `all`, `customers`, `suppliers`, `followUp`, `professional`. Filtre `search` optionnel, le même que la liste | 200, 503 |
+| GET | `/api/crm/contacts/summary` | Indicateurs : `activeCustomers` (clients distincts ayant une vente validée depuis le début du trimestre), `totalCustomers`, `suppliers`, `openPurchaseOrders` (bons validés non reçus), `followUp`, `creditOutstanding` (somme des encours), `overLimitCustomers` | 200, 503 |
+| POST | `/api/crm/contacts` | Crée le contact chez son propriétaire : `kind` `CUSTOMER` (vers `POST /api/vente/customers`) ou `SUPPLIER` (vers `POST /api/stock/suppliers`), `name`, `phone`, `email`, `city` (80 caractères), `nif` (20), `stat` (30) ; pour un client seulement : `type` (`PARTICULIER` par défaut ou `ENTREPRISE`) et `creditLimit`. Un refus du service propriétaire (nom de fournisseur déjà pris par exemple) revient en 422 `BUSINESS` avec son message | 201, 400, 422, 503 |
+
+Tant que Vente n'expose pas `GET /sales/credit-by-customer`, l'encours vaut 0 pour tous les clients.
 
 ---
 

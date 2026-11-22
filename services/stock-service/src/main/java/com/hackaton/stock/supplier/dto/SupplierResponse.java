@@ -11,5 +11,8 @@ public record SupplierResponse(
         String paymentTerms,
         Integer usualDeliveryDays,
         Instant createdAt,
-        String bankAccountLast4) {
+        String bankAccountLast4,
+        String city,
+        String nif,
+        String stat) {
 }

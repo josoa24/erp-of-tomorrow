@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.hackaton.vente.common.exception.ResourceNotFoundException;
 import com.hackaton.vente.common.page.PageResult;
+import com.hackaton.vente.customer.entity.CustomerType;
 import com.hackaton.vente.customer.service.creator.CustomerCreator;
 import com.hackaton.vente.customer.service.deleter.CustomerDeleter;
 import com.hackaton.vente.customer.service.reader.CustomerReader;
@@ -41,13 +42,31 @@ class CustomerControllerReadTest {
 
     @Test
     void shouldReturnPageAndTotalCountHeader_whenSearchingCustomers() throws Exception {
-        when(customerReader.search("rak", 0, 1)).thenReturn(new PageResult<>(List.of(customer(1L, "Rakoto")), 3));
+        when(customerReader.search("rak", null, 0, 1)).thenReturn(new PageResult<>(List.of(customer(1L, "Rakoto")), 3));
 
         mockMvc.perform(get("/customers").param("search", "rak").param("page", "0").param("size", "1").with(asAdmin()))
                 .andExpect(status().isOk())
                 .andExpect(header().string("X-Total-Count", "3"))
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].name").value("Rakoto"));
+    }
+
+    @Test
+    void shouldPassTheTypeFilterAndExposeCompanyFields_whenTypeIsGiven() throws Exception {
+        when(customerReader.search(null, CustomerType.ENTREPRISE, null, null))
+                .thenReturn(new PageResult<>(List.of(customer(1L, "Hotely Soa")), 1));
+
+        mockMvc.perform(get("/customers").param("type", "ENTREPRISE").with(asAdmin()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].nif").value("4000123456"))
+                .andExpect(jsonPath("$[0].creditLimit").value(2000000.00));
+    }
+
+    @Test
+    void shouldReturn400_whenTypeIsUnknown() throws Exception {
+        mockMvc.perform(get("/customers").param("type", "INCONNU").with(asAdmin()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("VALIDATION"));
     }
 
     @Test

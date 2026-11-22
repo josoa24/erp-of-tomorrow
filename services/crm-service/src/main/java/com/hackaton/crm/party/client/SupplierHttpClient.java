@@ -32,4 +32,29 @@ public class SupplierHttpClient implements SupplierClient {
                 .retrieve()
                 .body(new ParameterizedTypeReference<List<RemoteOrder>>() { }));
     }
+
+    @Override
+    public List<RemoteSupplier> findAll() {
+        return RemoteCaller.fetchList(SERVICE, () -> restClient.get()
+                .uri("/suppliers")
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<RemoteSupplier>>() { }));
+    }
+
+    @Override
+    public RemoteSupplier create(NewSupplier supplier) {
+        return RemoteCaller.send(SERVICE, () -> restClient.post()
+                .uri("/suppliers")
+                .body(supplier)
+                .retrieve()
+                .body(RemoteSupplier.class));
+    }
+
+    @Override
+    public List<RemoteOrder> findOrdersByStatus(String status) {
+        return RemoteCaller.fetchList(SERVICE, () -> restClient.get()
+                .uri("/purchase-orders?status={status}", status)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<RemoteOrder>>() { }));
+    }
 }

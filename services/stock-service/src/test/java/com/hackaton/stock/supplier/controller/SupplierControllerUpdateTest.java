@@ -50,7 +50,7 @@ class SupplierControllerUpdateTest {
     @Test
     void shouldReturnUpdatedSupplier_whenUpdateIsValid() throws Exception {
         when(supplierUpdater.update(eq(1L), any(SupplierRequest.class))).thenReturn(new SupplierResponse(
-                1L, "Agri Nord", null, null, null, null, 7, Instant.now(), null));
+                1L, "Agri Nord", null, null, null, null, 7, Instant.now(), null, null, null, null));
 
         mockMvc.perform(updateRequest(1L, VALID_BODY))
                 .andExpect(status().isOk())

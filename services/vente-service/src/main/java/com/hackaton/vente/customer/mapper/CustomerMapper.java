@@ -23,6 +23,9 @@ public class CustomerMapper {
         customer.setCity(request.city());
         customer.setType(request.type() == null ? CustomerType.PARTICULIER : request.type());
         customer.setNotes(request.notes());
+        customer.setNif(blankToNull(request.nif()));
+        customer.setStat(blankToNull(request.stat()));
+        customer.setCreditLimit(request.creditLimit());
     }
 
     public CustomerResponse toResponse(Customer customer) {
@@ -33,8 +36,19 @@ public class CustomerMapper {
                 customer.getEmail(),
                 customer.getAddress(),
                 customer.getCity(),
-                customer.getType() == null ? CustomerType.PARTICULIER : customer.getType(),
+                typeOf(customer),
                 customer.getNotes(),
-                customer.getCreatedAt());
+                customer.getCreatedAt(),
+                customer.getNif(),
+                customer.getStat(),
+                customer.getCreditLimit());
+    }
+
+    public CustomerType typeOf(Customer customer) {
+        return customer.getType() == null ? CustomerType.PARTICULIER : customer.getType();
+    }
+
+    private static String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 }

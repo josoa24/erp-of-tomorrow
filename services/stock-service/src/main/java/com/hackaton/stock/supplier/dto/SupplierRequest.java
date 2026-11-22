@@ -12,5 +12,8 @@ public record SupplierRequest(
         String address,
         String paymentTerms,
         @Min(0) Integer usualDeliveryDays,
-        @Size(max = 64) String bankAccount) {
+        @Size(max = 64) String bankAccount,
+        @Size(max = 80) String city,
+        @Size(max = 20) String nif,
+        @Size(max = 30) String stat) {
 }

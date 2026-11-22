@@ -23,6 +23,9 @@ public class SupplierMapper {
         supplier.setPaymentTerms(request.paymentTerms());
         supplier.setUsualDeliveryDays(request.usualDeliveryDays());
         supplier.setBankAccount(BankAccounts.clean(request.bankAccount()));
+        supplier.setCity(blankToNull(request.city()));
+        supplier.setNif(blankToNull(request.nif()));
+        supplier.setStat(blankToNull(request.stat()));
     }
 
     public SupplierResponse toResponse(Supplier supplier) {
@@ -35,6 +38,13 @@ public class SupplierMapper {
                 supplier.getPaymentTerms(),
                 supplier.getUsualDeliveryDays(),
                 supplier.getCreatedAt(),
-                BankAccounts.last4(supplier.getBankAccount()));
+                BankAccounts.last4(supplier.getBankAccount()),
+                supplier.getCity(),
+                supplier.getNif(),
+                supplier.getStat());
+    }
+
+    private static String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 }
