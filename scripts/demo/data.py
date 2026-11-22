@@ -6,7 +6,7 @@ ACCOUNTS = [("stock@erp.local", "STOCK"), ("vente@erp.local", "VENTE"), ("rh@erp
 
 # nom, sku, unité, stock initial, seuil, prix unitaire
 PRODUCTS = [
-    ("Riz blanc 25 kg", "RIZ-25", "sac", 40, 15, 45000),
+    ("Riz blanc 25 kg", "RIZ-25", "sac", 34, 15, 45000),
     ("Huile 5 L", "HUI-5", "bidon", 60, 10, 32000),
     ("Sucre 1 kg", "SUC-1", "paquet", 150, 30, 3500),
     ("Savon de ménage", "SAV-1", "pièce", 80, 15, 1500),
@@ -26,9 +26,11 @@ CUSTOMERS = [("Épicerie du Marché", "ENTREPRISE", "Antananarivo"),
 # Bon de commande reçu : 60 sacs de riz chez le grossiste (la facture saine s'y rapporte)
 ORDER = {"supplier": "Grossiste Analamanga", "sku": "RIZ-25", "quantity": 60, "unitPrice": 42000}
 
-# Ventes réparties ensuite sur 4 semaines : (sku, quantité, client)
-SALES = ([("RIZ-25", 3, i % 3) for i in range(28)] + [("HUI-5", 2, i % 3) for i in range(12)]
-         + [("SUC-1", 6, i % 3) for i in range(10)] + [("FAR-50", 1, 1) for _ in range(6)])
+# Ventes réparties ensuite sur 4 semaines : (sku, quantité, client). Les produits sont entrelacés pour
+# que chacun se vende tout au long de la période (sinon le riz, créé en premier, serait tout au début).
+_SERIES = [[("RIZ-25", 3, i % 3) for i in range(28)], [("HUI-5", 2, i % 3) for i in range(12)],
+           [("SUC-1", 6, i % 3) for i in range(10)], [("FAR-50", 1, 1) for _ in range(6)]]
+SALES = [sale for _, sale in sorted((i / len(serie), sale) for serie in _SERIES for i, sale in enumerate(serie))]
 
 DEPARTMENTS = ["Logistique", "Ventes", "Administration"]
 # prénom, nom, poste, département, salaire de base, compte de connexion lié
