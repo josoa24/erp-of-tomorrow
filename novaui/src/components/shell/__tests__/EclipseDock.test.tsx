@@ -1,8 +1,13 @@
 import { RouterProvider, createMemoryHistory, createRootRoute, createRoute, createRouter } from '@tanstack/react-router'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { proposeAdaptation } from '../../../features/eclipse/api/proposeApi'
+import { ApiError } from '../../../types/apiError'
 import { AdaptationBar } from '../../module/AdaptationBar'
 import { EclipseDock } from '../EclipseDock'
 import { EclipseDockProvider } from '../EclipseDockProvider'
+
+vi.mock('../../../features/eclipse/api/proposeApi', () => ({ proposeAdaptation: vi.fn() }))
 
 const renderDockAt = async (path: string, withProposal = false) => {
   const rootRoute = createRootRoute({
@@ -32,12 +37,23 @@ const renderDockAt = async (path: string, withProposal = false) => {
 }
 
 describe('EclipseDock', () => {
-  it('shouldAnnounceUpcomingEclipse_onModuleRoutes', async () => {
+  it('shouldUseTheRoutePlaceholder_onModuleRoutes', async () => {
     await renderDockAt('/stock')
 
     const input = await screen.findByRole('textbox', { name: 'Demander à Eclipse' })
-    expect(input).toHaveAttribute('placeholder', 'Eclipse arrive bientôt')
-    expect(input).toBeDisabled()
+    expect(input).toHaveAttribute('placeholder', 'Demandez ou adaptez « Stock »…')
+    expect(input).toBeEnabled()
+  })
+
+  it('shouldAnnounceUpcomingEclipse_whenEclipseIsUnavailable', async () => {
+    vi.mocked(proposeAdaptation).mockRejectedValueOnce(new ApiError('network', 503, 'Eclipse indisponible'))
+    await renderDockAt('/stock')
+
+    const input = await screen.findByRole('textbox', { name: 'Demander à Eclipse' })
+    await userEvent.type(input, 'Ajoute le n° de lot')
+    await userEvent.click(screen.getByRole('button', { name: 'Envoyer à Eclipse' }))
+
+    expect(await screen.findByPlaceholderText('Eclipse arrive bientôt')).toBeDisabled()
   })
 
   it('shouldShowOnCustomModuleRoutesToo', async () => {
