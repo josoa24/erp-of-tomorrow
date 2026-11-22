@@ -176,13 +176,21 @@ Chaque facture est contrôlée par Invoice Shield avant toute décision. Codes d
 
 | Méthode | Chemin | Description | Statuts |
 |---------|--------|-------------|---------|
-| GET | `/api/vente/sales` | Liste. Filtres `customerId`, `status` (`DRAFT`, `VALIDATED`), `from` et `to` (dates `AAAA-MM-JJ`) | 200, 400 |
+| GET | `/api/vente/sales` | Liste, la plus récente d'abord. Filtres `customerId`, `status` (`DRAFT`, `VALIDATED`), `from` et `to` (dates `AAAA-MM-JJ`), `search` (numéro ou nom du client), `paymentStatus` (`DRAFT`, `TO_COLLECT`, `OVERDUE`, `PAID`, `CANCELLED`), `paymentMethod`, `toDeliver`. Avec `page` et `size`, la réponse est paginée et l'en-tête `X-Total-Count` donne le total ; sans, la liste complète. Chaque vente porte `number` (`V-0001`), `customerName` (« Client comptoir » sans client), `paymentMethod`, `creditDays`, `dueDate`, `paidAmount`, `paymentStatus`, `toDeliver` | 200, 400 |
+| GET | `/api/vente/sales/counts` | Compteurs `all`, `toCollect`, `paid`, `cancelled`, `overdue`, `credit`, `draft`. Filtres `from`, `to` | 200, 400 |
 | GET | `/api/vente/sales/{id}` | Détail avec lignes | 200, 404 |
 | POST | `/api/vente/sales` | Crée une vente en brouillon. Le nom et le prix de chaque produit sont copiés depuis le Stock | 201, 400, 404, 422, 503 |
 | PUT | `/api/vente/sales/{id}` | Remplace client et lignes d'une vente en brouillon | 200, 400, 404, 409, 422, 503 |
 | DELETE | `/api/vente/sales/{id}` | Supprime une vente en brouillon | 204, 404, 409 |
 | POST | `/api/vente/sales/{id}/validate` | Valide : une sortie de stock par ligne. Si une ligne échoue, les lignes déjà débitées sont restaurées et la vente reste en brouillon | 200, 404, 409, 422, 503 |
 | GET | `/api/vente/sales/summary` | Chiffre d'affaires, nombre de ventes, panier moyen et détail par jour. Filtres `from`, `to` | 200, 400 |
+| GET | `/api/vente/sales/kpis` | `monthRevenue`, `previousMonthRevenue` (même nombre de jours le mois précédent), `todaySalesCount`, `todayRevenue`, `todayCollected`, `sameWeekdayLastWeekRevenue`, `averageBasket`, `previousMonthAverageBasket`. Jours calculés en `Indian/Antananarivo` | 200 |
+| GET | `/api/vente/sales/credit-summary` | `outstanding`, `customers`, `overdueCustomers` (ventes à crédit non annulées) | 200 |
+| GET | `/api/vente/sales/credit-by-customer` | Par client : `customerId`, `outstanding` (total moins encaissé, > 0), `overdueCount` | 200 |
+| GET | `/api/vente/sales/{id}/payments` | Encaissements d'une vente | 200, 404 |
+| POST | `/api/vente/sales/{id}/payments` | Enregistre un encaissement (`amount`, `method` hors `CREDIT`, `reference` facultative). Vente validée, non annulée, montant inférieur ou égal au reste à encaisser. Les encaissements ne se modifient pas | 201, 400, 404, 422 |
+| POST | `/api/vente/sales/{id}/cancel` | Annule une vente validée sans encaissement (`reason` obligatoire) : une entrée de stock par ligne (« Annulation V-0001 »), restaurée si l'une échoue | 200, 400, 404, 422, 503 |
+| GET | `/api/vente/catalog/products` | Catalogue produits pour le rôle VENTE (`search`), relayé depuis le Stock avec l'identité de l'appelant : `id`, `name`, `sku`, `unit`, `unitPrice`, `quantity` | 200, 503 |
 | GET | `/api/vente/sales/top-products` | Produits les plus vendus. Paramètre `limit` (5 par défaut ; une valeur hors de 1 à 50 est ramenée dans ces bornes) | 200 |
 
 ## 7. RH : `/api/rh` (rôles RH, ADMIN)
