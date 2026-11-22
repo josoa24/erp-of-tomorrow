@@ -205,7 +205,8 @@ Chaque facture est contrôlée par Invoice Shield avant toute décision. Codes d
 | PUT | `/api/rh/departments/{id}` | Renomme | 200, 400, 404, 409 |
 | DELETE | `/api/rh/departments/{id}` | Supprime. Refusé s'il a des employés | 204, 404, 422 |
 | GET | `/api/rh/employees` | Liste. Filtres `search` (nom, prénom, email), `departmentId` | 200 |
-| GET | `/api/rh/employees/{id}` | Détail avec solde de congés | 200, 404 |
+| GET | `/api/rh/employees/counts` | Compteurs des filtres de l'écran Équipe : `all`, `present`, `onLeave`, `advanceRequested` | 200 |
+| GET | `/api/rh/employees/{id}` | Détail avec solde de congés. La réponse porte aussi `contractType` (CDI, CDD, STAGE, JOURNALIER, facultatif), `departmentName`, `onLeaveToday`, `status` (`PRESENT` ou `ON_LEAVE`), `monthAdvance`, `monthAdvancePending` et `advanceCap` (30 % du salaire de base) | 200, 404 |
 | POST | `/api/rh/employees` | Crée un employé (solde de congés initial : 25 jours ; email unique). `userId` optionnel : compte de connexion lié, un compte par employé au plus | 201, 400, 404, 409 |
 | PUT | `/api/rh/employees/{id}` | Modifie un employé (le solde ne change que par les congés) | 200, 400, 404, 409 |
 | DELETE | `/api/rh/employees/{id}` | Supprime. Refusé s'il a des congés ou des pointages | 204, 404, 422 |
@@ -214,11 +215,23 @@ Chaque facture est contrôlée par Invoice Shield avant toute décision. Codes d
 
 | Méthode | Chemin | Description | Statuts |
 |---------|--------|-------------|---------|
-| GET | `/api/rh/leaves` | Liste. Filtres `employeeId`, `status` (`DRAFT`, `VALIDATED`, `REJECTED`) | 200, 400 |
+| GET | `/api/rh/leaves` | Liste. Filtres `employeeId`, `status` (`DRAFT`, `VALIDATED`, `REJECTED`), `activeOn` (date : congés en cours ce jour-là). La réponse porte `employeeName` et `decidedBy` | 200, 400 |
 | GET | `/api/rh/leaves/{id}` | Détail | 200, 404 |
 | POST | `/api/rh/leaves` | Crée une demande en brouillon. Refusée si le solde est insuffisant, si la fin précède le début ou si la période chevauche une autre demande | 201, 400, 404, 422 |
 | POST | `/api/rh/leaves/{id}/validate` | Valide : décompte le solde, la demande devient immuable | 200, 404, 409, 422 |
 | POST | `/api/rh/leaves/{id}/reject` | Rejette : le solde ne change pas, la demande devient immuable | 200, 404, 409 |
+
+### Avances sur salaire
+
+L'avance est plafonnée à 30 % du salaire de base par mois (`rh.advance.cap-percent`) : la somme des avances en brouillon ou validées du mois, avec la nouvelle demande, ne peut pas dépasser ce plafond. Valider ou refuser est réservé au rôle `ADMIN`. Une avance décidée ne change plus.
+
+| Méthode | Chemin | Description | Statuts |
+|---------|--------|-------------|---------|
+| GET | `/api/rh/advances` | Liste. Filtres `month` (`AAAA-MM`), `employeeId`, `status` (`DRAFT`, `VALIDATED`, `REJECTED`) | 200, 400 |
+| GET | `/api/rh/advances/summary` | `{monthTotal, requests, pending}` du mois en cours | 200 |
+| POST | `/api/rh/advances` | Demande une avance pour le mois en cours : `employeeId`, `amount`, `reason` facultatif. Refusée au-delà du plafond | 201, 400, 404, 422 |
+| POST | `/api/rh/advances/{id}/validate` | Valide (le plafond est revérifié). `ADMIN` seulement | 200, 403, 404, 409, 422 |
+| POST | `/api/rh/advances/{id}/reject` | Refuse. `ADMIN` seulement | 200, 403, 404, 409 |
 
 ### Pointage et résumé
 
@@ -227,7 +240,7 @@ Chaque facture est contrôlée par Invoice Shield avant toute décision. Codes d
 | GET | `/api/rh/attendances` | Liste. Filtres `employeeId`, `date` | 200, 400 |
 | POST | `/api/rh/attendances/check-in` | Pointe l'entrée. Refusé si un pointage est déjà ouvert | 201, 400, 404, 422 |
 | POST | `/api/rh/attendances/check-out` | Pointe la sortie et calcule la durée travaillée. Sans pointage d'entrée ouvert (ou employé inconnu) : 422 | 200, 400, 422 |
-| GET | `/api/rh/summary` | Effectif, effectif par département, personnes en congé aujourd'hui | 200 |
+| GET | `/api/rh/summary` | Effectif, effectif par département, personnes en congé aujourd'hui (jour calculé en Indian/Antananarivo), `pendingLeaves` (congés à valider) et `departmentsWithEmployees` | 200 |
 
 ## 8. CRM : `/api/crm` (rôles CRM, ADMIN)
 
