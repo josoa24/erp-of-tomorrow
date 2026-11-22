@@ -31,4 +31,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("select coalesce(sum(p.quantity * p.unitPrice), 0) from Product p")
     BigDecimal totalStockValue();
+
+    @Query("select coalesce(sum(p.quantity * coalesce(p.purchasePrice, p.unitPrice)), 0) from Product p")
+    BigDecimal totalPurchaseValue();
+
+    long countByPurchasePriceIsNull();
 }
