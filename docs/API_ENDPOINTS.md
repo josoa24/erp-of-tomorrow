@@ -229,7 +229,7 @@ Chaque facture est contrôlée par Invoice Shield avant toute décision. Codes d
 
 ---
 
-## 9. Voix : `/api/voice` (rôles RH, ADMIN)
+## 9. Voix : `/api/voice` (rôles STOCK, VENTE, RH, CRM, ADMIN)
 
 Service Python (FastAPI), hors Swagger de la gateway.
 

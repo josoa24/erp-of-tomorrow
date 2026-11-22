@@ -1,6 +1,6 @@
 # voice-service
 
-Transforme un message vocal en texte avec [faster-whisper](https://github.com/SYSTRAN/faster-whisper), en local et hors ligne. Port **8087**, accessible via la gateway sur `/api/voice/**` (rôles `RH` et `ADMIN`).
+Transforme un message vocal en texte avec [faster-whisper](https://github.com/SYSTRAN/faster-whisper), en local et hors ligne. Port **8087**, accessible via la gateway sur `/api/voice/**` (tous les rôles métier : `STOCK`, `VENTE`, `RH`, `CRM`, `ADMIN`, comme l'assistant IA).
 
 C'est la première brique de l'assistant vocal (tâche AI-16) : le texte obtenu sera ensuite envoyé à l'assistant IA.
 
