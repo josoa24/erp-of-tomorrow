@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { cn } from '@/lib/utils';
-import { dialogVariants } from './dialog-variants';
+import { dialogGutter, dialogVariants } from './dialog-variants';
 import { IconButton } from './icon-button';
 
 export type DialogProps = {
@@ -37,6 +37,7 @@ export function Dialog({
 }: DialogProps) {
   const titleId = useId();
   const descriptionId = useId();
+  const gutter = dialogGutter[placement];
   const panelRef = useRef<HTMLDivElement>(null);
   useFocusTrap(panelRef, open);
   useBodyScrollLock(open);
@@ -62,7 +63,7 @@ export function Dialog({
         onKeyDown={onKeyDown}
         className={cn(dialogVariants({ placement, size }), className)}
       >
-        <header className="flex items-start gap-4">
+        <header className={cn('flex shrink-0 items-start gap-4 pt-6 pb-4 sm:pt-8', gutter)}>
           {icon}
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <h2 id={titleId} className="text-heading text-ink-primary">
@@ -78,8 +79,12 @@ export function Dialog({
             <X />
           </IconButton>
         </header>
-        {children}
-        {footer && <footer className="flex flex-wrap items-center justify-end gap-3">{footer}</footer>}
+        <div className={cn('scroll-thin flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto py-1', !footer && 'pb-6 sm:pb-8', gutter)}>{children}</div>
+        {footer && (
+          <footer className={cn('flex shrink-0 flex-wrap items-center justify-end gap-3 pt-4 pb-6 sm:pb-8', gutter)}>
+            {footer}
+          </footer>
+        )}
       </div>
     </div>,
     document.body,

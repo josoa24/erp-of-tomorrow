@@ -1,4 +1,5 @@
 import { ChoiceChip } from '../../../components/ui/choice-chip'
+import { Combobox } from '../../../components/ui/combobox'
 import { Input } from '../../../components/ui/input'
 import type { FieldValue } from '../services/recordForm'
 import type { ColumnType, ModuleColumn } from '../types/moduleDefinition'
@@ -26,6 +27,20 @@ interface RecordFieldProps {
 export const RecordField = ({ column, value, error, onChange }: RecordFieldProps) => {
   if (column.type === 'REFERENCE') {
     return <ReferencePicker column={column} value={value as ReferenceOption | null} error={error} onChange={onChange} />
+  }
+  if (column.type === 'CHOICE' && (column.choices?.length ?? 0) > 6) {
+    const options = (column.choices ?? []).map((choice) => ({ value: choice, label: choice }))
+    return (
+      <Combobox
+        label={column.required ? column.label : `${column.label} (facultatif)`}
+        options={options}
+        value={typeof value === 'string' && value ? { value, label: value } : null}
+        emptyOptionLabel={column.required ? undefined : 'Aucun'}
+        invalid={error !== undefined}
+        helper={error}
+        onChange={(option) => onChange(option ? option.value : '')}
+      />
+    )
   }
   if (column.type === 'CHOICE') {
     return (

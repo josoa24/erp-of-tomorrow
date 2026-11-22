@@ -74,7 +74,7 @@ export const EclipseBar = ({
         onKeyDown={onKeyDown}
         onBlur={onBlur}
         className={cn(
-          'relative max-h-12 min-w-0 flex-1 resize-none overflow-y-auto bg-transparent text-body outline-none [field-sizing:content]',
+          'relative max-h-12 min-w-0 flex-1 resize-none scrollbar-none overflow-y-auto bg-transparent text-body outline-none [field-sizing:content]',
           variant === 'night' ? 'placeholder:text-ink-inverse/80' : 'placeholder:text-ink-tertiary',
         )}
       />
