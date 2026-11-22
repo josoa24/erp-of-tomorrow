@@ -99,12 +99,14 @@ Un compte désactivé reçoit 401 à la connexion. Un token déjà émis reste v
 | GET | `/api/stock/products` | Liste des produits. Filtres : `search` (nom ou SKU), `lowStock` (`true` ou `false`) | 200, 400 |
 | GET | `/api/stock/products/low-stock` | Produits dont la quantité est inférieure ou égale au seuil | 200 |
 | GET | `/api/stock/products/{id}` | Détail d'un produit | 200, 404 |
-| POST | `/api/stock/products` | Crée un produit (`name`, `sku` unique, `unit`, `quantity`, `minThreshold`, `unitPrice`) | 201, 400, 409 |
+| POST | `/api/stock/products` | Crée un produit (`name`, `sku` unique, `unit`, `quantity`, `minThreshold`, `unitPrice`, et facultatifs `category`, `purchasePrice`) | 201, 400, 409 |
 | PUT | `/api/stock/products/{id}` | Modifie nom, unité, seuil et prix. La quantité ne change que par les mouvements | 200, 400, 404 |
 | DELETE | `/api/stock/products/{id}` | Supprime un produit. Refusé s'il a des mouvements ou figure dans un bon de commande | 204, 404, 422 |
 | GET | `/api/stock/products/{id}/autonomy` | Moyenne vendue par jour (7 jours), jours restants et risque `OK`, `WARNING`, `CRITICAL` | 200, 404 |
-| GET | `/api/stock/status` | État de stock complet : tous les produits avec autonomie et risque, du plus urgent au moins urgent. Filtre `risk` | 200, 400 |
-| GET | `/api/stock/summary` | Nombre de produits, nombre en alerte, valeur totale du stock | 200 |
+| GET | `/api/stock/status` | État de stock complet : tous les produits avec autonomie et risque, du plus urgent au moins urgent. Filtres `risk`, `lowStock`, `search` (nom, SKU ou catégorie), `expiringWithinDays`. Chaque produit porte `category`, `statusLabel` (`RUPTURE_RISK`, `BELOW_THRESHOLD`, `IN_STOCK`) et, avec lots, `lotNumber`, `expiryDate`, `daysToExpiry`, `expiringSoon` (lot le plus proche de la péremption, alerte à `stock.expiry-alert-days`, 30 par défaut) | 200, 400 |
+| GET | `/api/stock/status/counts` | Compteurs `all`, `alert`, `ruptureRisk`, `expiringSoon`. Filtre `search` | 200 |
+| GET | `/api/stock/summary` | `totalProducts`, `lowStockProducts`, `totalStockValue`, `availabilityRate` (0 à 1), `criticalLowStock`, `totalPurchaseValue` (quantité × prix d'achat, à défaut prix de vente), `productsWithoutPurchasePrice`, `expiringSoon` | 200 |
+| GET | `/api/stock/products/{id}/lots` | Lots d'un produit : `lotNumber`, `expiryDate`, `quantity`, `remaining`, `receivedAt` | 200, 404 |
 
 ### Prévision de réapprovisionnement
 
@@ -120,7 +122,7 @@ Calcul fait par le code (pas par l'IA) sur les sorties `OUT` des 28 derniers jou
 | Méthode | Chemin | Description | Statuts |
 |---------|--------|-------------|---------|
 | GET | `/api/stock/products/{productId}/movements` | Historique des entrées et sorties d'un produit | 200, 404 |
-| POST | `/api/stock/products/{productId}/movements` | Enregistre une entrée (`IN`) ou une sortie (`OUT`) et met la quantité à jour. Refusée si la sortie dépasse le stock. Les mouvements ne se modifient pas | 201, 400, 404, 422 |
+| POST | `/api/stock/products/{productId}/movements` | Enregistre une entrée (`IN`) ou une sortie (`OUT`) et met la quantité à jour. Refusée si la sortie dépasse le stock. Une entrée peut porter `lotNumber` et `expiryDate` (les deux ou aucun, date non passée) et crée un lot ; chaque sortie est imputée sur les lots restants, le plus proche de la péremption d'abord (FEFO), dans la même transaction. Les mouvements ne se modifient pas | 201, 400, 404, 422 |
 
 ### Fournisseurs
 
