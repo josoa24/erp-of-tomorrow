@@ -5,6 +5,7 @@ import { ProfileScreen } from '../features/profile/screens/ProfileScreen'
 import { RelationsScreen } from '../features/relations/screens/RelationsScreen'
 import { SalesScreen } from '../features/sales/screens/SalesScreen'
 import { StockScreen } from '../features/stock/screens/StockScreen'
+import { validateStockSearch } from '../features/stock/services/stockSearch'
 import { TeamScreen } from '../features/team/screens/TeamScreen'
 import { DashboardScreen } from '../screens/Dashboard/DashboardScreen'
 import { protectedRoute } from './baseRoutes'
@@ -31,6 +32,7 @@ export const salesRoute = createRoute({
 export const stockRoute = createRoute({
   getParentRoute: parent,
   path: ROUTES.stock,
+  validateSearch: validateStockSearch,
   beforeLoad: requireModule('stock'),
   staticData: { eclipsePlaceholder: ECLIPSE_PLACEHOLDERS.stock },
   component: StockScreen,
