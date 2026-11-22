@@ -28,5 +28,5 @@ async def health() -> dict[str, str]:
 async def tools(request: Request) -> dict[str, Any]:
     """Outils disponibles pour le rôle de l'utilisateur connecté."""
     user = user_from_request(request)
-    described = request.app.state.registry.describe(user.role)
-    return {"role": user.role, "count": len(described), "tools": described}
+    described = request.app.state.registry.describe(user.roles)
+    return {"role": user.role, "roles": list(user.roles), "count": len(described), "tools": described}

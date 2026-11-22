@@ -8,7 +8,7 @@ from app.api.rate_limit import enforce_rate_limit
 from app.api.schemas import api_error
 from app.api.turn_support import record_interaction
 from app.erp.client import ErpClient
-from app.erp.context import current_user
+from app.erp.context import current_user, roles_label
 from app.invoices.shield_check import analyze
 from app.invoices.upload import UploadError, extract_file, read_body
 from app.tools.catalog import module_allowed
@@ -23,8 +23,8 @@ async def extract_invoice(request: Request):
     """Extrait les champs (Gemini, sans outil), retrouve le fournisseur et renvoie le rapport du shield :
     `{extracted, supplierMatch, shield}` (+ `shieldError` si le contrôle n'a pas pu être fait)."""
     user = user_from_request(request)
-    if not module_allowed("stock", user.role):
-        return api_error(403, "FORBIDDEN", f"Le rôle {user.role} n'a pas accès aux factures fournisseurs.")
+    if not module_allowed("stock", user.roles):
+        return api_error(403, "FORBIDDEN", f"Le rôle {roles_label(user.roles)} n'a pas accès aux factures fournisseurs.")
     extractor = request.app.state.invoice_extractor
     if extractor is None:
         return api_error(503, "SERVER", "GEMINI_API_KEY manquante : assistant indisponible.")

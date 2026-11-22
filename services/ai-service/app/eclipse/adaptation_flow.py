@@ -43,12 +43,12 @@ async def adaptation_outcome(deps: EclipseDeps, adaptation: Adaptation, body: Ad
     return AdaptationProposal(
         outcome="ALREADY_ACTIVE" if is_active else "ADAPTATION", adaptation_key=adaptation.key,
         request=body.request, title=adaptation.title, summary=adaptation.summary,
-        message=already_active(adaptation) if is_active else None, can_apply=user.role == "ADMIN",
+        message=already_active(adaptation) if is_active else None, can_apply="ADMIN" in user.roles,
         target_module_key=adaptation.module_key if body.module_key == HOME_MODULE else None)
 
 
 async def propose_adaptation(deps: EclipseDeps, body: AdaptationRequest, user: UserContext) -> AdaptationProposal:
-    scope = adaptation_scope(body.module_key, user.role)
+    scope = adaptation_scope(body.module_key, user.roles)
     screen = await screen_label(deps, body.module_key, user.token)
     found = await recognize(deps, body.request, screen, scope)
     if found.intent == "ADAPTATION" and found.adaptation_key:
@@ -56,4 +56,4 @@ async def propose_adaptation(deps: EclipseDeps, body: AdaptationRequest, user: U
     unsupported = found.intent == "UNSUPPORTED"
     message = unsupported_message(body.module_key, screen, scope, found.removal) if unsupported else None
     return AdaptationProposal(outcome=found.intent, request=body.request, message=message,
-                              can_apply=user.role == "ADMIN")
+                              can_apply="ADMIN" in user.roles)

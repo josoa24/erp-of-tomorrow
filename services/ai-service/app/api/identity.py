@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from fastapi import Request
 
-from app.erp.context import ROLES, UserContext
+from app.erp.context import ROLES, UserContext, normalize_roles
 
 
 class NotAuthenticated(Exception):
@@ -17,4 +17,6 @@ def user_from_request(request: Request) -> UserContext:
     user_id = request.headers.get("x-user-id", "")
     if not auth.startswith("Bearer ") or role not in ROLES or not user_id:
         raise NotAuthenticated()
-    return UserContext(token=auth[7:], user_id=user_id, email=request.headers.get("x-user-email", ""), role=role)
+    roles = normalize_roles(request.headers.get("x-user-roles", "").replace(" ", "").split(",")) or (role,)
+    return UserContext(token=auth[7:], user_id=user_id, email=request.headers.get("x-user-email", ""),
+                       role=roles[0], roles=roles)

@@ -51,7 +51,7 @@ def adaptations_for(module_keys: list[str]) -> list[Adaptation]:
     return [adaptation for adaptation in CATALOG if adaptation.module_key in module_keys]
 
 
-def adaptation_scope(module_key: str, role: str) -> list[Adaptation]:
+def adaptation_scope(module_key: str, role: str | tuple[str, ...]) -> list[Adaptation]:
     if module_key == HOME_MODULE:
         return adaptations_for(accessible_base_modules(role))
     return adaptations_for([module_key])

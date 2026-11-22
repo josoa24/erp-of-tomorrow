@@ -1,13 +1,17 @@
 """Catalogue des outils (liste blanche) et règle d'accès par rôle, identique à la gateway."""
 from __future__ import annotations
 
+from typing import Iterable
+
 from pydantic import Field
+
+from app.erp.context import normalize_roles
 
 from app.tools import (briefing_tools, crm_tools, invoice_tools, module_tools, replenishment_tools, rh_advance_tools,
                        rh_crm_tools, rh_leave_tools, stock_tools, vente_credit_tools, vente_tools)
 from app.tools.spec import Args, ToolSpec, decl, string
 
-# Même règle que la gateway (RoleAccessPolicy) : un rôle = un module, ADMIN = tout.
+# Même règle que la gateway (RoleAccessPolicy) : un rôle = un module, ADMIN = tout, union des rôles.
 OPEN_MODULES = {"system", "general"}
 MODULE_ROLES: dict[str, set[str]] = {"stock": {"STOCK"}, "vente": {"VENTE"}, "rh": {"RH"}, "crm": {"CRM"}}
 
@@ -29,7 +33,8 @@ ALL_SPECS: list[ToolSpec] = (stock_tools.SPECS + replenishment_tools.SPECS + inv
                              + module_tools.SPECS + briefing_tools.SPECS + SYSTEM_SPECS)
 
 
-def module_allowed(module: str, role: str | None) -> bool:
-    if module in OPEN_MODULES or role == "ADMIN":
+def module_allowed(module: str, roles: str | Iterable[str] | None) -> bool:
+    held = set(normalize_roles(roles))
+    if module in OPEN_MODULES or "ADMIN" in held:
         return True
-    return role in MODULE_ROLES.get(module, set())
+    return bool(held & MODULE_ROLES.get(module, set()))
