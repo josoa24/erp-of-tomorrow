@@ -178,8 +178,6 @@ services:
     profiles: ["voice"]
     build: ./services/voice-service
     restart: unless-stopped
-    ports:
-      - "8087:8087"
     environment:
       VOICE_MODEL_SIZE: ${VOICE_MODEL_SIZE:-small}
       VOICE_DEVICE: ${VOICE_DEVICE:-cpu}
