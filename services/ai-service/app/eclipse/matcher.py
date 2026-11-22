@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from typing import Literal, Sequence
 
 from app.eclipse.catalog import Adaptation
-from app.eclipse.keywords import (ADAPTATION_KEYWORDS, ADD_VERBS, EXPLICIT_CREATE, MIN_SCORE, QUESTION_WORDS,
-                                  SOFT_CREATE)
+from app.eclipse.intent_patterns import ADD_VERBS, EXPLICIT_CREATE, QUESTION_WORDS, SOFT_CREATE
+from app.eclipse.keywords import ADAPTATION_KEYWORDS, MIN_SCORE
 from app.eclipse.text import normalize
 
 Intent = Literal["ADAPTATION", "QUESTION", "CREATE_MODULE", "UNSUPPORTED"]

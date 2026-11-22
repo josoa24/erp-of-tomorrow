@@ -29,14 +29,3 @@ ADAPTATION_KEYWORDS: dict[str, tuple[tuple[re.Pattern[str], int], ...]] = {
         (any_of(r"employes?\b", "salarie", "personnel"), WEAK),
     ),
 }
-
-ADD_VERBS = any_of(r"ajout\w*", r"rajout\w*", r"activ(?:e|er|ez)\b", r"mets?\b", r"mettre\b", r"integr\w*")
-QUESTION_WORDS = any_of(
-    r"combien\b", r"quel(?:le)?s?\b", r"qui\b", r"quand\b", r"pourquoi\b", r"comment\b", r"liste[rz]?\b",
-    r"montre[rz]?\b", r"affiche[rz]?\b", r"donne[rz]?\b", r"cherche[rz]?\b", r"trouve[rz]?\b",
-    r"est ce qu", r"y a t il\b", r"qu est ce\b", r"savoir\b", r"connaitre\b")
-EXPLICIT_CREATE = re.compile(
-    r"\b(?:cree[rz]?|creation|nouveau|nouvel|ajoute[rz]?|fais|faire|construi\w*)\b(?:\s+\w+){0,3}?\s+modules?\b")
-SOFT_CREATE = any_of(
-    r"(?:je veux|je voudrais|j aimerais|je souhaite|on veut|il faut) (?:suivre|gerer)\b",
-    r"(?:suivre|gerer) (?:mes|nos)\b")
