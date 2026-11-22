@@ -49,3 +49,11 @@ class ModuleProposal(CamelModel):
     unchecked_columns: list[str] = Field(default_factory=list)
     hidden_columns: list[str] = Field(default_factory=list)
     note: str | None = None
+    explanation: str | None = None
+    suggestions: list[str] = Field(default_factory=list)
+    changes: list[str] = Field(default_factory=list)
+
+
+class ModuleRefineRequest(CamelModel):
+    proposal: ModuleDefinitionRequest
+    instruction: str = Field(min_length=1, max_length=500, description="Ajustement demandé en langage naturel")
