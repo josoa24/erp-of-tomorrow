@@ -11,6 +11,7 @@ export type StatProps = {
   hint?: ReactNode;
   tone?: StatTone;
   highlighted?: boolean;
+  onClick?: () => void;
   className?: string;
 };
 
@@ -20,11 +21,14 @@ const PASTILLE: Record<StatTone, string> = {
   blush: 'bg-bg-blush',
 };
 
-export function Stat({ icon: Icon, label, value, hint, tone = 'lilac', highlighted = false, className }: StatProps) {
+export function Stat({ icon: Icon, label, value, hint, tone = 'lilac', highlighted = false, onClick, className }: StatProps) {
+  const Root = onClick ? 'button' : 'div';
   return (
-    <div
+    <Root
+      {...(onClick && { type: 'button' as const, onClick })}
       className={cn(
         'flex min-w-0 flex-1 flex-col gap-1.5',
+        onClick && 'cursor-pointer text-left outline-none focus-visible:shadow-focus-ring rounded-lg',
         highlighted && 'rounded-lg px-3 py-2 highlight-added',
         className,
       )}
@@ -37,6 +41,6 @@ export function Stat({ icon: Icon, label, value, hint, tone = 'lilac', highlight
       </div>
       <span className="text-number-m text-ink-primary">{value}</span>
       {hint && <span className="text-micro text-ink-tertiary">{hint}</span>}
-    </div>
+    </Root>
   );
 }
