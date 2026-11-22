@@ -33,7 +33,8 @@ class SupplierProfileControllerTest {
 
     @Test
     void shouldReturnProfile_whenSupplierExists() throws Exception {
-        SupplierResponse supplier = new SupplierResponse(1L, "Agri Sud", null, null, null, null, 5, Instant.now(), null);
+        SupplierResponse supplier = new SupplierResponse(
+                1L, "Agri Sud", null, null, null, null, 5, Instant.now(), null, null, null, null);
         when(profileReader.findProfile(1L)).thenReturn(new SupplierProfileResponse(
                 supplier, 3, 2, new BigDecimal("750.00"), new BigDecimal("4.5"),
                 List.of(new SuppliedProduct(3L, "Riz", 120)),

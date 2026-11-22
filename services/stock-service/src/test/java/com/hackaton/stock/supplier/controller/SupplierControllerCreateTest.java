@@ -48,12 +48,27 @@ class SupplierControllerCreateTest {
     @Test
     void shouldReturn201_whenSupplierIsCreated() throws Exception {
         when(supplierCreator.create(any(SupplierRequest.class))).thenReturn(new SupplierResponse(
-                1L, "Agri Sud", null, "contact@agrisud.mg", null, null, 5, Instant.now(), null));
+                1L, "Agri Sud", null, "contact@agrisud.mg", null, null, 5, Instant.now(), null, "Toamasina", null, null));
 
         mockMvc.perform(createRequest(VALID_BODY))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").value("Agri Sud"));
+                .andExpect(jsonPath("$.name").value("Agri Sud"))
+                .andExpect(jsonPath("$.city").value("Toamasina"));
+    }
+
+    @Test
+    void shouldReturn400_whenCityIsTooLong() throws Exception {
+        mockMvc.perform(createRequest("{\"name\":\"Agri Sud\",\"city\":\"" + "a".repeat(81) + "\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("VALIDATION"));
+    }
+
+    @Test
+    void shouldReturn400_whenStatIsTooLong() throws Exception {
+        mockMvc.perform(createRequest("{\"name\":\"Agri Sud\",\"stat\":\"" + "1".repeat(31) + "\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("VALIDATION"));
     }
 
     @Test
