@@ -55,6 +55,7 @@ export const SaleFormDialog = ({ sale, adapted, highlighted, onClose }: SaleForm
             method={draft.paymentMethod}
             creditDays={draft.creditDays}
             highlighted={highlighted}
+            creditAllowed={draft.customer !== null}
             onMethod={state.setMethod}
             onCreditDays={state.setCreditDays}
           />

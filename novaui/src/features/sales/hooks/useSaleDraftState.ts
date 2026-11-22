@@ -9,7 +9,12 @@ export const useSaleDraftState = (initial: SaleDraft) => {
 
   return {
     draft,
-    setCustomer: (customer: CustomerOption | null) => setDraft((current) => ({ ...current, customer })),
+    setCustomer: (customer: CustomerOption | null) =>
+      setDraft((current) => ({
+        ...current,
+        customer,
+        paymentMethod: customer === null && current.paymentMethod === 'CREDIT' ? 'CASH' : current.paymentMethod,
+      })),
     addProduct: (product: CatalogProduct) => setDraft((current) => addProduct(current, product)),
     setQuantity: (productId: number, quantity: number) =>
       setDraft((current) => setLineQuantity(current, productId, quantity)),
