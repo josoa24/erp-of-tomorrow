@@ -1,7 +1,7 @@
-import { useRef } from 'react';
-import type { KeyboardEvent, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { Count } from './count';
+import { useTabsKeyboard } from './use-tabs-keyboard';
 
 export type TabItem<T extends string> = {
   value: T;
@@ -33,27 +33,8 @@ export function Tabs<T extends string>({
   'aria-label': ariaLabel,
   className,
 }: TabsProps<T>) {
-  const listRef = useRef<HTMLDivElement>(null);
+  const { listRef, onKeyDown } = useTabsKeyboard(items, value, onValueChange);
   const segmented = variant === 'segmented';
-
-  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const enabled = items.filter((item) => !item.disabled);
-    const index = enabled.findIndex((item) => item.value === value);
-    const keyToIndex: Record<string, number> = {
-      ArrowRight: (index + 1) % enabled.length,
-      ArrowLeft: (index - 1 + enabled.length) % enabled.length,
-      Home: 0,
-      End: enabled.length - 1,
-    };
-    const nextIndex = keyToIndex[event.key];
-    const next = nextIndex === undefined ? undefined : enabled[nextIndex];
-    if (!next) return;
-    event.preventDefault();
-    onValueChange(next.value);
-    listRef.current
-      ?.querySelector<HTMLButtonElement>(`[data-value="${CSS.escape(next.value)}"]`)
-      ?.focus();
-  };
 
   return (
     <div

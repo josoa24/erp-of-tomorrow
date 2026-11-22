@@ -40,6 +40,8 @@ export default defineConfig({
     setupFiles: ['./src/test/setupTests.ts'],
     css: true,
     pool: 'threads',
-    poolOptions: { threads: { maxThreads: 2, minThreads: 1 } },
+    poolOptions: {
+      threads: { maxThreads: 2, minThreads: 1, execArgv: ['--no-experimental-webstorage'] },
+    },
   },
 })
