@@ -2,6 +2,7 @@ import { ShieldCheck } from 'lucide-react'
 import { Avatar } from '../../../components/ui/avatar'
 import { Panel } from '../../../components/ui/panel'
 import { StatusPill } from '../../../components/ui/status-pill'
+import { SectionTitle } from './SectionTitle'
 
 interface IdentityCardProps {
   name: string
@@ -9,26 +10,27 @@ interface IdentityCardProps {
   roleLabel: string
 }
 
+const Row = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex items-baseline justify-between gap-4">
+    <dt className="text-micro text-ink-secondary">{label}</dt>
+    <dd className="text-body-strong break-all text-right text-ink-primary">{value}</dd>
+  </div>
+)
+
 export const IdentityCard = ({ name, email, roleLabel }: IdentityCardProps) => (
-  <Panel aria-labelledby="profil-identite" padding="xl" className="flex flex-col gap-5">
-    <h2 id="profil-identite" className="text-heading text-ink-primary">Identité</h2>
+  <Panel aria-labelledby="profil-identite" padding="l" className="flex flex-col gap-5">
+    <SectionTitle id="profil-identite">Identité</SectionTitle>
     <div className="flex items-center gap-4">
       <Avatar name={name} size="l" decorative />
       <div className="flex min-w-0 flex-col items-start gap-1">
-        <p className="text-title break-words text-ink-primary">{name}</p>
+        <p className="text-heading break-words text-ink-primary">{name}</p>
         <StatusPill label={roleLabel} icon={ShieldCheck} />
       </div>
     </div>
-    <dl className="grid gap-3 sm:grid-cols-2">
-      <div>
-        <dt className="text-caption text-ink-secondary uppercase">E-mail de connexion</dt>
-        <dd className="text-body break-all text-ink-primary">{email}</dd>
-      </div>
-      <div>
-        <dt className="text-caption text-ink-secondary uppercase">Rôle</dt>
-        <dd className="text-body text-ink-primary">{roleLabel}</dd>
-      </div>
+    <dl className="flex flex-col gap-4">
+      <Row label="E-mail de connexion" value={email} />
+      <Row label="Rôle" value={roleLabel} />
     </dl>
-    <p className="text-body-s text-ink-tertiary">Ces informations sont gérées par l’administrateur de votre entreprise.</p>
+    <p className="text-micro text-ink-tertiary">Ces informations sont gérées par l’administrateur de votre entreprise.</p>
   </Panel>
 )
