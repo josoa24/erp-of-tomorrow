@@ -1,6 +1,6 @@
 import { formatAmount, formatArrival, formatContract, formatMonthAdvance, formatPeriod, fullName } from '../teamFormat'
 
-const normalize = (value: string): string => value.replace(/[  ]/g, ' ')
+const normalize = (value: string): string => value.replace(/[\u00a0\u202f]/g, ' ')
 
 describe('teamFormat', () => {
   it('shouldGroupThousands_andAppendAriary', () => {

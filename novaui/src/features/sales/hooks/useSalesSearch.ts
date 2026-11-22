@@ -1,11 +1,12 @@
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useCallback } from 'react'
+import { ROUTES } from '../../../navigation/routes'
 import { DEFAULT_SALES_FILTER } from '../services/salesFilters'
 import { validateSalesSearch } from '../services/salesSearch'
 import type { SalesFilterKey, SalesSearch } from '../types/salesQuery'
 
 export const useSalesSearch = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate({ from: ROUTES.sales })
   const search = validateSalesSearch(useSearch({ strict: false }))
 
   const update = useCallback(

@@ -5,6 +5,7 @@ import { ProfileScreen } from '../features/profile/screens/ProfileScreen'
 import { RelationsScreen } from '../features/relations/screens/RelationsScreen'
 import { validateRelationsSearch } from '../features/relations/services/relationsSearch'
 import { SalesScreen } from '../features/sales/screens/SalesScreen'
+import { validateSalesSearch } from '../features/sales/services/salesSearch'
 import { StockScreen } from '../features/stock/screens/StockScreen'
 import { validateStockSearch } from '../features/stock/services/stockSearch'
 import { TeamScreen } from '../features/team/screens/TeamScreen'
@@ -27,7 +28,8 @@ export const salesRoute = createRoute({
   getParentRoute: parent,
   path: ROUTES.sales,
   beforeLoad: requireModule('vente'),
-  staticData: { eclipsePlaceholder: ECLIPSE_PLACEHOLDERS.sales },
+  validateSearch: validateSalesSearch,
+  staticData: { eclipsePlaceholder: ECLIPSE_PLACEHOLDERS.sales, adaptationModule: 'ventes' },
   component: SalesScreen,
 })
 
@@ -36,7 +38,7 @@ export const stockRoute = createRoute({
   path: ROUTES.stock,
   validateSearch: validateStockSearch,
   beforeLoad: requireModule('stock'),
-  staticData: { eclipsePlaceholder: ECLIPSE_PLACEHOLDERS.stock },
+  staticData: { eclipsePlaceholder: ECLIPSE_PLACEHOLDERS.stock, adaptationModule: 'stock' },
   component: StockScreen,
 })
 
@@ -45,7 +47,7 @@ export const teamRoute = createRoute({
   path: ROUTES.team,
   beforeLoad: requireModule('rh'),
   validateSearch: validateTeamSearch,
-  staticData: { eclipsePlaceholder: ECLIPSE_PLACEHOLDERS.team },
+  staticData: { eclipsePlaceholder: ECLIPSE_PLACEHOLDERS.team, adaptationModule: 'equipe' },
   component: TeamScreen,
 })
 
@@ -54,7 +56,7 @@ export const relationsRoute = createRoute({
   path: ROUTES.relations,
   beforeLoad: requireModule('crm'),
   validateSearch: validateRelationsSearch,
-  staticData: { eclipsePlaceholder: ECLIPSE_PLACEHOLDERS.relations },
+  staticData: { eclipsePlaceholder: ECLIPSE_PLACEHOLDERS.relations, adaptationModule: 'relations' },
   component: RelationsScreen,
 })
 

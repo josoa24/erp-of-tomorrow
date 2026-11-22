@@ -8,7 +8,7 @@ export const isBlank = (value: string): boolean => value.trim() === ''
 export const isEmail = (value: string): boolean => EMAIL_PATTERN.test(value.trim())
 
 export const parseAmount = (value: string): number | null => {
-  const normalized = value.replace(/[\s  ]/g, '').replace(',', '.')
+  const normalized = value.replace(/[\s\u00a0\u202f]/g, '').replace(',', '.')
   if (normalized === '') return null
   const amount = Number(normalized)
   return Number.isFinite(amount) ? amount : null

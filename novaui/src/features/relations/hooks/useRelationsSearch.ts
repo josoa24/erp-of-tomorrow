@@ -1,11 +1,12 @@
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useCallback } from 'react'
+import { ROUTES } from '../../../navigation/routes'
 import type { RelationsFilter } from '../services/relationsSearch'
 
 export const useRelationsSearch = () => {
-  const navigate = useNavigate()
-  const filter = useSearch({ strict: false, select: (search) => search.filtre })
-  const query = useSearch({ strict: false, select: (search) => search.q ?? '' })
+  const navigate = useNavigate({ from: ROUTES.relations })
+  const filter = useSearch({ from: '/protected/relations', select: (search) => search.filtre })
+  const query = useSearch({ from: '/protected/relations', select: (search) => search.q ?? '' })
 
   const setFilter = useCallback(
     (filtre?: RelationsFilter) => {

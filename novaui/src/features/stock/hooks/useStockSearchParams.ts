@@ -4,7 +4,7 @@ import { ROUTES } from '../../../navigation/routes'
 import { isStockFilter, type StockFilter } from '../services/stockFilters'
 
 export const useStockSearchParams = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate({ from: ROUTES.stock })
   const rawFilter = useSearch({ strict: false, select: (search) => search.filtre })
   const search = useSearch({ strict: false, select: (search) => search.recherche ?? '' })
   const filter: StockFilter = isStockFilter(rawFilter) ? rawFilter : 'tous'

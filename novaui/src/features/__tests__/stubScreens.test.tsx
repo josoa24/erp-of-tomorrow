@@ -2,13 +2,11 @@ import { render, screen } from '@testing-library/react'
 import type { ComponentType } from 'react'
 import { ProfileScreen } from '../profile/screens/ProfileScreen'
 import { SalesScreen } from '../sales/screens/SalesScreen'
-import { StockScreen } from '../stock/screens/StockScreen'
 import { TeamScreen } from '../team/screens/TeamScreen'
 
 describe('feature stub screens', () => {
   it.each([
     ['Ventes', SalesScreen],
-    ['Stock', StockScreen],
     ['Équipe', TeamScreen],
     ['Mon profil', ProfileScreen],
   ] as [string, ComponentType][])('shouldRenderModulePageAndPendingState_for_%s', (title, Screen) => {

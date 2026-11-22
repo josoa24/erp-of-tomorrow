@@ -1,6 +1,6 @@
 import { capHelper, remainingCap, toAdvanceRequest, validateAdvanceAmount } from '../advanceForm'
 
-const normalize = (value: string): string => value.replace(/[  ]/g, ' ')
+const normalize = (value: string): string => value.replace(/[\u00a0\u202f]/g, ' ')
 const employee = { advanceCap: 240000, monthAdvance: 150000 }
 
 describe('advanceForm', () => {
