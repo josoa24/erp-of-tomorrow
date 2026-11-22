@@ -1,6 +1,6 @@
 import { Sparkles } from 'lucide-react'
 import { useRef } from 'react'
-import type { RefObject } from 'react'
+import type { ReactNode, RefObject } from 'react'
 import { useFocusShortcut } from '@/hooks/useFocusShortcut'
 import { cn } from '@/lib/utils'
 import { modKeyLabel } from '@/utils/shortcut'
@@ -25,6 +25,7 @@ export interface EclipseBarProps {
   shortcut?: boolean
   inputRef?: RefObject<HTMLTextAreaElement | null>
   onBlur?: () => void
+  trailing?: ReactNode
   className?: string
 }
 
@@ -41,6 +42,7 @@ export const EclipseBar = ({
   shortcut = true,
   inputRef,
   onBlur,
+  trailing,
   className,
 }: EclipseBarProps) => {
   const ownRef = useRef<HTMLTextAreaElement>(null)
@@ -76,6 +78,7 @@ export const EclipseBar = ({
           variant === 'night' ? 'placeholder:text-ink-inverse/80' : 'placeholder:text-ink-tertiary',
         )}
       />
+      {!unavailable && trailing}
       {!unavailable && (
         <Kbd inverse={variant === 'night'} aria-hidden="true" className="relative max-sm:hidden">
           {modKeyLabel()}

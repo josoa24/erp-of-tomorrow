@@ -1,8 +1,9 @@
 import { useLocation, useMatches } from '@tanstack/react-router'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ECLIPSE_UNAVAILABLE_LABEL } from '../../constants/eclipsePlaceholders'
 import { EclipseAnswer } from '../../features/eclipse/components/EclipseAnswer'
 import { useEclipseRequest } from '../../features/eclipse/hooks/useEclipseRequest'
+import { useEclipseVoice } from '../../features/eclipse/voice/hooks/useEclipseVoice'
 import { EclipseBar } from '../eclipse/EclipseBar'
 import { dockPlaceholderFor, isDockHiddenFor } from './dockPlaceholder'
 import { useEclipseDock } from './eclipse-dock-context'
@@ -14,6 +15,16 @@ export const EclipseDock = ({ mobile = false }: { mobile?: boolean }) => {
   const [value, setValue] = useState('')
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const { submit, pending, answer, unavailable, dismiss } = useEclipseRequest(staticData?.adaptationModule ?? 'accueil')
+
+  const onText = useCallback(
+    (text: string, send: boolean) => {
+      if (!send) return setValue(text)
+      setValue('')
+      void submit(text)
+    },
+    [submit],
+  )
+  const voice = useEclipseVoice({ variant: 'light', disabled: unavailable || pending, onText })
 
   useEffect(() => {
     if (focusSignal > 0) inputRef.current?.focus()
@@ -28,6 +39,7 @@ export const EclipseDock = ({ mobile = false }: { mobile?: boolean }) => {
   return (
     <div className="fixed inset-x-4 bottom-[116px] z-20 mx-auto max-w-[760px] md:bottom-7">
       {answer && <EclipseAnswer text={answer} onDismiss={dismiss} />}
+      {voice.status}
       <EclipseBar
         variant="light"
         placeholder={dockPlaceholderFor(staticData)}
@@ -40,6 +52,7 @@ export const EclipseDock = ({ mobile = false }: { mobile?: boolean }) => {
         status={unavailable ? 'unavailable' : pending ? 'streaming' : 'idle'}
         unavailableLabel={ECLIPSE_UNAVAILABLE_LABEL}
         inputRef={inputRef}
+        trailing={voice.button}
       />
     </div>
   )
