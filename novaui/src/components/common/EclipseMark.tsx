@@ -1,5 +1,3 @@
-import { APP_NAME } from '../../constants/appInfo'
-
 interface EclipseMarkProps {
   size?: number
 }
@@ -19,11 +17,4 @@ export const EclipseMark = ({ size = 48 }: EclipseMarkProps) => (
     </defs>
     <circle cx="24" cy="24" r="21" fill="url(#eclipse-mark-fill)" mask="url(#eclipse-mark-mask)" />
   </svg>
-)
-
-export const EclipseLogo = () => (
-  <div className="inline-flex items-center gap-5.5">
-    <EclipseMark />
-    <span className="text-[30px] font-medium tracking-[0.24em] uppercase max-sm:text-[22px]">{APP_NAME}</span>
-  </div>
 )

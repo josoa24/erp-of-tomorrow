@@ -1,4 +1,4 @@
-import { EclipseMark } from '../../../components/common/EclipseLogo'
+import { EclipseMark } from '../../../components/common/EclipseMark'
 import { AI_NAME, AI_STATUS, AI_TAGLINE } from '../../../constants/appInfo'
 import { OrbNetwork } from './OrbNetwork'
 import { OrbPlatform } from './OrbPlatform'
