@@ -11,7 +11,6 @@ from app.tools import (briefing_tools, crm_tools, invoice_tools, module_tools, r
                        rh_crm_tools, rh_leave_tools, stock_tools, vente_credit_tools, vente_tools)
 from app.tools.spec import Args, ToolSpec, decl, string
 
-# Même règle que la gateway (RoleAccessPolicy) : un rôle = un module, ADMIN = tout, union des rôles.
 OPEN_MODULES = {"system", "general"}
 MODULE_ROLES: dict[str, set[str]] = {"stock": {"STOCK"}, "vente": {"VENTE"}, "rh": {"RH"}, "crm": {"CRM"}}
 

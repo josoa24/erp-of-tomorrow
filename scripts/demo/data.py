@@ -5,7 +5,6 @@ ROLE_ORDER = ["ADMIN", "STOCK", "VENTE", "RH", "CRM"]
 ACCOUNTS = [("stock@erp.local", "STOCK"), ("vente@erp.local", "VENTE"), ("rh@erp.local", "RH"),
             ("crm@erp.local", "CRM")]
 
-# email, rôles (un compte peut en avoir plusieurs), nom complet, actif, dernière connexion (en jours, None = jamais)
 TEAM_ACCOUNTS = [
     ("mamy.andrianjaka@erp.local", ["ADMIN"], "Mamy Andrianjaka", True, 0),
     ("lalaina.rakotomalala@erp.local", ["STOCK", "VENTE"], "Lalaina Rakotomalala", True, 1),
