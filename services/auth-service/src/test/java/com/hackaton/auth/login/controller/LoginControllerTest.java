@@ -33,11 +33,12 @@ class LoginControllerTest {
     @Test
     void shouldReturn200WithToken_whenCredentialsAreValid() throws Exception {
         LoginRequest request = new LoginRequest("admin@erp.local", "secret123");
-        when(authenticator.login(request)).thenReturn(new LoginResponse("jwt-token", "admin@erp.local", Role.ADMIN));
+        when(authenticator.login(request)).thenReturn(new LoginResponse("jwt-token", "admin@erp.local", "Hery Rabe", Role.ADMIN));
 
         login(CREDENTIALS)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").value("jwt-token"))
+                .andExpect(jsonPath("$.fullName").value("Hery Rabe"))
                 .andExpect(jsonPath("$.role").value("ADMIN"));
     }
 

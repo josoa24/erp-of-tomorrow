@@ -54,6 +54,16 @@ class AuthenticatorServiceTest {
     }
 
     @Test
+    void shouldReturnFullName_whenAccountHasOne() {
+        user.setFullName("Rasoa Andria");
+        when(userRepository.findByEmail("rh@erp.local")).thenReturn(Optional.of(user));
+
+        LoginResponse response = service.login(new LoginRequest("rh@erp.local", "motdepasse1"));
+
+        assertEquals("Rasoa Andria", response.fullName());
+    }
+
+    @Test
     void shouldThrowInvalidCredentials_whenPasswordIsWrong() {
         when(userRepository.findByEmail("rh@erp.local")).thenReturn(Optional.of(user));
 
