@@ -39,7 +39,8 @@ public class DefinitionRulesValidator implements DefinitionRules {
         if (column.type() == ColumnType.CHOICE && (column.choices() == null || column.choices().isEmpty())) {
             throw new InvalidInputException("La colonne " + column.label() + " doit proposer au moins un choix");
         }
-        if (column.type() == ColumnType.CHOICE && new HashSet<>(column.choices()).size() != column.choices().size()) {
+        if (column.type() == ColumnType.CHOICE
+                && column.choices().stream().map(String::trim).distinct().count() != column.choices().size()) {
             throw new InvalidInputException("La colonne " + column.label() + " propose deux fois le même choix");
         }
         if (column.type() == ColumnType.REFERENCE && column.reference() == null) {

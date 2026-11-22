@@ -40,7 +40,7 @@ class DefinitionRulesValidatorTest {
 
     @Test
     void shouldRefuse_whenChoiceColumnRepeatsAChoice() {
-        ColumnSpec mode = new ColumnSpec("mode", "Mode", ColumnType.CHOICE, false, List.of("Moto", "Moto"), null);
+        ColumnSpec mode = new ColumnSpec("mode", "Mode", ColumnType.CHOICE, false, List.of("Moto", " Moto "), null);
 
         assertThrows(InvalidInputException.class, () -> validator.check(withColumns(List.of(mode))));
     }
