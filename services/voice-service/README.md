@@ -51,7 +51,7 @@ curl.exe -X POST http://localhost:8080/api/voice/transcribe -H "Authorization: B
 
 Logs : chaque connexion et chaque phrase sont tracées (`voice.stream`) avec la durée de l'audio, le niveau, le temps de calcul et le texte.
 
-Via la gateway, un navigateur ne peut pas envoyer l'en-tête `Authorization` sur un WebSocket : la page de démo se connecte donc directement au service. L'application React Native, elle, peut passer par `ws://<gateway>/api/voice/stream` avec son token dans les en-têtes.
+Via la gateway, un navigateur ne peut pas envoyer l'en-tête `Authorization` sur un WebSocket : la page de démo se connecte donc directement au service. Le front web (NovaUI), lui, peut passer par `ws://<gateway>/api/voice/stream` avec son token dans les en-têtes.
 
 ## Lancer
 

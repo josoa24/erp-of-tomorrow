@@ -4,7 +4,7 @@ Un ADR (Architecture Decision Record) note une décision importante : le context
 
 | N° | Décision | Statut |
 |----|----------|--------|
-| [ADR-001](ADR-001-microservices-base-par-service.md) | Microservices Spring Boot, une base par service, une gateway unique | Acceptée |
+| [ADR-001](ADR-001-microservices-base-par-service.md) | Microservices Spring Boot, un schéma par service dans une base unique, une gateway unique | Acceptée |
 | [ADR-002](ADR-002-jwt-gateway-en-tetes-identite.md) | JWT vérifié à la gateway, identité propagée par en-têtes `X-User-*` | Acceptée |
 | [ADR-003](ADR-003-separation-reader-creator-updater-deleter.md) | Séparation Reader / Creator / Updater / Deleter, interfaces, DTO, 100 lignes par fichier | Acceptée |
 | [ADR-004](ADR-004-donnees-validees-immuables.md) | Données validées immuables, correction par nouvelle écriture | Acceptée |
