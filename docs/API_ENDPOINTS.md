@@ -229,7 +229,26 @@ Chaque facture est contrôlée par Invoice Shield avant toute décision. Codes d
 
 ---
 
-## 9. Pour aller plus loin
+## 9. IA : `/api/ai` (tous les rôles connectés)
+
+L'assistant appelle les autres modules via la gateway **avec le token de l'utilisateur** : il n'a jamais plus de droits que lui, et Gemini ne reçoit que les outils du rôle connecté. Détails et exemples : [services/ai-service/README.md](../services/ai-service/README.md).
+
+| Méthode | Chemin | Description | Statuts |
+|---------|--------|-------------|---------|
+| POST | `/api/ai/agent/chat` | Réponse complète. Corps `message`, `conversation_id` optionnel. La réponse contient `trust` : `label` (`FACT`, `ESTIMATION`, `RECOMMENDATION`, `NONE`), `verifiedNumbers`, `unverifiedNumbers`, `sources` | 200, 400, 401, 404, 429, 503, 504 |
+| POST | `/api/ai/agent/chat/stream` | Même chose en Server-Sent Events ; `trust` est dans l'événement `done` | 200, 401, 404, 429, 503 |
+| GET | `/api/ai/tools` | Outils disponibles pour le rôle connecté | 200, 401 |
+| GET, DELETE | `/api/ai/agent/conversations/{id}` | Historique, réinitialisation | 200, 404 |
+| POST | `/api/ai/agent/conversations/{id}/actions/{actionId}/confirm` | Confirme une écriture proposée par l'IA (exécutée avec le token de l'utilisateur) | 200, 404, 4xx de l'ERP |
+| POST | `/api/ai/agent/conversations/{id}/actions/{actionId}/cancel` | Annule une écriture proposée | 200, 404 |
+| POST | `/api/ai/invoices/extract` | Rôles STOCK, ADMIN. `multipart/form-data`, champ `file` : image JPEG, PNG, WEBP ou PDF (8 Mo par défaut). Extrait la facture fournisseur, retrouve le fournisseur et renvoie le contrôle Invoice Shield `{extracted, supplierMatch, shield}`. Rien n'est enregistré | 200, 400, 403, 413, 429, 503 |
+| GET | `/api/ai/audit` | ADMIN. Journal des interactions avec l'IA (plus récentes d'abord). Filtres `limit` (1 à 500, défaut 50), `userId` | 200, 400, 403 |
+
+Au-delà de `AI_RATE_LIMIT_PER_MINUTE` requêtes par minute et par utilisateur (chat, flux, extraction) : **429** `RATE_LIMIT`, avec l'en-tête `Retry-After`.
+
+---
+
+## 10. Pour aller plus loin
 
 - Plans de développement : [PLAN_API.md](PLAN_API.md), [PLAN_CRM.md](PLAN_CRM.md), [PLAN_ERP.md](PLAN_ERP.md).
 - Règles de code : [REGLES_DEVELOPPEMENT.md](REGLES_DEVELOPPEMENT.md).

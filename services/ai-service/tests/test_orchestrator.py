@@ -5,7 +5,8 @@ import pytest
 from google.genai import errors as genai_errors
 from google.genai import types
 
-from app.agent.orchestrator import AgentError, GeminiAgent
+from app.agent.gemini_errors import AgentError
+from app.agent.orchestrator import GeminiAgent
 from app.config import Settings
 from app.erp.client import ErpClient
 from app.tools.registry import ToolRegistry
