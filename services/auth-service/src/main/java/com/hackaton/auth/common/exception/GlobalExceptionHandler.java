@@ -24,6 +24,11 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", ex.getMessage());
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ApiError> handleForbidden(ForbiddenException ex) {
+        return build(HttpStatus.FORBIDDEN, "FORBIDDEN", ex.getMessage());
+    }
+
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity<ApiError> handleMissingIdentity(MissingRequestHeaderException ex) {
         return build(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "Identité de l'utilisateur absente");

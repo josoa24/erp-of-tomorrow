@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 class UserControllerAccountTest {
 
     private static final UserResponse DISABLED = new UserResponse(2L, "vente@erp.local", "Rasoa Andria", Role.VENTE, false,
-            Instant.now());
+            Instant.now(), null);
 
     @Autowired
     private MockMvc mockMvc;

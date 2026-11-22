@@ -31,7 +31,7 @@ class CurrentUserControllerTest {
     @Test
     void shouldReturnCallerAccount_whenIdentityIsPresent() throws Exception {
         when(userReader.findById(1L)).thenReturn(
-                new UserResponse(1L, "hery@boutique-tana.mg", "Hery Rabe", Role.ADMIN, true, Instant.now()));
+                new UserResponse(1L, "hery@boutique-tana.mg", "Hery Rabe", Role.ADMIN, true, Instant.now(), null));
 
         mockMvc.perform(withIdentity(get(PATH)))
                 .andExpect(status().isOk())

@@ -35,7 +35,8 @@ class AuthenticatorServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new AuthenticatorService(userRepository, encoder, new JwtTokenIssuer(SECRET, 60));
+        service = new AuthenticatorService(userRepository, encoder, new JwtTokenIssuer(SECRET, 60),
+                userId -> { });
         user = new UserAccount();
         user.setId(1L);
         user.setEmail("rh@erp.local");

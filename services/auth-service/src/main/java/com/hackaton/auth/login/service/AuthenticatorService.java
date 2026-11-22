@@ -19,6 +19,7 @@ public class AuthenticatorService implements Authenticator {
     private final UserAccountRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenIssuer tokenIssuer;
+    private final LoginRecorder loginRecorder;
 
     @Override
     public LoginResponse login(LoginRequest request) {
@@ -30,6 +31,7 @@ public class AuthenticatorService implements Authenticator {
         if (!user.isEnabled()) {
             throw new AccountDisabledException();
         }
+        loginRecorder.record(user.getId());
         return new LoginResponse(tokenIssuer.issue(user), user.getEmail(), user.getFullName(), user.getRole());
     }
 }
