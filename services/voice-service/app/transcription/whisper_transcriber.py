@@ -37,6 +37,12 @@ class WhisperTranscriber:
         )
         return _join(segments)
 
+    def preload(self) -> list[str]:
+        sizes = list(dict.fromkeys(s for s in (self._settings.model_size, self._settings.partial_model_size) if s))
+        for size in sizes:
+            self._model(size)
+        return sizes
+
     def _prompt_for(self, language: str) -> str | None:
         if language != self._settings.language or not self._settings.initial_prompt:
             return None

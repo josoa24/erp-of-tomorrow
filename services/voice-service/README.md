@@ -23,10 +23,10 @@ Erreurs, au même format que les services Spring (`status`, `type`, `message`, `
 
 | Statut | Cas |
 |--------|-----|
-| 400 | Fichier vide |
+| 400 | Fichier vide, ou champ `audio` absent |
 | 413 | Fichier trop gros |
 | 415 | Ce n'est pas un fichier audio |
-| 422 | Audio illisible |
+| 422 | Audio illisible (le détail technique reste dans les logs du service) |
 
 Exemple :
 
@@ -64,7 +64,7 @@ py -m venv .venv
 .venv\Scripts\uvicorn app.main:app --port 8087
 ```
 
-Le modèle Whisper (environ 500 Mo pour `small`) est téléchargé automatiquement à la première transcription, puis gardé en cache. Pour le temps réel sur un processeur seul, `base` (145 Mo) répond plus vite, au prix d'un peu de précision.
+Le modèle Whisper (environ 500 Mo pour `small`) est chargé en arrière-plan dès le démarrage du service (téléchargé la première fois, puis gardé en cache) : le log `voice.preload` indique « modèles Whisper prêts ». Si le chargement échoue, il est retenté à la première transcription. Avant une démo, attendre ce log. Pour le temps réel sur un processeur seul, `base` (145 Mo) répond plus vite, au prix d'un peu de précision.
 
 Si le téléchargement automatique bloque, télécharger les fichiers du modèle (`config.json`, `model.bin`, `tokenizer.json`, `vocabulary.txt`) depuis la page Hugging Face `Systran/faster-whisper-base` dans un dossier, puis donner ce dossier à `VOICE_MODEL_SIZE` :
 
@@ -77,7 +77,7 @@ $env:VOICE_MODEL_SIZE = "$HOME\.cache\whisper-models\faster-whisper-base"
 | Variable | Défaut | Rôle |
 |----------|--------|------|
 | `VOICE_MODEL_SIZE` | `small` | `tiny`, `base`, `small`, `medium`, `large-v3`, ou le chemin d'un dossier de modèle |
-| `VOICE_PARTIAL_MODEL_SIZE` | vide | Modèle plus petit et plus rapide pour le texte provisoire du temps réel (ex. `tiny`) ; vide = même modèle que le texte définitif |
+| `VOICE_PARTIAL_MODEL_SIZE` | vide (`tiny` dans docker compose) | Modèle plus petit et plus rapide pour le texte provisoire du temps réel ; vide = même modèle que le texte définitif. Sur processeur seul, sans modèle plus petit, le texte provisoire arrive après la fin de la phrase et n'est jamais affiché |
 | `VOICE_DEVICE` | `cpu` | `cuda` si une carte NVIDIA est disponible |
 | `VOICE_COMPUTE_TYPE` | `int8` | `float16` sur carte graphique |
 | `VOICE_LANGUAGE` | `fr` | Langue par défaut |
