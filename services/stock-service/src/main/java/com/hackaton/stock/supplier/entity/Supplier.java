@@ -32,9 +32,20 @@ public class Supplier {
 
     private String address;
 
+    @Column(length = 80)
+    private String city;
+
+    @Column(length = 20)
+    private String nif;
+
+    @Column(length = 30)
+    private String stat;
+
     private String paymentTerms;
 
     private Integer usualDeliveryDays;
+
+    private String bankAccount;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;

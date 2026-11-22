@@ -12,5 +12,7 @@ public record ProductResponse(
         int minThreshold,
         BigDecimal unitPrice,
         boolean lowStock,
-        Instant createdAt) {
+        Instant createdAt,
+        String category,
+        BigDecimal purchasePrice) {
 }

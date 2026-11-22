@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import com.hackaton.auth.common.exception.AccountDisabledException;
 import com.hackaton.auth.common.exception.InvalidCredentialsException;
 import com.hackaton.auth.login.dto.LoginRequest;
 import com.hackaton.auth.login.dto.LoginResponse;
@@ -53,11 +54,30 @@ class AuthenticatorServiceTest {
     }
 
     @Test
+    void shouldReturnFullName_whenAccountHasOne() {
+        user.setFullName("Rasoa Andria");
+        when(userRepository.findByEmail("rh@erp.local")).thenReturn(Optional.of(user));
+
+        LoginResponse response = service.login(new LoginRequest("rh@erp.local", "motdepasse1"));
+
+        assertEquals("Rasoa Andria", response.fullName());
+    }
+
+    @Test
     void shouldThrowInvalidCredentials_whenPasswordIsWrong() {
         when(userRepository.findByEmail("rh@erp.local")).thenReturn(Optional.of(user));
 
         assertThrows(InvalidCredentialsException.class,
                 () -> service.login(new LoginRequest("rh@erp.local", "mauvais")));
+    }
+
+    @Test
+    void shouldRefuseLogin_whenAccountIsDisabled() {
+        user.setEnabled(false);
+        when(userRepository.findByEmail("rh@erp.local")).thenReturn(Optional.of(user));
+
+        assertThrows(AccountDisabledException.class,
+                () -> service.login(new LoginRequest("rh@erp.local", "motdepasse1")));
     }
 
     @Test

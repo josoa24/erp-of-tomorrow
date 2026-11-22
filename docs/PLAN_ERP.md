@@ -2,7 +2,7 @@
 
 Ce plan complète [PLAN_API.md](PLAN_API.md) (modules existants) et [PLAN_CRM.md](PLAN_CRM.md) (clients et fournisseurs). Il suit le sujet du hackathon : un ERP où l'on parle ou l'on saisit une demande, où l'interface s'adapte à la réponse, où la saisie se fait par la voix ou un document, et qui anticipe les problèmes.
 
-Statut : À faire. Taille : S (moins d'une demi-journée), M (une journée), L (plusieurs jours).
+Statut : Fait ou À faire (précisé sur chaque tâche). Taille : S (moins d'une demi-journée), M (une journée), L (plusieurs jours).
 
 Chaque tâche suit [REGLES_DEVELOPPEMENT.md](REGLES_DEVELOPPEMENT.md).
 
@@ -15,11 +15,12 @@ Chaque tâche suit [REGLES_DEVELOPPEMENT.md](REGLES_DEVELOPPEMENT.md).
 | Stock | Produits, mouvements, autonomie, état de stock, fournisseurs, bons de commande | Entrepôts, lots, inventaire, valorisation, codes-barres |
 | Vente | Clients, ventes, validation avec sortie de stock, rapports | Devis, livraison, retours, remises, paiements |
 | RH | Départements, employés, congés, pointage, résumé | Contrats, paie, évaluations, recrutement |
-| Auth | Comptes, rôles, connexion, contrôle par module | Refresh token, mot de passe, permissions fines |
+| Auth | Comptes, rôles (dont `CRM`), connexion, contrôle par module | Modification et désactivation de compte, mot de passe, refresh token, permissions fines |
+| CRM | Fiches 360, interactions, chronologie | Tâches, relances, pipeline, segments (voir [PLAN_CRM.md](PLAN_CRM.md)) |
 | Finance | Rien | Factures, paiements, comptabilité, TVA, trésorerie |
-| IA | Rien | Assistant, interface générée, saisie voix et document, alertes |
+| IA | `ai-service` (Gemini) : discussion texte, appel des endpoints avec le token de l'utilisateur, écritures après confirmation | Interface générée, saisie voix et document, alertes, simulation |
 | Applications | Squelettes vides | Tous les écrans |
-| Transverse | Gateway, tests unitaires | Audit, notifications, exports, CI, migrations de base |
+| Transverse | Gateway, tests unitaires, Swagger, Docker Compose | CORS, audit, notifications, exports, CI, migrations de base |
 
 ## 2. Ordre de priorité
 
@@ -37,22 +38,32 @@ Les calculs restent dans les services métier. L'IA comprend la demande, appelle
 
 | # | Tâche | Détail | Taille | Dépend de | Statut |
 |---|-------|--------|--------|-----------|--------|
-| AI-1 | Squelette `ai-service` | Port 8086, route gateway `/api/ai`, clé du fournisseur IA par variable d'environnement (jamais commitée) | M | | À faire |
-| AI-2 | Reconnaissance d'intention | Texte vers une intention et ses paramètres en JSON ; liste fermée d'intentions, jamais de code arbitraire | L | AI-1 | À faire |
-| AI-3 | Orchestrateur | Appelle `/status`, `/summary`, `/sales/top-products`, etc. avec le token de l'utilisateur : ses droits sont respectés | L | AI-2 | À faire |
-| AI-4 | Réponse avec interface | La réponse contient un message et une liste de composants (indicateur, tableau, graphique, bouton d'action) choisis dans un catalogue | M | AI-3 | À faire |
-| AI-5 | Explication en langage naturel | Interpréter les résultats (« stock pour environ 2 jours ») ; les chiffres viennent des services | M | AI-3 | À faire |
+| AI-1 | Squelette `ai-service` | Port 8086, route gateway `/api/ai`, clé du fournisseur IA par variable d'environnement (jamais commitée). Python (FastAPI) avec Google Gemini, `GEMINI_API_KEY` dans `.env` | M | | Fait |
+| AI-2 | Reconnaissance d'intention | Texte vers une intention et ses paramètres en JSON ; liste fermée d'intentions, jamais de code arbitraire. Réalisé par le function calling de Gemini sur une liste fermée d'outils (`app/tools/`) | L | AI-1 | Fait |
+| AI-3 | Orchestrateur | Appelle `/status`, `/summary`, `/sales/top-products`, etc. avec le token de l'utilisateur : ses droits sont respectés | L | AI-2 | Fait |
+| AI-4 | Réponse avec interface | La réponse contient un message et une liste de composants (indicateur, tableau, graphique, bouton d'action) choisis dans un catalogue. Aujourd'hui la réponse ne contient que le texte et les outils appelés | M | AI-3 | À faire |
+| AI-5 | Explication en langage naturel | Interpréter les résultats (« stock pour environ 2 jours ») ; les chiffres viennent des services | M | AI-3 | Fait |
 | AI-6 | Saisie vocale | Voix vers texte, puis intention, puis opération préparée en brouillon, puis confirmation | L | AI-3 | À faire |
 | AI-7 | Saisie par document | Photo de facture vers extraction (fournisseur, lignes, quantités, prix), puis bon de commande ou réception en brouillon | L | AI-3 | À faire |
 | AI-8 | Contrôle des doublons et incohérences | Avant d'enregistrer : livraison déjà saisie, quantité anormale | M | AI-6, AI-7 | À faire |
-| AI-9 | Actions proposées | « Prépare la commande nécessaire » crée un bon de commande en brouillon pour les produits `CRITICAL` ; confirmation explicite avant toute écriture | M | AI-3 | À faire |
+| AI-9 | Actions proposées | « Prépare la commande nécessaire » crée un bon de commande en brouillon pour les produits `CRITICAL` ; confirmation explicite avant toute écriture. Outil de création de bon de commande en brouillon, exécuté seulement après confirmation (`/actions/{actionId}/confirm`) | M | AI-3 | Fait |
 | AI-10 | Simulation « et si » | « Si les ventes augmentent de 30 % » : ruptures prévues et budget de réapprovisionnement (endpoint de simulation dans Stock) | L | INV-7 | À faire |
 | AI-11 | Alertes proactives | Tâche planifiée : ruptures, dépenses anormales, retards ; envoie des notifications | M | SYS-5 | À faire |
 | AI-12 | Journal des actions IA | Qui a demandé quoi, ce qui a été proposé, ce qui a été confirmé | M | SYS-4 | À faire |
-| AI-13 | Sécurité | Aucune écriture sans confirmation, limite de débit, pas de données personnelles envoyées inutilement, jeux de tests de demandes piégées | M | AI-3 | À faire |
+| AI-13 | Sécurité | Aucune écriture sans confirmation, limite de débit, pas de données personnelles envoyées inutilement, jeux de tests de demandes piégées. Confirmation avant écriture déjà en place ; restent la limite de débit et les tests de demandes piégées | M | AI-3 | À faire |
 | AI-14 | Compréhension du malgache | Demandes en malgache (priorité basse) | M | AI-2 | À faire |
+| AI-15 | Rôle `DG` | Ajouter le rôle dans `auth-service` et `RoleAccessPolicy` : lecture vente, stock, RH et CRM, accès à `/api/ai` (le rôle `RH` y accède aussi) | S | | À faire |
+| AI-16 | Transcription | Nouveau `voice-service` en Python (port 8087, route gateway `/api/voice`) avec faster-whisper : `POST /transcribe`, audio multipart vers texte, français par défaut | M | | En cours |
+| AI-17 | Enrôlement vocal | `POST /voiceprints` : l'utilisateur connecté lit 3 à 5 phrases ; on garde l'empreinte vocale (SpeechBrain ECAPA) liée à son identifiant, jamais l'audio ; consentement explicite et suppression à la demande | M | AI-16 | À faire |
+| AI-18 | Vérification du locuteur | À chaque question vocale, comparer la voix à l'empreinte du compte connecté (similarité cosinus, seuil configurable) ; refus si elle ne correspond pas | M | AI-17 | À faire |
+| AI-19 | Question vocale de bout en bout | Micro, puis transcription, vérification du locuteur, orchestrateur et réponse ; démo « Quel est notre chiffre d'affaires ? » via `GET /sales/summary` | M | AI-3, AI-18 | À faire |
+| AI-20 | Anti-rejeu | Phrase aléatoire à lire avant une question sensible (salaires, chiffre d'affaires), pour bloquer un simple enregistrement rejoué ; tentatives refusées tracées dans AI-12 | S | AI-18 | À faire |
+| AI-21 | Réponse parlée | L'assistant répond à voix haute avec une voix neuronale naturelle (Piper en local, ou une API de synthèse) ; la réponse est rédigée pour l'oral, courte, sans tableau lu ligne à ligne, tandis que l'écran affiche les détails (AI-4) | M | AI-19 | À faire |
+| AI-22 | Conversation continue | Mode « appel » : WebSocket en flux, détection de fin de parole (Silero VAD), interruption possible pendant que l'assistant parle, mémoire de la conversation (« et le mois dernier ? ») ; réponse qui commence en moins de 2 secondes | L | AI-21 | À faire |
 
-## Phase B. Applications React Native
+**Règle de sécurité de la voix.** Les droits viennent toujours du JWT de la connexion. La voix ne donne aucun droit : elle confirme seulement que la personne qui parle est bien le titulaire du compte connecté. Un RH qui imite la voix du DG n'obtient donc jamais les données du DG.
+
+## Phase B. Application web (NovaUI, une seule pour tous les modules)
 
 | # | Tâche | Détail | Taille | Dépend de | Statut |
 |---|-------|--------|--------|-----------|--------|
@@ -126,7 +137,7 @@ Les calculs restent dans les services métier. L'IA comprend la demande, appelle
 | HRX-3 | Types de congés et jours fériés | Maladie, maternité, jours fériés exclus du décompte | M | | À faire |
 | HRX-4 | Heures et paie | Heures travaillées issues du pointage, heures supplémentaires | M | HRX-2 | À faire |
 | HRX-5 | Hiérarchie et approbation | Un manager valide les congés de son équipe | M | | À faire |
-| HRX-6 | Lien compte et employé | `userId` sur la fiche employé (A9 de [PLAN_API.md](PLAN_API.md)) | S | | À faire |
+| HRX-6 | Lien compte et employé | `userId` sur la fiche employé (A9 de [PLAN_API.md](PLAN_API.md)) | S | | Fait |
 | HRX-7 | Évaluations | Campagnes et résultats | M | | À faire |
 | HRX-8 | Recrutement | Offres, candidatures, étapes | L | | À faire |
 
@@ -135,8 +146,8 @@ Les calculs restent dans les services métier. L'IA comprend la demande, appelle
 | # | Tâche | Détail | Taille | Dépend de | Statut |
 |---|-------|--------|--------|-----------|--------|
 | SYS-1 | Permissions fines | Droits par action, pas seulement par module | L | | À faire |
-| SYS-2 | Sécurité des comptes | Renouvellement de token, déconnexion, changement de mot de passe (A6 à A8) | M | | À faire |
-| SYS-3 | Services joignables uniquement par la gateway | En-têtes `X-User-*` obligatoires (A10) | M | | À faire |
+| SYS-2 | Sécurité des comptes | Faits : modification de compte, changement de mot de passe, désactivation (A6 à A8). Reste : renouvellement de token et déconnexion | M | | En cours |
+| SYS-3 | Services joignables uniquement par la gateway | En-têtes `X-User-*` obligatoires (A10). Reste : secret partagé entre gateway et services, ou réseau privé | M | | Fait |
 | SYS-4 | Journal d'audit | Qui a fait quoi et quand, dans tous les services | L | | À faire |
 | SYS-5 | Notifications | Dans l'application, par email ou push | L | | À faire |
 | SYS-6 | Rapports et exports | PDF, CSV, Excel | M | | À faire |
@@ -145,7 +156,7 @@ Les calculs restent dans les services métier. L'IA comprend la demande, appelle
 | SYS-9 | Paramètres de la société | Nom, logo, numérotation, TVA | S | | À faire |
 | SYS-10 | Pagination et tri partout | Format commun pour toutes les listes | M | | À faire |
 | SYS-11 | Intégration continue | Build et tests à chaque Pull Request | M | | À faire |
-| SYS-12 | Déploiement | Un Dockerfile par service, `docker-compose` complet | M | | À faire |
+| SYS-12 | Déploiement | Un Dockerfile par service, `docker-compose` complet. `docker/Dockerfile.java` commun aux services Java, Dockerfile propre à `ai-service` (profil `ai`) | M | | Fait |
 | SYS-13 | Observabilité | Logs structurés, santé, métriques | M | | À faire |
 | SYS-14 | Migrations de base | Remplacer `ddl-auto: update` par des migrations versionnées (Flyway) | L | | À faire |
 | SYS-15 | Tests sur PostgreSQL | Tests d'intégration avec Testcontainers (aujourd'hui testé sur H2 seulement) | L | | À faire |
@@ -160,12 +171,12 @@ Scénario en quatre scènes, avec ce qui existe déjà et ce qu'il reste à fair
 
 | Scène | Ce qui existe | À faire |
 |-------|---------------|---------|
-| Une facture devient une opération | Bons de commande, validation, réception | AI-1, AI-2, AI-7, APP-9 |
-| Une phrase devient une vente | Ventes et validation avec sortie de stock | AI-6, APP-8 |
-| Une question devient une décision | `GET /status` (risque par produit) | AI-3, AI-4, AI-5, APP-7 |
-| Une recommandation devient une action | Bons de commande en brouillon | AI-9 |
+| Une facture devient une opération | Bons de commande, validation, réception, `ai-service` (AI-1, AI-2) | AI-7, APP-9 |
+| Une phrase devient une vente | Ventes et validation avec sortie de stock, assistant texte | AI-6, APP-8 |
+| Une question devient une décision | `GET /status` (risque par produit), assistant (AI-3, AI-5) | AI-4, APP-7 |
+| Une recommandation devient une action | Bons de commande en brouillon créés par l'assistant après confirmation (AI-9) | Écran pour la démonstration (APP-7) |
 
-Complément indispensable : APP-1 à APP-3 (composants, connexion, page d'erreur) pour que tout soit utilisable.
+Complément indispensable : C4 (CORS sur la gateway, [PLAN_API.md](PLAN_API.md)) et APP-1 à APP-3 (composants, connexion, page d'erreur) pour que tout soit utilisable.
 
 ## Questions à trancher
 

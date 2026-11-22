@@ -1,0 +1,5 @@
+export const APP_NAME = 'NOVA'
+export const AI_NAME = 'Eclipse'
+export const AI_TAGLINE = 'Business Intelligence'
+export const AI_STATUS = 'Toujours actif'
+export const CURRENCY_LABEL = 'Ar'

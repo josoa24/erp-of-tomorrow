@@ -1,6 +1,6 @@
 # Règles de développement du projet
 
-> Ce document s'applique à **tous les développeurs** (Front React Native & Back Spring Boot).
+> Ce document s'applique à **tous les développeurs** (Front React & Back Spring Boot).
 > Toute Pull Request qui ne respecte pas ces règles doit être corrigée avant d'être mergée.
 
 ---

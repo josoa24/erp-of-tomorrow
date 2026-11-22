@@ -39,6 +39,14 @@ class RoleAccessPolicyTest {
     }
 
     @Test
+    void shouldAllowVoiceForEveryBusinessRole() {
+        for (String role : new String[] {"STOCK", "VENTE", "RH", "CRM", "ADMIN"}) {
+            assertTrue(policy.isAllowed("/api/voice/transcribe", role), role);
+        }
+        assertFalse(policy.isAllowed("/api/voice/transcribe", "INCONNU"));
+    }
+
+    @Test
     void shouldReserveUserManagementToAdmin() {
         assertFalse(policy.isAllowed("/api/auth/users", "RH"));
         assertFalse(policy.isAllowed("/api/auth/users", "STOCK"));

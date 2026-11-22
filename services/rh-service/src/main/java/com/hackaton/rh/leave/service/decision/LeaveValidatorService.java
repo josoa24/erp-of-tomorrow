@@ -25,7 +25,7 @@ public class LeaveValidatorService implements LeaveValidator {
 
     @Override
     @Transactional
-    public LeaveResponse validate(Long id) {
+    public LeaveResponse validate(Long id, Long actorId) {
         LeaveRequest leave = leaveRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Congé", id));
         if (leave.getStatus() != LeaveStatus.DRAFT) {
@@ -40,6 +40,7 @@ public class LeaveValidatorService implements LeaveValidator {
         employeeRepository.save(employee);
         leave.setStatus(LeaveStatus.VALIDATED);
         leave.setDecidedAt(Instant.now());
-        return leaveMapper.toResponse(leaveRepository.save(leave));
+        leave.setDecidedBy(actorId);
+        return leaveMapper.toResponse(leaveRepository.save(leave), employee.fullName());
     }
 }

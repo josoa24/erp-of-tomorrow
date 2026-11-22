@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 .pytest_cache/
 scenarios_report.json
+data/

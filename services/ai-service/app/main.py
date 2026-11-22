@@ -7,25 +7,37 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
-from pathlib import Path as FsPath
 from typing import Any
 
 import httpx
-from fastapi import FastAPI, Request
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import FileResponse
+from fastapi import FastAPI
 
+from app.agent.gemini_client import build_client, check_model
 from app.agent.memory import ConversationStore
-from app.agent.orchestrator import AgentError, GeminiAgent, build_client, check_model
-from app.api import chat_routes, conversation_routes
-from app.api.identity import NotAuthenticated, user_from_request
-from app.api.schemas import api_error
+from app.agent.orchestrator import GeminiAgent
+from app.api import audit_routes, chat_routes, conversation_routes, eclipse_routes, invoice_routes, system_routes
+from app.api.error_handlers import register_error_handlers
+from app.api.rate_limit import SlidingWindowLimiter
+from app.audit.store import AuditStore
 from app.config import Settings, get_settings
+from app.eclipse.deps import build_eclipse
 from app.erp.client import ErpClient
+from app.invoices.extractor import InvoiceExtractor
 from app.tools.registry import ToolRegistry
 
 logger = logging.getLogger("ai-service")
-STATIC_DIR = FsPath(__file__).resolve().parent / "static"
+
+
+async def _gemini(settings: Settings, client: Any) -> Any:
+    """Client injecté (tests), sinon client réel si la clé est présente (modèle vérifié au démarrage)."""
+    if client is not None or not settings.has_api_key:
+        return client
+    client = build_client(settings)
+    if settings.check_model_on_startup:
+        status = await check_model(client, settings.gemini_model)
+        log = logger.info if status["available"] else logger.error
+        log("Modèle %s : %s", settings.gemini_model, "disponible" if status["available"] else status.get("error"))
+    return client
 
 
 def create_app(settings: Settings | None = None, client: Any = None,
@@ -43,62 +55,26 @@ def create_app(settings: Settings | None = None, client: Any = None,
         app.state.conversations = ConversationStore(
             ttl_s=settings.conversation_ttl_min * 60, max_turns=settings.max_history_turns,
             max_chars=settings.history_max_chars, max_conversations=settings.max_conversations)
-        gemini = client
-        if gemini is None and settings.has_api_key:
-            gemini = build_client(settings)
-            if settings.check_model_on_startup:
-                status = await check_model(gemini, settings.gemini_model)
-                log = logger.info if status["available"] else logger.error
-                log("Modèle %s : %s", settings.gemini_model, "disponible" if status["available"] else status.get("error"))
+        app.state.audit = AuditStore(settings.audit_db_path)
+        app.state.rate_limiter = SlidingWindowLimiter(settings.ai_rate_limit_per_minute)
+        gemini = await _gemini(settings, client)
         app.state.agent = GeminiAgent(gemini, app.state.registry, settings) if gemini is not None else None
+        app.state.invoice_extractor = InvoiceExtractor(gemini, settings) if gemini is not None else None
+        app.state.eclipse = build_eclipse(gemini, erp_http, settings)
         if gemini is None:
             logger.error("GEMINI_API_KEY absente : l'assistant renverra 503.")
         yield
+        app.state.audit.close()
         if erp_http_client is None:
             await erp_http.aclose()
 
-    app = FastAPI(title="AI", version="1.0.0", lifespan=lifespan, openapi_url="/v3/api-docs",
+    app = FastAPI(title="AI", version="1.1.0", lifespan=lifespan, openapi_url="/v3/api-docs",
                   description="Assistant IA de l'ERP. Toutes les routes métier exigent le token (via la gateway). "
                               "Les écritures sont proposées puis exécutées après confirmation.")
-
-    @app.exception_handler(NotAuthenticated)
-    async def _unauth(_: Request, __: NotAuthenticated):
-        return api_error(401, "UNAUTHORIZED", "Authentification requise (passer par la gateway avec un token).")
-
-    @app.exception_handler(RequestValidationError)
-    async def _invalid(_: Request, exc: RequestValidationError):
-        first = exc.errors()[0] if exc.errors() else {}
-        return api_error(400, "VALIDATION", f"Requête invalide : {'.'.join(map(str, first.get('loc', [])))} "
-                                             f"{first.get('msg', '')}".strip())
-
-    @app.exception_handler(AgentError)
-    async def _agent(_: Request, exc: AgentError):
-        return api_error(exc.status_code, "SERVER", exc.message)
-
-    @app.exception_handler(Exception)
-    async def _unexpected(_: Request, exc: Exception):
-        logger.exception("Erreur inattendue")
-        return api_error(500, "SERVER", "Erreur interne de l'assistant.")
-
-    app.include_router(chat_routes.router)
-    app.include_router(conversation_routes.router)
-
-    @app.get("/ui", include_in_schema=False)
-    async def chat_ui() -> FileResponse:
-        """Page de test (publique via la gateway : elle ne contient aucune donnée)."""
-        return FileResponse(STATIC_DIR / "chat.html")
-
-    @app.get("/health", tags=["system"])
-    async def health() -> dict[str, str]:
-        return {"status": "ok", "service": "ai-service"}
-
-    @app.get("/tools", tags=["agent"])
-    async def tools(request: Request) -> dict[str, Any]:
-        """Outils disponibles pour le rôle de l'utilisateur connecté."""
-        user = user_from_request(request)
-        described = request.app.state.registry.describe(user.role)
-        return {"role": user.role, "count": len(described), "tools": described}
-
+    register_error_handlers(app)
+    for module in (chat_routes, conversation_routes, invoice_routes, audit_routes, eclipse_routes,
+                   system_routes):
+        app.include_router(module.router)
     return app
 
 

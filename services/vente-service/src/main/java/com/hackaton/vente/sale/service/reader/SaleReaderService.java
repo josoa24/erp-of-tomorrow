@@ -1,15 +1,13 @@
 package com.hackaton.vente.sale.service.reader;
 
 import com.hackaton.vente.common.exception.ResourceNotFoundException;
-import com.hackaton.vente.common.status.DocumentStatus;
+import com.hackaton.vente.common.page.PageResult;
 import com.hackaton.vente.sale.dto.SaleResponse;
+import com.hackaton.vente.sale.dto.SaleSearchCriteria;
 import com.hackaton.vente.sale.entity.Sale;
-import com.hackaton.vente.sale.mapper.SaleMapper;
+import com.hackaton.vente.sale.mapper.SaleResponseAssembler;
 import com.hackaton.vente.sale.repository.SaleRepository;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,27 +18,24 @@ import org.springframework.transaction.annotation.Transactional;
 public class SaleReaderService implements SaleReader {
 
     private final SaleRepository saleRepository;
-    private final SaleMapper saleMapper;
+    private final SaleResponseAssembler assembler;
+    private final SaleSearchFilter filter;
 
     @Override
     public SaleResponse findById(Long id) {
         return saleRepository.findById(id)
-                .map(saleMapper::toResponse)
+                .map(assembler::toResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("Vente", id));
     }
 
     @Override
-    public List<SaleResponse> search(Long customerId, DocumentStatus status, LocalDate from, LocalDate to) {
-        return saleRepository.findAllByOrderByCreatedAtDesc().stream()
-                .filter(sale -> customerId == null || Objects.equals(sale.getCustomerId(), customerId))
-                .filter(sale -> status == null || sale.getStatus() == status)
-                .filter(sale -> from == null || !dayOf(sale).isBefore(from))
-                .filter(sale -> to == null || !dayOf(sale).isAfter(to))
-                .map(saleMapper::toResponse)
+    public PageResult<SaleResponse> search(SaleSearchCriteria criteria, Integer page, Integer size) {
+        List<Sale> stored = saleRepository.findAllByOrderByCreatedAtDesc().stream()
+                .filter(sale -> filter.matchesStored(sale, criteria))
                 .toList();
-    }
-
-    private LocalDate dayOf(Sale sale) {
-        return sale.getCreatedAt().atZone(ZoneOffset.UTC).toLocalDate();
+        List<SaleResponse> matches = assembler.toResponses(stored).stream()
+                .filter(sale -> filter.matchesDerived(sale, criteria))
+                .toList();
+        return PageResult.of(matches, page, size);
     }
 }

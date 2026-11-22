@@ -14,6 +14,8 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long
 
     List<LeaveRequest> findAllByOrderByCreatedAtDesc();
 
+    long countByStatus(LeaveStatus status);
+
     @Query("select count(l) > 0 from LeaveRequest l where l.employeeId = :employeeId "
             + "and l.status in :statuses and l.startDate <= :end and l.endDate >= :start")
     boolean existsOverlap(
@@ -21,6 +23,10 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long
             @Param("statuses") List<LeaveStatus> statuses,
             @Param("start") LocalDate start,
             @Param("end") LocalDate end);
+
+    @Query("select distinct l.employeeId from LeaveRequest l where l.status = :status "
+            + "and l.startDate <= :day and l.endDate >= :day")
+    List<Long> findEmployeeIdsActiveOn(@Param("status") LeaveStatus status, @Param("day") LocalDate day);
 
     @Query("select count(l) from LeaveRequest l where l.status = :status "
             + "and l.startDate <= :day and l.endDate >= :day")

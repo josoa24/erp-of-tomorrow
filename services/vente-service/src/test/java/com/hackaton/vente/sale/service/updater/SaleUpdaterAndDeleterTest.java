@@ -11,18 +11,16 @@ import com.hackaton.vente.common.exception.ImmutableResourceException;
 import com.hackaton.vente.common.status.DocumentStatus;
 import com.hackaton.vente.customer.repository.CustomerRepository;
 import com.hackaton.vente.sale.SaleFixtures;
-import com.hackaton.vente.sale.dto.SaleLineRequest;
-import com.hackaton.vente.sale.dto.SaleRequest;
+import com.hackaton.vente.sale.SaleTestAssembler;
 import com.hackaton.vente.sale.dto.SaleResponse;
 import com.hackaton.vente.sale.entity.Sale;
-import com.hackaton.vente.sale.mapper.SaleMapper;
 import com.hackaton.vente.sale.repository.SaleRepository;
 import com.hackaton.vente.sale.service.SaleLineFactory;
 import com.hackaton.vente.sale.service.deleter.SaleDeleterService;
+import com.hackaton.vente.sale.service.terms.SaleTermsApplier;
 import com.hackaton.vente.stock.client.StockClient;
 import com.hackaton.vente.stock.client.StockProduct;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,8 +44,8 @@ class SaleUpdaterAndDeleterTest {
 
     @BeforeEach
     void setUp() {
-        updater = new SaleUpdaterService(
-                saleRepository, customerRepository, new SaleLineFactory(stockClient), new SaleMapper());
+        updater = new SaleUpdaterService(saleRepository, customerRepository, new SaleLineFactory(stockClient),
+                new SaleTermsApplier(), SaleTestAssembler.withoutFacts());
         deleter = new SaleDeleterService(saleRepository);
         sale = SaleFixtures.draftSale(1L, SaleFixtures.line(10L, "Riz", 1, "45000"));
     }
@@ -58,7 +56,7 @@ class SaleUpdaterAndDeleterTest {
         when(stockClient.getProduct(20L)).thenReturn(new StockProduct(20L, "Lait", new BigDecimal("3000"), 10));
         when(saleRepository.save(any(Sale.class))).thenAnswer(call -> call.getArgument(0));
 
-        SaleResponse response = updater.update(1L, new SaleRequest(null, List.of(new SaleLineRequest(20L, 2))));
+        SaleResponse response = updater.update(1L, SaleFixtures.request(null, 20L, 2));
 
         assertEquals(1, response.lines().size());
         assertEquals(new BigDecimal("6000"), response.totalAmount());
@@ -70,7 +68,7 @@ class SaleUpdaterAndDeleterTest {
         when(saleRepository.findById(1L)).thenReturn(Optional.of(sale));
 
         assertThrows(ImmutableResourceException.class,
-                () -> updater.update(1L, new SaleRequest(null, List.of(new SaleLineRequest(20L, 1)))));
+                () -> updater.update(1L, SaleFixtures.request(null, 20L, 1)));
         verify(saleRepository, never()).save(any());
     }
 

@@ -2,11 +2,13 @@ package com.hackaton.vente.stock.client;
 
 import com.hackaton.vente.common.exception.BusinessException;
 import com.hackaton.vente.common.exception.ServiceUnavailableException;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -30,6 +32,16 @@ public class StockHttpClient implements StockClient {
                 .uri("/products/{id}", productId)
                 .retrieve()
                 .body(StockProduct.class));
+    }
+
+    @Override
+    public List<StockCatalogProduct> searchProducts(String search) {
+        String term = search == null ? "" : search.trim();
+        return call(() -> restClient.get()
+                .uri("/products?search={search}", term)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<StockCatalogProduct>>() {
+                }));
     }
 
     @Override

@@ -12,9 +12,11 @@ import java.time.Instant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Check;
 
 @Entity
 @Table(name = "products")
+@Check(name = "ck_products_purchase_price_non_negative", constraints = "purchase_price >= 0")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -41,6 +43,12 @@ public class Product {
 
     @Column(nullable = false, precision = 14, scale = 2)
     private BigDecimal unitPrice;
+
+    @Column(length = 80)
+    private String category;
+
+    @Column(precision = 14, scale = 2)
+    private BigDecimal purchasePrice;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;

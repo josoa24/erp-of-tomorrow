@@ -39,6 +39,7 @@ class ChatResponse(BaseModel):
     pending_actions: list[dict[str, Any]] = []
     max_turns_reached: bool = False
     metrics: dict[str, Any] | None = None
+    trust: dict[str, Any] | None = None   # label, verifiedNumbers, unverifiedNumbers, sources
 
 
 def api_error(status: int, type_: str, message: str) -> JSONResponse:

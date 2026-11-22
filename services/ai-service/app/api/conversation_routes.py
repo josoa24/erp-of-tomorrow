@@ -7,6 +7,7 @@ from app.agent.confirmation import ActionGuard
 from app.agent.memory import Conversation
 from app.api.identity import user_from_request
 from app.api.schemas import ACTION_ID, CONV_ID, api_error
+from app.api.turn_support import record_interaction
 from app.erp.context import current_user
 
 router = APIRouter(prefix="/agent/conversations", tags=["conversations"])
@@ -58,6 +59,8 @@ async def confirm(request: Request, conversation_id: str = Path(pattern=CONV_ID)
             request.app.state.conversations.append_exchange(
                 conv, f"[Confirmé via le bouton] {action.summary}",
                 "Écriture effectuée." if ok else f"Écriture refusée par l'ERP : {detail}")
+            record_interaction(request, user, conv.id, "[Bouton Confirmer]", [{"name": action.tool, "status":
+                               "executed" if ok else "failed", "action": action.public()}], None)
     finally:
         current_user.reset(token)
     if not ok:
@@ -78,4 +81,6 @@ async def cancel(request: Request, conversation_id: str = Path(pattern=CONV_ID),
             return api_error(404, "NOT_FOUND", result["error"]["message"])
         request.app.state.conversations.append_exchange(
             conv, f"[Annulé via le bouton] {result['summary']}", "Écriture annulée, rien n'a été enregistré.")
+        record_interaction(request, user_from_request(request), conv.id, "[Bouton Annuler]",
+                           [{"name": result["tool"], "status": "cancelled", "action": result}], None)
     return result

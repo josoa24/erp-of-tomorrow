@@ -7,6 +7,15 @@ spring:
     name: gateway
   cloud:
     gateway:
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: ${CORS_ALLOWED_ORIGINS:http://localhost:*,http://127.0.0.1:*}
+            allowedMethods: GET,POST,PUT,DELETE,OPTIONS
+            allowedHeaders: "*"
+            exposedHeaders: X-Total-Count
+            maxAge: 3600
       routes:
         - id: auth-service
           uri: ${AUTH_URL:http://localhost:8084}
@@ -44,6 +53,18 @@ spring:
             - Path=/api/ai/**
           filters:
             - StripPrefix=2
+        - id: voice-service
+          uri: ${VOICE_URL:http://localhost:8087}
+          predicates:
+            - Path=/api/voice/**
+          filters:
+            - StripPrefix=2
+        - id: module-service
+          uri: ${MODULE_URL:http://localhost:8088}
+          predicates:
+            - Path=/api/modules/**
+          filters:
+            - StripPrefix=2
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -61,3 +82,5 @@ springdoc:
         url: /api/crm/v3/api-docs
       - name: AI
         url: /api/ai/v3/api-docs
+      - name: Modules
+        url: /api/modules/v3/api-docs

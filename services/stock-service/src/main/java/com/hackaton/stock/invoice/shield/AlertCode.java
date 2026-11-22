@@ -1,0 +1,14 @@
+package com.hackaton.stock.invoice.shield;
+
+public enum AlertCode {
+    UNKNOWN_SUPPLIER,
+    DUPLICATE_INVOICE,
+    BANK_ACCOUNT_MISMATCH,
+    BANK_ACCOUNT_UNVERIFIED,
+    TOTALS_MISMATCH,
+    INVALID_DATE,
+    PROMPT_INJECTION,
+    PURCHASE_ORDER_MISMATCH,
+    OVER_INVOICED,
+    AMOUNT_ANOMALY
+}

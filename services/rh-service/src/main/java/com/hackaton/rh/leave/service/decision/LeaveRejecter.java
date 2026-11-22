@@ -4,5 +4,5 @@ import com.hackaton.rh.leave.dto.LeaveResponse;
 
 public interface LeaveRejecter {
 
-    LeaveResponse reject(Long id);
+    LeaveResponse reject(Long id, Long actorId);
 }

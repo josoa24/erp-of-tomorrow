@@ -2,7 +2,7 @@
 
 Ce plan complète [PLAN_API.md](PLAN_API.md). Le plan de tout ce qui manque à l'ERP (finance, achats, stock avancé, RH avancé, IA, applications) est dans [PLAN_ERP.md](PLAN_ERP.md).
 
-Statut : À faire (rien n'est commencé dans ce document). Taille : S (moins d'une demi-journée), M (une journée), L (plusieurs jours).
+Statut : Fait ou À faire (précisé sur chaque tâche). Phases 0 à 2 faites ; phases 3 à 8 à faire. Taille : S (moins d'une demi-journée), M (une journée), L (plusieurs jours).
 
 Chaque tâche suit [REGLES_DEVELOPPEMENT.md](REGLES_DEVELOPPEMENT.md) : Reader / Creator / Updater / Deleter, 100 lignes maximum par fichier, DTO, erreurs typées, tests unitaires, données validées immuables.
 
@@ -23,7 +23,7 @@ Manque : fiche complète, historique des échanges, relances, pipeline commercia
 
 | # | Décision | Pourquoi |
 |---|----------|----------|
-| D1 | Nouveau service `crm-service` (port 8085, base 5435) pour les interactions, tâches, opportunités et segments | Chaque module garde son rôle ; le CRM ne grossit pas Vente ni Stock |
+| D1 | Nouveau service `crm-service` (port 8085, schéma `crm`) pour les interactions, tâches, opportunités et segments | Chaque module garde son rôle ; le CRM ne grossit pas Vente ni Stock |
 | D2 | Les clients restent dans `vente-service`, les fournisseurs dans `stock-service` (pas de migration) | Aucune donnée à déplacer, mise en place progressive |
 | D3 | `crm-service` référence un tiers par `partyType` (`CUSTOMER` ou `SUPPLIER`) et `partyId`, et appelle les autres services par client HTTP | Même méthode que `StockClient` dans Vente |
 | D4 | Les échanges enregistrés (interactions) sont créés une fois et jamais modifiés ; une correction est une nouvelle note | Règle des données immuables |
@@ -34,7 +34,7 @@ Manque : fiche complète, historique des échanges, relances, pipeline commercia
 1. Qui utilise le CRM : un nouveau rôle `CRM`, ou le rôle `VENTE` (et `STOCK` pour les fournisseurs) ?
 2. Les factures et paiements (créances) sont-ils dans le périmètre ? Voir la phase 6 et [PLAN_ERP.md](PLAN_ERP.md).
 3. Envoi réel d'emails ou de SMS, ou seulement un journal des échanges ?
-4. Une application `crm-app` séparée, ou des écrans dans `vente-app` et `stock-app` ?
+4. Les écrans du CRM : un dossier `novaui/src/features/crm/` dans l'application web unique (décidé : plus d'application par module).
 
 ---
 
@@ -42,7 +42,7 @@ Manque : fiche complète, historique des échanges, relances, pipeline commercia
 
 | # | Tâche | Détail | Taille | Dépend de | Statut |
 |---|-------|--------|--------|-----------|--------|
-| CRM-1 | Squelette `crm-service` | pom, classe principale, `application.yml`, profil `h2`, port 8085, base 5435 dans `docker-compose.yml`, erreurs typées | M | | Fait |
+| CRM-1 | Squelette `crm-service` | pom, classe principale, `application.yml`, profil `h2`, port 8085, schéma `crm` dans `docker-compose.yml`, erreurs typées | M | | Fait |
 | CRM-2 | Rôle `CRM` dans `auth-service` | Nouvelle valeur de l'énumération `Role` | S | Q1 | Fait |
 | CRM-3 | Route gateway `/api/crm/**` | Route et règle d'accès par rôle, tests de `RoleAccessPolicy` | S | CRM-2 | Fait |
 | CRM-4 | Clients HTTP vers Vente et Stock | `CustomerClient` et `SupplierClient`, 404 en erreur métier, 503 si indisponible | M | CRM-1 | Fait |
@@ -121,7 +121,7 @@ Dépend de la facturation décrite dans [PLAN_ERP.md](PLAN_ERP.md) (tâches FIN)
 | CRM-40 | Saisie rapide d'une interaction | `POST /interactions/quick` avec un texte libre : le service extrait client, type et résumé, puis demande confirmation avant d'enregistrer | M | CRM-12, AI-2 | À faire |
 | CRM-41 | Questions fréquentes pour l'assistant | Réponses prêtes : meilleurs clients, clients à relancer, pipeline du mois | M | CRM-33, AI-3 | À faire |
 
-## Phase 8. Écrans (React Native)
+## Phase 8. Écrans (NovaUI, `features/crm`)
 
 | # | Tâche | Détail | Taille | Dépend de | Statut |
 |---|-------|--------|--------|-----------|--------|

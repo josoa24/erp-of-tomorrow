@@ -1,0 +1,66 @@
+@theme {
+  --color-nova-text: #f4f5ff;
+  --color-nova-soft: #a5a3ff;
+  --color-nova-accent: #7b5cff;
+  --color-nova-line: rgba(126, 136, 255, 0.38);
+  --color-nova-success: #5eead4;
+  --color-nova-success-bg: rgba(20, 150, 120, 0.32);
+  --color-nova-danger: #f8566d;
+  --color-nova-danger-bg: rgba(248, 86, 109, 0.2);
+  --color-nova-warning-bg: rgba(251, 191, 36, 0.18);
+  --color-nova-panel: rgba(18, 20, 62, 0.65);
+
+  --radius-card: 18px;
+
+  --shadow-glass:
+    inset -1px -1px 0 rgba(176, 120, 255, 0.55), inset 0 0 40px rgba(90, 100, 255, 0.08),
+    0 18px 50px rgba(20, 10, 80, 0.35);
+  --shadow-glass-accent: inset 0 0 50px rgba(150, 110, 255, 0.18), 0 18px 50px rgba(40, 10, 120, 0.4);
+  --shadow-glass-outline: 0 0 60px rgba(70, 60, 220, 0.2);
+  --shadow-orb:
+    0 0 16px rgba(140, 170, 255, 0.95), 0 0 70px rgba(110, 90, 255, 0.55),
+    inset 0 0 50px rgba(110, 150, 255, 0.6), inset 0 -24px 60px rgba(170, 100, 255, 0.35);
+  --shadow-eclipse:
+    10px -10px 14px -6px rgba(255, 236, 255, 0.95), 22px -22px 40px -12px rgba(214, 150, 255, 0.9),
+    40px -40px 110px -20px rgba(140, 80, 255, 0.75);
+  --shadow-bubble: 0 0 26px rgba(120, 120, 255, 0.6), inset 0 2px 0 rgba(255, 255, 255, 0.35);
+
+  --animate-twinkle: twinkle 4s ease-in-out infinite;
+
+  @keyframes twinkle {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.45;
+    }
+  }
+}
+
+@utility bg-glass {
+  background: linear-gradient(135deg, rgba(44, 48, 118, 0.55) 0%, rgba(18, 20, 64, 0.6) 100%);
+}
+
+@utility bg-glass-accent {
+  background: linear-gradient(135deg, rgba(104, 70, 220, 0.5) 0%, rgba(54, 38, 150, 0.45) 100%);
+}
+
+@utility bg-space-dashboard {
+  background:
+    radial-gradient(ellipse 50% 45% at 50% 50%, #151a5c 0%, transparent 70%),
+    linear-gradient(180deg, #0a0c2f 0%, #060722 100%);
+}
+
+@utility bg-orb {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(34, 46, 140, 0.92) 0%,
+    rgba(16, 20, 78, 0.94) 58%,
+    rgba(70, 90, 230, 0.7) 100%
+  );
+}
+
+@utility bg-bubble {
+  background: linear-gradient(150deg, #a9adff 0%, #5c5fd8 100%);
+}

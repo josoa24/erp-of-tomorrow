@@ -10,12 +10,12 @@ Chaque tâche suit [REGLES_DEVELOPPEMENT.md](REGLES_DEVELOPPEMENT.md) : séparat
 
 | # | Tâche | Détail | Statut |
 |---|-------|--------|--------|
-| C1 | Champ `type` dans `ApiError` | `NOT_FOUND`, `VALIDATION`, `IMMUTABLE`, `BUSINESS`, `UNAUTHORIZED`, `FORBIDDEN`, `SERVER` : permet au front d'ouvrir la bonne page d'erreur. Fait pour auth-service, stock-service et la gateway ; reste vente-service et rh-service. | À faire |
-| C2 | `ImmutableResourceException` (409) | Levée quand on modifie ou supprime une entité `VALIDATED`. | À faire |
-| C3 | Enum `DocumentStatus` (`DRAFT`, `VALIDATED`) | Réutilisé par les ventes, les bons de commande et les congés. | À faire |
-| C4 | CORS sur la gateway | Autorise les apps React Native. | À faire |
+| C1 | Champ `type` dans `ApiError` | `NOT_FOUND`, `VALIDATION`, `IMMUTABLE`, `BUSINESS`, `UNAUTHORIZED`, `FORBIDDEN`, `SERVER` : permet au front d'ouvrir la bonne page d'erreur. Fait dans la gateway et dans les 5 services Java (auth, stock, vente, rh, crm). | Fait |
+| C2 | `ImmutableResourceException` (409) | Levée quand on modifie ou supprime une entité `VALIDATED`. Présente dans stock-service, vente-service et rh-service. | Fait |
+| C3 | Enum `DocumentStatus` (`DRAFT`, `VALIDATED`) | Réutilisé par les ventes, les bons de commande et les congés. `DocumentStatus` dans vente-service ; équivalents propres à chaque service : `OrderStatus` (stock, avec `RECEIVED`) et `LeaveStatus` (rh, avec `REJECTED`). | Fait |
+| C4 | CORS sur la gateway | Autorise l'application web (NovaUI). Origines réglables par `CORS_ALLOWED_ORIGINS` ; les réponses 401/403 gardent l'en-tête CORS. | Fait |
 | C5 | Client HTTP inter-services | `RestClient` + interface par service appelé (ex. `StockClient` dans vente-service). | Fait |
-| C6 | Tests d'intégration légers | `@WebMvcTest` par controller (statuts HTTP, validation). | À faire |
+| C6 | Tests d'intégration légers | `@WebMvcTest` par controller (statuts HTTP, validation), dans les 5 services. | Fait |
 
 Les tâches C1 à C3 sont copiées dans chaque service (pas de bibliothèque partagée : chaque microservice reste indépendant).
 
@@ -23,7 +23,7 @@ Les tâches C1 à C3 sont copiées dans chaque service (pas de bibliothèque par
 
 ## 0 bis. Module Auth — `services/auth-service` (port 8084)
 
-Gère les **comptes de connexion** (différents des fiches employés du module RH). Rôles : `ADMIN`, `STOCK`, `VENTE`, `RH`.
+Gère les **comptes de connexion** (différents des fiches employés du module RH). Rôles : `ADMIN`, `STOCK`, `VENTE`, `RH`, `CRM`.
 
 | # | Tâche | Endpoint | Détail | Statut |
 |---|-------|----------|--------|--------|
@@ -32,11 +32,11 @@ Gère les **comptes de connexion** (différents des fiches employés du module R
 | A3 | Connexion et JWT | `POST /login` | Renvoie un token signé avec l'email, l'id et le rôle. | Fait |
 | A4 | Compte admin initial | — | Créé au premier démarrage si la base est vide. | Fait |
 | A5 | Contrôle des rôles dans la gateway | — | 401 sans token, 403 si le rôle n'a pas accès au module (RH ne peut pas aller sur Vente ni Stock). | Fait |
-| A6 | Modification d'un compte | `PUT /users/{id}` | Changer le rôle, désactiver un compte. | À faire |
-| A7 | Changement de mot de passe | `POST /users/me/password` | L'utilisateur change son propre mot de passe. | À faire |
-| A8 | Désactivation d'un compte | `POST /users/{id}/disable` | Un compte désactivé ne peut plus se connecter. | À faire |
-| A9 | Lier un compte à un employé | — | `userId` optionnel sur la fiche employé du module RH. | À faire (dépend de R2) |
-| A10 | Services accessibles uniquement via la gateway | — | Chaque service refuse les appels sans les en-têtes `X-User-*` de la gateway. | À faire |
+| A6 | Modification d'un compte | `PUT /users/{id}` | Changer le rôle. Refusé sur son propre compte. | Fait |
+| A7 | Changement de mot de passe | `POST /users/me/password` | L'utilisateur change son propre mot de passe (mot de passe actuel exigé). Ouvert à tous les rôles par la gateway. | Fait |
+| A8 | Désactivation d'un compte | `POST /users/{id}/disable`, `/enable` | Un compte désactivé ne peut plus se connecter. Refusé sur son propre compte. | Fait |
+| A9 | Lier un compte à un employé | — | `userId` optionnel sur la fiche employé du module RH ; un compte ne peut être lié qu'à un seul employé (409). | Fait |
+| A10 | Services accessibles uniquement via la gateway | — | Chaque service refuse les appels sans les en-têtes `X-User-*` de la gateway (401). Les appels entre services recopient ces en-têtes. Les en-têtes peuvent être imités par qui atteint le port d'un service : en production, ne pas exposer ces ports. | Fait |
 | A11 | Page de connexion et pages d'erreur 401/403 dans les 3 apps | — | Les erreurs `UNAUTHORIZED` et `FORBIDDEN` ouvrent la page d'erreur dédiée. | À faire |
 
 La gateway transmet l'identité aux services (`X-User-Id`, `X-User-Email`, `X-User-Role`) : elle sert au journal d'audit (qui a validé quoi).
@@ -95,7 +95,7 @@ La gateway transmet l'identité aux services (`X-User-Id`, `X-User-Email`, `X-Us
 
 ## 4. Ordre de réalisation conseillé
 
-1. **Socle commun** C1 à C3 dans les trois services (une journée de travail en parallèle).
+1. **Socle commun** C1 à C3 dans les trois services (une journée de travail en parallèle). Fait.
 2. **En parallèle, une personne par module** :
    - Stock : S3 → S7 → S8 → S9 → S10 → S4 → S5 → S6 → S11
    - Vente : V1 → V2 → V3 → V4 → V5 → V6 → V7 → V8 → V9
@@ -107,10 +107,12 @@ La gateway transmet l'identité aux services (`X-User-Id`, `X-User-Email`, `X-Us
 
 ```
 vente-service  ──(sortie de stock à la validation)──►  stock-service
+crm-service    ──(vérification des tiers, chronologie)──►  vente-service, stock-service
+ai-service     ──(via la gateway, token de l'utilisateur)──►  tous les modules
 rh-service     (indépendant)
 ```
 
-Seul le module Vente appelle un autre service. Le Stock et les RH restent autonomes, donc leurs équipes ne se bloquent pas entre elles.
+Le Stock et les RH n'appellent aucun autre service : leurs équipes ne se bloquent pas entre elles.
 
 ## 6. Définition de « terminé » pour une tâche
 

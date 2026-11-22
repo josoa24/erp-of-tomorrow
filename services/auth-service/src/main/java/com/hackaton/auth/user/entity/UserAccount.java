@@ -28,12 +28,18 @@ public class UserAccount {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(length = 120)
+    private String fullName;
+
     @Column(nullable = false)
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean enabled = true;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;

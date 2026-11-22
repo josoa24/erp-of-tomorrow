@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +28,7 @@ public class UserCreatorService implements UserCreator {
         }
         UserAccount user = new UserAccount();
         user.setEmail(request.email());
+        user.setFullName(StringUtils.hasText(request.fullName()) ? request.fullName().strip() : null);
         user.setPasswordHash(passwordEncoder.encode(request.password()));
         user.setRole(request.role());
         return userMapper.toResponse(userRepository.save(user));

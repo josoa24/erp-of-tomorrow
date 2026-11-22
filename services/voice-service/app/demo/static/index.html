@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Transcription en direct</title>
+    <link rel="stylesheet" href="/demo/static/demo.css" />
+    <link rel="stylesheet" href="/demo/static/panels.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Transcription en direct</h1>
+      <p class="hint">Cliquez sur « Parler », puis dites par exemple « Bonjour, quel est notre chiffre d'affaires ? ».</p>
+      <div class="controls">
+        <button id="toggle" type="button">Parler</button>
+        <select id="language" aria-label="Langue">
+          <option value="fr" selected>Français</option>
+          <option value="mg">Malgache</option>
+          <option value="en">Anglais</option>
+        </select>
+        <span id="status">Prêt</span>
+      </div>
+      <label class="device">
+        Micro
+        <select id="device" aria-label="Micro"></select>
+      </label>
+      <section class="meter" aria-label="Niveau du micro">
+        <span id="meter-label" class="meter-label">Micro coupé</span>
+        <canvas id="meter" width="720" height="80"></canvas>
+      </section>
+      <p id="live" class="live" aria-live="polite"></p>
+      <h2>Phrases reconnues</h2>
+      <ol id="history" class="history"></ol>
+      <h2>Journal de debug</h2>
+      <pre id="debug" class="debug"></pre>
+    </main>
+    <script src="/demo/static/debug-log.js"></script>
+    <script src="/demo/static/microphone.js"></script>
+    <script src="/demo/static/device-picker.js"></script>
+    <script src="/demo/static/mic-meter.js"></script>
+    <script src="/demo/static/demo.js"></script>
+  </body>
+</html>

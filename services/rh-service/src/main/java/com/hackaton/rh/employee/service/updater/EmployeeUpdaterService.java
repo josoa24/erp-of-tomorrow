@@ -8,6 +8,8 @@ import com.hackaton.rh.employee.dto.EmployeeResponse;
 import com.hackaton.rh.employee.entity.Employee;
 import com.hackaton.rh.employee.mapper.EmployeeMapper;
 import com.hackaton.rh.employee.repository.EmployeeRepository;
+import com.hackaton.rh.employee.service.day.EmployeeDayContextLoader;
+import com.hackaton.rh.employee.service.link.EmployeeAccountLinkChecker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,8 @@ public class EmployeeUpdaterService implements EmployeeUpdater {
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
     private final EmployeeMapper employeeMapper;
+    private final EmployeeAccountLinkChecker accountLinkChecker;
+    private final EmployeeDayContextLoader dayContextLoader;
 
     @Override
     @Transactional
@@ -32,7 +36,8 @@ public class EmployeeUpdaterService implements EmployeeUpdater {
         if (employeeRepository.existsByEmailAndIdNot(email, id)) {
             throw new DuplicateResourceException("Un employé avec l'email " + email + " existe déjà");
         }
+        accountLinkChecker.checkAvailable(request.userId(), id);
         employeeMapper.apply(employee, request);
-        return employeeMapper.toResponse(employeeRepository.save(employee));
+        return employeeMapper.toResponse(employeeRepository.save(employee), dayContextLoader.load());
     }
 }
