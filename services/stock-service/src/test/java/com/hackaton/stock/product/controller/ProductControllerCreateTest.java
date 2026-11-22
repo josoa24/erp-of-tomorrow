@@ -49,7 +49,7 @@ class ProductControllerCreateTest {
     @Test
     void shouldReturn201_whenProductIsCreated() throws Exception {
         when(productCreator.create(any(ProductCreateRequest.class))).thenReturn(new ProductResponse(
-                1L, "Riz", "RIZ-01", "kg", 10, 5, new BigDecimal("2.5"), false, Instant.now()));
+                1L, "Riz", "RIZ-01", "kg", 10, 5, new BigDecimal("2.5"), false, Instant.now(), null, null));
 
         mockMvc.perform(createRequest(VALID_BODY))
                 .andExpect(status().isCreated())

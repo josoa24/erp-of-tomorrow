@@ -26,12 +26,18 @@ class StockSummaryControllerTest {
 
     @Test
     void shouldReturnSummary() throws Exception {
-        when(summaryReader.summarize()).thenReturn(new StockSummaryResponse(12, 3, new BigDecimal("1500.50")));
+        when(summaryReader.summarize()).thenReturn(new StockSummaryResponse(12, 3, new BigDecimal("1500.50"),
+                new BigDecimal("0.7500"), 1, new BigDecimal("1200.00"), 2, 4));
 
         mockMvc.perform(get("/summary").headers(admin()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalProducts").value(12))
                 .andExpect(jsonPath("$.lowStockProducts").value(3))
-                .andExpect(jsonPath("$.totalStockValue").value(1500.50));
+                .andExpect(jsonPath("$.totalStockValue").value(1500.50))
+                .andExpect(jsonPath("$.availabilityRate").value(0.75))
+                .andExpect(jsonPath("$.criticalLowStock").value(1))
+                .andExpect(jsonPath("$.totalPurchaseValue").value(1200.00))
+                .andExpect(jsonPath("$.productsWithoutPurchasePrice").value(2))
+                .andExpect(jsonPath("$.expiringSoon").value(4));
     }
 }

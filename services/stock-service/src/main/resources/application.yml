@@ -33,3 +33,7 @@ management:
 replenishment:
   default-lead-days: 7
   coverage-days: 30
+app:
+  zone: ${APP_ZONE:Indian/Antananarivo}
+stock:
+  expiry-alert-days: 30

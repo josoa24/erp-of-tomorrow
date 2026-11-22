@@ -26,7 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 class ProductControllerReadTest {
 
     private static final ProductResponse RICE = new ProductResponse(
-            1L, "Riz", "RIZ-01", "kg", 3, 5, BigDecimal.TEN, true, Instant.now());
+            1L, "Riz", "RIZ-01", "kg", 3, 5, BigDecimal.TEN, true, Instant.now(), null, null);
 
     @Autowired
     private MockMvc mockMvc;
