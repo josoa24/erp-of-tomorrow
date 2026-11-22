@@ -13,7 +13,7 @@ export const useUsersSearch = () => {
 
   const update = useCallback(
     (patch: UsersSearch) => {
-      void navigate({ to: '.', replace: true, search: (previous) => ({ ...previous, ...patch }) })
+      return navigate({ to: '.', replace: true, search: (previous) => ({ ...previous, ...patch }) })
     },
     [navigate],
   )
@@ -22,8 +22,7 @@ export const useUsersSearch = () => {
     search,
     resetKey,
     reset: useCallback(() => {
-      setResetKey((key) => key + 1)
-      update({ filtre: undefined, role: undefined, recherche: undefined, page: undefined })
+      void update({ filtre: undefined, role: undefined, recherche: undefined, page: undefined }).then(() => setResetKey((key) => key + 1))
     }, [update]),
     setFilter: useCallback(
       (filter: UsersFilterKey) => update({ filtre: filter === DEFAULT_USERS_FILTER ? undefined : filter, page: undefined }),
