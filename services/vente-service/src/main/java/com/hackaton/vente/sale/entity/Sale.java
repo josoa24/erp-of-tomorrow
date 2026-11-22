@@ -21,6 +21,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "sales")
@@ -50,6 +51,16 @@ public class Sale {
     private Instant createdAt;
 
     private Instant validatedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private PaymentMethod paymentMethod;
+
+    private Integer creditDays;
+
+    @ColumnDefault("false")
+    @Column(nullable = false)
+    private boolean toDeliver;
 
     @PrePersist
     void onCreate() {

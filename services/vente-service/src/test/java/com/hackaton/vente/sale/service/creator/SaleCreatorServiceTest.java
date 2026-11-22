@@ -2,6 +2,7 @@ package com.hackaton.vente.sale.service.creator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -11,13 +12,16 @@ import com.hackaton.vente.common.exception.BusinessException;
 import com.hackaton.vente.common.exception.ResourceNotFoundException;
 import com.hackaton.vente.common.status.DocumentStatus;
 import com.hackaton.vente.customer.repository.CustomerRepository;
+import com.hackaton.vente.sale.SaleFixtures;
+import com.hackaton.vente.sale.SaleTestAssembler;
 import com.hackaton.vente.sale.dto.SaleLineRequest;
 import com.hackaton.vente.sale.dto.SaleRequest;
 import com.hackaton.vente.sale.dto.SaleResponse;
+import com.hackaton.vente.sale.entity.PaymentMethod;
 import com.hackaton.vente.sale.entity.Sale;
-import com.hackaton.vente.sale.mapper.SaleMapper;
 import com.hackaton.vente.sale.repository.SaleRepository;
 import com.hackaton.vente.sale.service.SaleLineFactory;
+import com.hackaton.vente.sale.service.terms.SaleTermsApplier;
 import com.hackaton.vente.stock.client.StockClient;
 import com.hackaton.vente.stock.client.StockProduct;
 import java.math.BigDecimal;
@@ -42,20 +46,36 @@ class SaleCreatorServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new SaleCreatorService(
-                saleRepository, customerRepository, new SaleLineFactory(stockClient), new SaleMapper());
+        service = new SaleCreatorService(saleRepository, customerRepository, new SaleLineFactory(stockClient),
+                new SaleTermsApplier(), SaleTestAssembler.withoutFacts());
     }
 
     @Test
     void shouldCopyNameAndPriceFromStockAndComputeTotal() {
         when(stockClient.getProduct(10L)).thenReturn(new StockProduct(10L, "Riz blanc", new BigDecimal("45000"), 59));
-        when(saleRepository.save(any(Sale.class))).thenAnswer(call -> call.getArgument(0));
+        when(saleRepository.save(any(Sale.class))).thenAnswer(call -> SaleFixtures.withId(call.getArgument(0), 41L));
 
-        SaleResponse response = service.create(new SaleRequest(null, List.of(new SaleLineRequest(10L, 2))));
+        SaleResponse response = service.create(SaleFixtures.request(null, 10L, 2));
 
+        assertEquals("V-0041", response.number());
         assertEquals(DocumentStatus.DRAFT, response.status());
         assertEquals("Riz blanc", response.lines().get(0).productName());
         assertEquals(new BigDecimal("90000"), response.totalAmount());
+        assertEquals("Client comptoir", response.customerName());
+    }
+
+    @Test
+    void shouldStoreCreditTerms_whenSaleIsOnCredit() {
+        when(customerRepository.existsById(7L)).thenReturn(true);
+        when(stockClient.getProduct(10L)).thenReturn(new StockProduct(10L, "Riz blanc", new BigDecimal("45000"), 59));
+        when(saleRepository.save(any(Sale.class))).thenAnswer(call -> SaleFixtures.withId(call.getArgument(0), 42L));
+
+        SaleResponse response = service.create(new SaleRequest(
+                7L, List.of(new SaleLineRequest(10L, 1)), PaymentMethod.CREDIT, 30, true));
+
+        assertEquals(PaymentMethod.CREDIT, response.paymentMethod());
+        assertEquals(30, response.creditDays());
+        assertTrue(response.toDeliver());
     }
 
     @Test
@@ -63,7 +83,7 @@ class SaleCreatorServiceTest {
         when(customerRepository.existsById(5L)).thenReturn(false);
 
         assertThrows(ResourceNotFoundException.class,
-                () -> service.create(new SaleRequest(5L, List.of(new SaleLineRequest(10L, 1)))));
+                () -> service.create(SaleFixtures.request(5L, 10L, 1)));
         verify(saleRepository, never()).save(any());
     }
 
@@ -72,7 +92,7 @@ class SaleCreatorServiceTest {
         when(stockClient.getProduct(99L)).thenThrow(new BusinessException("Produit introuvable avec l'id 99"));
 
         assertThrows(BusinessException.class,
-                () -> service.create(new SaleRequest(null, List.of(new SaleLineRequest(99L, 1)))));
+                () -> service.create(SaleFixtures.request(null, 99L, 1)));
         verify(saleRepository, never()).save(any());
     }
 }
