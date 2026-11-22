@@ -1,5 +1,6 @@
 package com.hackaton.auth.user.service.reader;
 
+import com.hackaton.auth.common.exception.ResourceNotFoundException;
 import com.hackaton.auth.user.dto.UserResponse;
 import com.hackaton.auth.user.mapper.UserMapper;
 import com.hackaton.auth.user.repository.UserAccountRepository;
@@ -19,5 +20,12 @@ public class UserReaderService implements UserReader {
     @Override
     public List<UserResponse> findAll() {
         return userRepository.findAll().stream().map(userMapper::toResponse).toList();
+    }
+
+    @Override
+    public UserResponse findById(Long id) {
+        return userRepository.findById(id)
+                .map(userMapper::toResponse)
+                .orElseThrow(() -> new ResourceNotFoundException("Compte", id));
     }
 }
